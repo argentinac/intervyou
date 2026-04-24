@@ -23,7 +23,7 @@ app.post('/api/chat', chatRoute)
 app.post('/api/speak', speakRoute)
 
 // Serve frontend in production
-const clientDist = resolve(__dirname, '../client/dist')
+const clientDist = resolve(process.cwd(), 'client/dist')
 app.use(express.static(clientDist))
 app.get('*', (_, res) => res.sendFile(resolve(clientDist, 'index.html')))
 
