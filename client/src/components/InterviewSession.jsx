@@ -32,8 +32,8 @@ const UI_STRINGS = {
     recording:       'Recording… will send on silence',
     processing:      'Processing your answer…',
     noSpeech:        "Didn't catch that. Try again.",
-    holdHint:        'Click to speak',
-    releaseHint:     'Click to stop',
+    holdHint:        'Click to mute',
+    releaseHint:     'Click to unmute',
     endInterview:    'End interview',
     youLabel:        'You',
     waitingAnswer:   'Waiting for your answer…',
@@ -53,8 +53,8 @@ const UI_STRINGS = {
     recording:       'Grabando… para solo cuando terminás',
     processing:      'Procesando tu respuesta…',
     noSpeech:        'No te escuché. Intentá de nuevo.',
-    holdHint:        'Click para hablar',
-    releaseHint:     'Click para parar',
+    holdHint:        'Click para silenciar',
+    releaseHint:     'Click para activar',
     endInterview:    'Terminar entrevista',
     youLabel:        'Vos',
     waitingAnswer:   'Esperando tu respuesta…',
@@ -330,7 +330,9 @@ export default function InterviewSession({ config, onEnd }) {
     interruptActiveRef.current = false
   }, [])
 
-  // ── Play audio + clear error on success ───────────────────
+  const startRecordingRef = useRef(null)
+
+  // ── Play audio + auto-start mic when done ─────────────────
   const playAudio = useCallback(async (text) => {
     setIsSpeaking(true)
     setStatusText(str.speaking[interviewerGender.current])
@@ -338,6 +340,7 @@ export default function InterviewSession({ config, onEnd }) {
     setIsSpeaking(false)
     setStatusText(str.yourTurn)
     setError(null)
+    startRecordingRef.current?.()
   }, [config.language, config.country, str.speaking, str.yourTurn])
 
   // ── Ask Claude (main conversation) ────────────────────────
@@ -520,6 +523,9 @@ export default function InterviewSession({ config, onEnd }) {
     }
   }, [locale, canInterrupt, config.language, askClaude, playAudio, processTurn, clearInterruptTimer])
 
+  // Keep startRecordingRef in sync so playAudio can call it
+  useEffect(() => { startRecordingRef.current = startRecording }, [startRecording])
+
   // ── Mic: stop ─────────────────────────────────────────────
   const stopRecording = useCallback(() => {
     clearInterruptTimer()
@@ -648,7 +654,7 @@ export default function InterviewSession({ config, onEnd }) {
             {cameraOn ? <IconCamOn /> : <IconCamOff />}
           </button>
         </div>
-        <p className="mic-hint">{isRecording ? str.releaseHint : str.holdHint}</p>
+        <p className="mic-hint">{isRecording ? str.releaseHint : busy ? '' : str.holdHint}</p>
       </footer>
     </div>
   )
