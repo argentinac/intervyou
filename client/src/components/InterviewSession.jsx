@@ -28,12 +28,12 @@ const UI_STRINGS = {
     connecting:      'Connecting…',
     thinking:        { male: 'Interviewer is thinking…',   female: 'Interviewer is thinking…' },
     speaking:        { male: 'Interviewer is speaking…',   female: 'Interviewer is speaking…' },
-    yourTurn:        'Your turn — hold the mic to speak',
-    recording:       'Recording… release to send',
+    yourTurn:        'Your turn — click the mic to speak',
+    recording:       'Recording… will send on silence',
     processing:      'Processing your answer…',
-    noSpeech:        "Didn't catch that. Hold the button and try again.",
-    holdHint:        'Hold to speak',
-    releaseHint:     'Release to send',
+    noSpeech:        "Didn't catch that. Try again.",
+    holdHint:        'Click to speak',
+    releaseHint:     'Click to stop',
     endInterview:    'End interview',
     youLabel:        'You',
     waitingAnswer:   'Waiting for your answer…',
@@ -49,12 +49,12 @@ const UI_STRINGS = {
     connecting:      'Conectando…',
     thinking:        { male: 'El entrevistador está pensando…',   female: 'La entrevistadora está pensando…' },
     speaking:        { male: 'El entrevistador está hablando…',   female: 'La entrevistadora está hablando…' },
-    yourTurn:        'Tu turno — mantené el botón para hablar',
-    recording:       'Grabando… soltá para enviar',
+    yourTurn:        'Tu turno — hacé click para hablar',
+    recording:       'Grabando… para solo cuando terminás',
     processing:      'Procesando tu respuesta…',
-    noSpeech:        'No te escuché. Mantené el botón y hablá de nuevo.',
-    holdHint:        'Mantené para hablar',
-    releaseHint:     'Soltá para enviar',
+    noSpeech:        'No te escuché. Intentá de nuevo.',
+    holdHint:        'Click para hablar',
+    releaseHint:     'Click para parar',
     endInterview:    'Terminar entrevista',
     youLabel:        'Vos',
     waitingAnswer:   'Esperando tu respuesta…',
@@ -70,12 +70,12 @@ const UI_STRINGS = {
     connecting:      'Conectando…',
     thinking:        { male: 'O entrevistador está pensando…',   female: 'A entrevistadora está pensando…' },
     speaking:        { male: 'O entrevistador está falando…',    female: 'A entrevistadora está falando…' },
-    yourTurn:        'Sua vez — segure o botão para falar',
-    recording:       'Gravando… solte para enviar',
+    yourTurn:        'Sua vez — clique para falar',
+    recording:       'Gravando… para no silêncio',
     processing:      'Processando sua resposta…',
-    noSpeech:        'Não te ouvi. Segure o botão e fale novamente.',
-    holdHint:        'Segure para falar',
-    releaseHint:     'Solte para enviar',
+    noSpeech:        'Não te ouvi. Tente novamente.',
+    holdHint:        'Clique para falar',
+    releaseHint:     'Clique para parar',
     endInterview:    'Encerrar entrevista',
     youLabel:        'Você',
     waitingAnswer:   'Aguardando sua resposta…',
@@ -91,12 +91,12 @@ const UI_STRINGS = {
     connecting:      'Connexion…',
     thinking:        { male: "L'intervieweur réfléchit…",   female: "L'intervieweuse réfléchit…" },
     speaking:        { male: "L'intervieweur parle…",       female: "L'intervieweuse parle…" },
-    yourTurn:        'À vous — maintenez le bouton pour parler',
-    recording:       'Enregistrement… relâchez pour envoyer',
+    yourTurn:        'À vous — cliquez pour parler',
+    recording:       'Enregistrement… s\'arrête au silence',
     processing:      'Traitement de votre réponse…',
-    noSpeech:        "Je ne vous ai pas entendu. Maintenez et réessayez.",
-    holdHint:        'Maintenir pour parler',
-    releaseHint:     'Relâcher pour envoyer',
+    noSpeech:        "Je ne vous ai pas entendu. Réessayez.",
+    holdHint:        'Cliquer pour parler',
+    releaseHint:     'Cliquer pour arrêter',
     endInterview:    "Terminer l'entretien",
     youLabel:        'Vous',
     waitingAnswer:   'En attente de votre réponse…',
@@ -112,12 +112,12 @@ const UI_STRINGS = {
     connecting:      'Verbinden…',
     thinking:        { male: 'Der Interviewer denkt nach…',   female: 'Die Interviewerin denkt nach…' },
     speaking:        { male: 'Der Interviewer spricht…',      female: 'Die Interviewerin spricht…' },
-    yourTurn:        'Sie sind dran — Taste gedrückt halten',
-    recording:       'Aufnahme… loslassen zum Senden',
+    yourTurn:        'Sie sind dran — klicken zum Sprechen',
+    recording:       'Aufnahme… stoppt bei Stille',
     processing:      'Antwort wird verarbeitet…',
-    noSpeech:        'Ich habe Sie nicht gehört. Halten und erneut versuchen.',
-    holdHint:        'Halten zum Sprechen',
-    releaseHint:     'Loslassen zum Senden',
+    noSpeech:        'Ich habe Sie nicht gehört. Versuchen Sie es erneut.',
+    holdHint:        'Klicken zum Sprechen',
+    releaseHint:     'Klicken zum Stoppen',
     endInterview:    'Interview beenden',
     youLabel:        'Sie',
     waitingAnswer:   'Warte auf Ihre Antwort…',
@@ -133,12 +133,12 @@ const UI_STRINGS = {
     connecting:      'Connessione…',
     thinking:        { male: "L'intervistatore sta pensando…",   female: "L'intervistatrice sta pensando…" },
     speaking:        { male: "L'intervistatore sta parlando…",   female: "L'intervistatrice sta parlando…" },
-    yourTurn:        'Tocca a te — tieni premuto il pulsante per parlare',
-    recording:       'Registrazione… rilascia per inviare',
+    yourTurn:        'Tocca a te — clicca per parlare',
+    recording:       'Registrazione… si ferma nel silenzio',
     processing:      'Elaborazione della risposta…',
-    noSpeech:        'Non ti ho sentito. Tieni premuto e riprova.',
-    holdHint:        'Tieni premuto per parlare',
-    releaseHint:     'Rilascia per inviare',
+    noSpeech:        'Non ti ho sentito. Riprova.',
+    holdHint:        'Clicca per parlare',
+    releaseHint:     'Clicca per fermare',
     endInterview:    'Termina il colloquio',
     youLabel:        'Tu',
     waitingAnswer:   'In attesa della tua risposta…',
@@ -290,6 +290,7 @@ export default function InterviewSession({ config, onEnd }) {
   const recognitionRef     = useRef(null)
   const interimTextRef     = useRef('')
   const interruptTimerRef  = useRef(null)
+  const silenceTimerRef    = useRef(null)
   const messagesRef        = useRef([])
   const interruptActiveRef = useRef(false)
   const isInterruptingRef  = useRef(false)
@@ -416,8 +417,13 @@ export default function InterviewSession({ config, onEnd }) {
     recognition.continuous = true
     recognition.interimResults = true
 
+    const SILENCE_MS = 2500
     recognition.onresult = (event) => {
       interimTextRef.current = Array.from(event.results).map((r) => r[0].transcript).join(' ').trim()
+      clearTimeout(silenceTimerRef.current)
+      silenceTimerRef.current = setTimeout(() => {
+        recognitionRef.current?.stop()
+      }, SILENCE_MS)
     }
 
     recognition.onend = async () => {
@@ -514,11 +520,35 @@ export default function InterviewSession({ config, onEnd }) {
     }
   }, [locale, canInterrupt, config.language, askClaude, playAudio, processTurn, clearInterruptTimer])
 
-  // ── Hold to speak: release ─────────────────────────────────
+  // ── Mic: stop ─────────────────────────────────────────────
   const stopRecording = useCallback(() => {
-    clearInterruptTimer()  // cancel pending interrupt check if user releases before 18s
+    clearInterruptTimer()
+    clearTimeout(silenceTimerRef.current)
     recognitionRef.current?.stop()
   }, [clearInterruptTimer])
+
+  // ── Skip to closing ───────────────────────────────────────
+  const skipToEnd = useCallback(async () => {
+    if (sessionEnded) return
+    stopRecording()
+    const skipMsg = {
+      role: 'user',
+      content: `[System: The candidate wants to wrap up. Ask your single final closing question now, mentioning naturally that this is your last question. Do not end the interview yet — wait for the candidate's answer before saying goodbye.]`,
+    }
+    try {
+      const updated = [...messagesRef.current, skipMsg]
+      const raw = await askClaude(updated)
+      const isEnd = raw.includes('[END_INTERVIEW]')
+      const reply = raw.replace('[END_INTERVIEW]', '').trim()
+      const final = [...updated, { role: 'assistant', content: reply }]
+      setMessages(final)
+      setPhase(4)
+      await playAudio(reply)
+      if (isEnd) endInterviewRef.current?.()
+    } catch (err) {
+      console.error(err)
+    }
+  }, [sessionEnded, stopRecording, askClaude, playAudio])
 
   // ── End interview ──────────────────────────────────────────
   const endInterview = useCallback(async () => {
@@ -541,7 +571,7 @@ export default function InterviewSession({ config, onEnd }) {
           system: `You are an expert communication coach analyzing a voice interview. The candidate spoke their answers aloud — there was no text or writing involved. Evaluate spoken communication: clarity, fluency, confidence, structure, and how natural they sound when speaking. Always respond with valid JSON only — no markdown, no explanation. Write your entire response in ${config.language}.`,
           messages: [{
             role: 'user',
-            content: `Interview transcript:\n\n${transcript}\n\nAnalyze ONLY how the candidate communicated — clarity, structure, conciseness, confidence in tone, use of examples, verbal expression. Do NOT evaluate the content of their answers or the interviewer.\n\nIf the candidate gave fewer than 2 substantive responses, return {"notEnoughData": true} and nothing else.\n\nOtherwise respond with this exact JSON structure:\n{\n  "notEnoughData": false,\n  "headline": "2-5 word verdict on overall communication (e.g. 'Muy buena comunicación', 'Sólido pero mejorable', 'Potencial claro, falta estructura')",\n  "wentWell": [\n    "**Key concept in bold**: concrete observation about what they did well. Be specific, reference actual patterns from the transcript.",\n    "**Another concept**: another specific observation"\n  ],\n  "toImprove": [\n    { "category": "Short category name", "items": ["**Concept**: specific observation with **bold** on key terms"] },\n    { "category": "Another category", "items": ["**Concept**: specific observation"] }\n  ],\n  "suggestions": [\n    "**Actionable verb**: specific, concrete action the candidate can practice immediately — with **bold** on the key idea.",\n    "**Another action**: specific suggestion",\n    "**Another action**: specific suggestion"\n  ]\n}\n\nUse **bold** (double asterisks) around the most important 1-3 words in each item. Maximum 2-3 items in wentWell, 2-3 categories in toImprove, 3 suggestions.`,
+            content: `Interview transcript:\n\n${transcript}\n\nAnalyze ONLY how the candidate communicated — clarity, structure, conciseness, confidence in tone, use of examples, verbal expression. Do NOT evaluate the content of their answers or the interviewer.\n\nIf the candidate gave fewer than 2 substantive responses, return {"notEnoughData": true} and nothing else.\n\nOtherwise respond with this exact JSON structure:\n{\n  "notEnoughData": false,\n  "score": <integer 0-1000 reflecting overall interview performance across all axes: clarity, structure, confidence, use of examples, and verbal fluency. 0-400 = needs significant work, 401-600 = developing, 601-800 = solid, 801-1000 = excellent>,\n  "headline": "2-5 word verdict on overall communication (e.g. 'Muy buena comunicación', 'Sólido pero mejorable', 'Potencial claro, falta estructura')",\n  "wentWell": [\n    "**Key concept in bold**: concrete observation about what they did well. Be specific, reference actual patterns from the transcript.",\n    "**Another concept**: another specific observation"\n  ],\n  "toImprove": [\n    { "category": "Short category name", "items": ["**Concept**: specific observation with **bold** on key terms"] },\n    { "category": "Another category", "items": ["**Concept**: specific observation"] }\n  ],\n  "suggestions": [\n    "**Actionable verb**: specific, concrete action the candidate can practice immediately — with **bold** on the key idea.",\n    "**Another action**: specific suggestion",\n    "**Another action**: specific suggestion"\n  ]\n}\n\nUse **bold** (double asterisks) around the most important 1-3 words in each item. Maximum 2-3 items in wentWell, 2-3 categories in toImprove, 3 suggestions.`,
           }],
         }),
       })
@@ -577,6 +607,7 @@ export default function InterviewSession({ config, onEnd }) {
         <PhaseIndicator phase={phase} labels={str.phases} />
         <div className="meet-topbar-right">
           <span className="session-difficulty" data-level={config.difficulty}>{str.difficulty[config.difficulty]}</span>
+          <button className="btn-skip-end" onClick={skipToEnd} disabled={busy || sessionEnded} title="Ir al cierre">Ir al cierre →</button>
           <button className="btn-end-call" onClick={endInterview}>{str.endInterview}</button>
         </div>
       </header>
@@ -603,11 +634,9 @@ export default function InterviewSession({ config, onEnd }) {
         <div className="footer-controls">
           <button
             className={`mic-btn ${isRecording ? 'mic-btn--active' : ''} ${busy ? 'mic-btn--disabled' : ''}`}
-            onPointerDown={(e) => { e.preventDefault(); if (!busy) startRecording() }}
-            onPointerUp={(e) => { e.preventDefault(); if (isRecording) stopRecording() }}
-            onPointerLeave={(e) => { e.preventDefault(); if (isRecording) stopRecording() }}
+            onClick={() => { if (busy) return; isRecording ? stopRecording() : startRecording() }}
             disabled={busy}
-            title={str.holdHint}
+            title={isRecording ? str.releaseHint : str.holdHint}
           >
             {isRecording ? <IconStop /> : <IconMicOn />}
           </button>

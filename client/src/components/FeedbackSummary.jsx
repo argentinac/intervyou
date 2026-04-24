@@ -1,4 +1,3 @@
-// Renders **bold** markers as <strong> elements
 function Bold({ text }) {
   const parts = text.split(/\*\*(.*?)\*\*/g)
   return parts.map((part, i) =>
@@ -15,6 +14,67 @@ const IntervyouIcon = () => (
     <rect x="25" y="8"  width="2.5" height="18" rx="1.25" fill="rgba(255,255,255,0.35)"/>
   </svg>
 )
+
+function ScoreRing({ score }) {
+  const radius = 54
+  const circ = 2 * Math.PI * radius
+  const pct = Math.min(Math.max(score / 1000, 0), 1)
+  const offset = circ * (1 - pct)
+  const color = score >= 801 ? '#22c55e' : score >= 601 ? '#4f46e5' : score >= 401 ? '#f59e0b' : '#ef4444'
+  return (
+    <div className="fb-score">
+      <svg width="130" height="130" viewBox="0 0 130 130">
+        <circle cx="65" cy="65" r={radius} fill="none" stroke="#e5e7eb" strokeWidth="10" />
+        <circle
+          cx="65" cy="65" r={radius} fill="none"
+          stroke={color} strokeWidth="10"
+          strokeDasharray={circ} strokeDashoffset={offset}
+          strokeLinecap="round"
+          transform="rotate(-90 65 65)"
+          style={{ transition: 'stroke-dashoffset 1s ease' }}
+        />
+        <text x="65" y="60" textAnchor="middle" fontSize="28" fontWeight="700" fill="#111827">{score}</text>
+        <text x="65" y="78" textAnchor="middle" fontSize="12" fill="#6b7280">/ 1000</text>
+      </svg>
+      <p className="fb-score-label">Puntaje global</p>
+    </div>
+  )
+}
+
+function downloadFeedback(feedback) {
+  const stripBold = (s) => s.replace(/\*\*(.*?)\*\*/g, '$1')
+  const lines = [
+    'INTERVYOU — Feedback de tu entrevista',
+    '======================================',
+    '',
+    `Puntaje: ${feedback.score ?? '—'} / 1000`,
+    `Veredicto: ${feedback.headline}`,
+    '',
+    'CÓMO COMUNICASTE BIEN',
+    '----------------------',
+    ...(feedback.wentWell || []).map((s) => `• ${stripBold(s)}`),
+    '',
+    'OPORTUNIDADES DE MEJORA',
+    '------------------------',
+    ...(feedback.toImprove || []).flatMap((cat) => [
+      `[${cat.category}]`,
+      ...(cat.items || []).map((s) => `  • ${stripBold(s)}`),
+      '',
+    ]),
+    'SUGERENCIAS CONCRETAS',
+    '----------------------',
+    ...(feedback.suggestions || []).map((s, i) => `${i + 1}. ${stripBold(s)}`),
+    '',
+    '— intervyou.app',
+  ]
+  const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = 'intervyou-feedback.txt'
+  a.click()
+  URL.revokeObjectURL(url)
+}
 
 export default function FeedbackSummary({ feedback, onRestart }) {
   if (!feedback) {
@@ -65,6 +125,9 @@ export default function FeedbackSummary({ feedback, onRestart }) {
           <span>intervyou</span>
         </div>
 
+        {/* Score */}
+        {feedback.score != null && <ScoreRing score={feedback.score} />}
+
         {/* Headline */}
         <div className="fb-headline">
           <p className="fb-headline-label">Tu entrevista en pocas palabras</p>
@@ -81,7 +144,7 @@ export default function FeedbackSummary({ feedback, onRestart }) {
           </ul>
         </div>
 
-        {/* To improve — categorized */}
+        {/* To improve */}
         <div className="fb-section fb-section--improve">
           <h3 className="fb-section-title">Oportunidades de mejora</h3>
           <div className="fb-categories">
@@ -108,7 +171,10 @@ export default function FeedbackSummary({ feedback, onRestart }) {
           </ol>
         </div>
 
-        <button className="fb-restart" onClick={onRestart}>Nueva entrevista →</button>
+        <div className="fb-actions">
+          <button className="fb-download" onClick={() => downloadFeedback(feedback)}>Descargar feedback</button>
+          <button className="fb-restart" onClick={onRestart}>Nueva entrevista →</button>
+        </div>
       </div>
     </div>
   )
