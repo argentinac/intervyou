@@ -15,12 +15,17 @@ import { speakRoute } from './routes/speak.js'
 const app = express()
 const upload = multer({ storage: multer.memoryStorage() })
 
-app.use(cors({ origin: 'http://localhost:5173' }))
+app.use(cors())
 app.use(express.json())
 
 app.post('/api/transcribe', upload.single('audio'), transcribeRoute)
 app.post('/api/chat', chatRoute)
 app.post('/api/speak', speakRoute)
 
-const PORT = 3001
-app.listen(PORT, () => console.log(`PrepAI server running on http://localhost:${PORT}`))
+// Serve frontend in production
+const clientDist = resolve(__dirname, '../client/dist')
+app.use(express.static(clientDist))
+app.get('*', (_, res) => res.sendFile(resolve(clientDist, 'index.html')))
+
+const PORT = process.env.PORT || 3001
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
