@@ -7,7 +7,6 @@
     "dev:server": "cd server && node --env-file=../.env --watch index.js",
     "dev:client": "cd client && npm run dev",
     "install:all": "npm install && cd server && npm install && cd ../client && npm install",
-    "build": "npm install --prefix server && npm install --prefix client && npm run build --prefix client",
     "start": "node server/index.js"
   },
   "dependencies": {
