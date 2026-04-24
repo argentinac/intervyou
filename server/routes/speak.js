@@ -61,7 +61,7 @@ export async function speakRoute(req, res) {
         },
         body: JSON.stringify({
           text,
-          model_id: 'eleven_multilingual_v2',
+          model_id: 'eleven_turbo_v2_5',
           language_code: languageCode,
           voice_settings: {
             stability: 0.30,
