@@ -1,5 +1,6 @@
 import { resolve, dirname } from 'path'
 import { fileURLToPath } from 'url'
+import { existsSync } from 'fs'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 import dotenv from 'dotenv'
@@ -23,7 +24,6 @@ app.post('/api/chat', chatRoute)
 app.post('/api/speak', speakRoute)
 
 // Serve frontend in production
-import { existsSync } from 'fs'
 const clientDist = resolve(process.cwd(), 'client/dist')
 console.log('client/dist path:', clientDist, '| exists:', existsSync(clientDist))
 app.use(express.static(clientDist))
