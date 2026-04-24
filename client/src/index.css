@@ -814,3 +814,10 @@ html, body, #root, .app {
 }
 
 @keyframes spin { to { transform: rotate(360deg); } }
+
+@media print {
+  .fb-actions { display: none !important; }
+  .fb-page { background: white; }
+  .fb-card { box-shadow: none; border: none; max-width: 100%; }
+  body { background: white; }
+}

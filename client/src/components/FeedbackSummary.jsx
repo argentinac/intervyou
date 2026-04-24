@@ -41,39 +41,8 @@ function ScoreRing({ score }) {
   )
 }
 
-function downloadFeedback(feedback) {
-  const stripBold = (s) => s.replace(/\*\*(.*?)\*\*/g, '$1')
-  const lines = [
-    'INTERVYOU — Feedback de tu entrevista',
-    '======================================',
-    '',
-    `Puntaje: ${feedback.score ?? '—'} / 1000`,
-    `Veredicto: ${feedback.headline}`,
-    '',
-    'CÓMO COMUNICASTE BIEN',
-    '----------------------',
-    ...(feedback.wentWell || []).map((s) => `• ${stripBold(s)}`),
-    '',
-    'OPORTUNIDADES DE MEJORA',
-    '------------------------',
-    ...(feedback.toImprove || []).flatMap((cat) => [
-      `[${cat.category}]`,
-      ...(cat.items || []).map((s) => `  • ${stripBold(s)}`),
-      '',
-    ]),
-    'SUGERENCIAS CONCRETAS',
-    '----------------------',
-    ...(feedback.suggestions || []).map((s, i) => `${i + 1}. ${stripBold(s)}`),
-    '',
-    '— intervyou.app',
-  ]
-  const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = 'intervyou-feedback.txt'
-  a.click()
-  URL.revokeObjectURL(url)
+function downloadFeedback() {
+  window.print()
 }
 
 export default function FeedbackSummary({ feedback, onRestart }) {
