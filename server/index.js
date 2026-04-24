@@ -23,9 +23,18 @@ app.post('/api/chat', chatRoute)
 app.post('/api/speak', speakRoute)
 
 // Serve frontend in production
+import { existsSync } from 'fs'
 const clientDist = resolve(process.cwd(), 'client/dist')
+console.log('client/dist path:', clientDist, '| exists:', existsSync(clientDist))
 app.use(express.static(clientDist))
-app.get('*', (_, res) => res.sendFile(resolve(clientDist, 'index.html')))
+app.get('*', (_, res) => {
+  const indexPath = resolve(clientDist, 'index.html')
+  if (existsSync(indexPath)) {
+    res.sendFile(indexPath)
+  } else {
+    res.status(200).send('Frontend not built. Run npm run build first.')
+  }
+})
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
