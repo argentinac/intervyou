@@ -603,14 +603,7 @@ export default function InterviewSession({ config, onEnd }) {
     <div className="meet-page">
       <header className="meet-topbar">
         <div className="logo">
-          <svg width="26" height="26" viewBox="0 0 36 36" fill="none" style={{flexShrink:0}}>
-            <rect width="36" height="36" rx="10" fill="#4f46e5"/>
-            <circle cx="13.5" cy="11" r="3.5" fill="white"/>
-            <rect x="10" y="16" width="7" height="11" rx="3.5" fill="white"/>
-            <rect x="21" y="11" width="2.5" height="15" rx="1.25" fill="rgba(255,255,255,0.55)"/>
-            <rect x="25" y="8"  width="2.5" height="18" rx="1.25" fill="rgba(255,255,255,0.35)"/>
-          </svg>
-          <span className="logo-text">intervyou</span>
+          <img src="/logo.png" alt="intervyou" style={{height:28,width:'auto'}} />
         </div>
         <PhaseIndicator phase={phase} labels={str.phases} />
         <div className="meet-topbar-right">

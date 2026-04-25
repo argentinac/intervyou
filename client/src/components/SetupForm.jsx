@@ -56,13 +56,7 @@ const MAX_CHARS = 2000
 // ── Logo ───────────────────────────────────────────────────
 
 const IntervyouIcon = () => (
-  <svg width="30" height="30" viewBox="0 0 36 36" fill="none">
-    <rect width="36" height="36" rx="10" fill="#4f46e5"/>
-    <circle cx="13.5" cy="11" r="3.5" fill="white"/>
-    <rect x="10" y="16" width="7" height="11" rx="3.5" fill="white"/>
-    <rect x="21" y="11" width="2.5" height="15" rx="1.25" fill="rgba(255,255,255,0.55)"/>
-    <rect x="25" y="8"  width="2.5" height="18" rx="1.25" fill="rgba(255,255,255,0.35)"/>
-  </svg>
+  <img src="/logo.png" alt="intervyou" style={{height:30,width:'auto'}} />
 )
 
 const IconSparkle = ({ size = 13 }) => (
@@ -170,7 +164,6 @@ export default function SetupForm({ onSubmit }) {
       <header className="sf-header">
         <div className="sf-logo">
           <IntervyouIcon />
-          <span className="sf-logo-name">intervyou</span>
         </div>
         <div className="sf-progress">
           <div className="sf-progress-bar" style={{ width: step === 1 ? '50%' : '100%' }} />
