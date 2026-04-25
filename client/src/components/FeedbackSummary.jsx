@@ -6,7 +6,7 @@ function Bold({ text }) {
 }
 
 const IntervyouIcon = () => (
-  <img src="/logo.png" alt="intervyou" style={{height:28,width:'auto'}} />
+  <img src="/logo.png" alt="intervyou" style={{height:44,width:'auto'}} />
 )
 
 function ScoreRing({ score }) {

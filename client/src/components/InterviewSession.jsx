@@ -603,7 +603,7 @@ export default function InterviewSession({ config, onEnd }) {
     <div className="meet-page">
       <header className="meet-topbar">
         <div className="logo">
-          <img src="/logo.png" alt="intervyou" style={{height:28,width:'auto'}} />
+          <img src="/logo.png" alt="intervyou" style={{height:44,width:'auto'}} />
         </div>
         <PhaseIndicator phase={phase} labels={str.phases} />
         <div className="meet-topbar-right">
