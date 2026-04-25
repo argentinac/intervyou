@@ -115,6 +115,7 @@ export default function SetupForm({ onSubmit }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           max_tokens: 512,
+          model: 'claude-haiku-4-5-20251001',
           system: `You are a helpful assistant. Respond only with the job description text in ${form.language}, no preamble, no titles, no markdown.`,
           messages: [{
             role: 'user',

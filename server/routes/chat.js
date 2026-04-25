@@ -32,11 +32,13 @@ export async function chatRoute(req, res) {
 
     // Client created per-request so it always reads the current env value
     const anthropic = new Anthropic({ apiKey })
-    const { messages, system, max_tokens } = req.body
+    const { messages, system, max_tokens, model } = req.body
     const safeMessages = sanitizeMessages(messages)
+    const allowedModels = ['claude-sonnet-4-5', 'claude-haiku-4-5-20251001']
+    const resolvedModel = allowedModels.includes(model) ? model : 'claude-sonnet-4-5'
 
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-5',
+      model: resolvedModel,
       max_tokens: max_tokens || 1024,
       system,
       messages: safeMessages,
