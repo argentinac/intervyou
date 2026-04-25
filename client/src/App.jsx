@@ -1,17 +1,29 @@
 import { useState } from 'react'
+import Landing from './components/Landing'
 import SetupForm from './components/SetupForm'
 import InterviewSession from './components/InterviewSession'
 
 export default function App() {
+  const [view, setView] = useState('landing') // 'landing' | 'setup' | 'interview'
   const [config, setConfig] = useState(null)
 
+  if (view === 'landing') {
+    return <Landing onStart={() => setView('setup')} />
+  }
+
+  if (view === 'setup') {
+    return (
+      <SetupForm
+        onSubmit={(cfg) => { setConfig(cfg); setView('interview') }}
+        onBack={() => setView('landing')}
+      />
+    )
+  }
+
   return (
-    <div className="app">
-      {config === null ? (
-        <SetupForm onSubmit={setConfig} />
-      ) : (
-        <InterviewSession config={config} onEnd={() => setConfig(null)} />
-      )}
-    </div>
+    <InterviewSession
+      config={config}
+      onEnd={() => { setConfig(null); setView('landing') }}
+    />
   )
 }

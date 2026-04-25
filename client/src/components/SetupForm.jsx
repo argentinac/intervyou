@@ -85,7 +85,7 @@ const RadioCard = ({ active, label, desc, onClick, wide }) => (
 
 // ── Main ───────────────────────────────────────────────────
 
-export default function SetupForm({ onSubmit }) {
+export default function SetupForm({ onSubmit, onBack }) {
   const [step, setStep] = useState(1)
   const [form, setForm] = useState({
     country: '',
@@ -162,7 +162,7 @@ export default function SetupForm({ onSubmit }) {
     <div className="sf-page">
       {/* Header */}
       <header className="sf-header">
-        <div className="sf-logo">
+        <div className="sf-logo" style={{cursor: onBack ? 'pointer' : 'default'}} onClick={onBack}>
           <IntervyouIcon />
         </div>
         <div className="sf-progress">
