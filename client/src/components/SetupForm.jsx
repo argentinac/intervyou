@@ -110,10 +110,10 @@ export default function SetupForm({ onSubmit, onBack }) {
         body: JSON.stringify({
           max_tokens: 512,
           model: 'claude-haiku-4-5-20251001',
-          system: `You are a helpful assistant. Respond only with the job description text in ${form.language}, no preamble, no titles, no markdown.`,
+          system: `You are a helpful assistant that writes job descriptions. Always generate a job description regardless of the company or job title provided — never ask for clarification or refuse. Respond only with the job description text in ${form.language}, no preamble, no titles, no markdown.`,
           messages: [{
             role: 'user',
-            content: `Write a concise job description (3-5 sentences, plain text) in ${form.language} for the role of "${form.jobTitle}"${form.companyName ? ` at ${form.companyName}` : ''}. Cover main responsibilities and key requirements. Be specific and realistic.`,
+            content: `Write a concise job description (3-5 sentences, plain text) in ${form.language} for the role of "${form.jobTitle}"${form.companyName ? ` at ${form.companyName}` : ''}. Cover main responsibilities and key requirements.`,
           }],
         }),
       })
