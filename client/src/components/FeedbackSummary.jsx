@@ -99,7 +99,7 @@ export default function FeedbackSummary({ feedback, onRestart }) {
 
         {/* Went well */}
         <div className="fb-section fb-section--good">
-          <h3 className="fb-section-title">Cómo comunicaste bien</h3>
+          <h3 className="fb-section-title">Puntos fuertes</h3>
           <ul className="fb-list">
             {feedback.wentWell.map((item, i) => (
               <li key={i}><Bold text={item} /></li>
@@ -110,23 +110,16 @@ export default function FeedbackSummary({ feedback, onRestart }) {
         {/* To improve */}
         <div className="fb-section fb-section--improve">
           <h3 className="fb-section-title">Oportunidades de mejora</h3>
-          <div className="fb-categories">
-            {feedback.toImprove.map((cat, i) => (
-              <div key={i} className="fb-category">
-                <span className="fb-category-label">{cat.category}</span>
-                <ul className="fb-list">
-                  {cat.items.map((item, j) => (
-                    <li key={j}><Bold text={item} /></li>
-                  ))}
-                </ul>
-              </div>
+          <ul className="fb-list">
+            {feedback.toImprove.map((item, i) => (
+              <li key={i}><Bold text={item} /></li>
             ))}
-          </div>
+          </ul>
         </div>
 
         {/* Suggestions */}
         <div className="fb-section fb-section--suggestions">
-          <h3 className="fb-section-title">Sugerencias concretas</h3>
+          <h3 className="fb-section-title">Accionables concretos</h3>
           <ol className="fb-list fb-list--ordered">
             {feedback.suggestions.map((item, i) => (
               <li key={i}><Bold text={item} /></li>
