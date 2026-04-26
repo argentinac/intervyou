@@ -269,9 +269,9 @@ export default function SetupForm({ onSubmit, onBack }) {
                 <h1>¿Cómo querés que<br/>sea la entrevista?</h1>
               </div>
 
-              <div className="sf-fields">
+              <div className="sf-fields sf-fields--step2">
                 <div className="sf-field">
-                  <label>Tipo</label>
+                  <label>Tipo de entrevista</label>
                   <div className="sf-cards-row">
                     {INTERVIEW_TYPES.map((t) => (
                       <RadioCard
@@ -287,7 +287,7 @@ export default function SetupForm({ onSubmit, onBack }) {
 
                 <div className="sf-field">
                   <label>Dificultad</label>
-                  <div className="sf-cards-row">
+                  <div className="sf-cards-col">
                     {DIFFICULTIES.map((d) => (
                       <RadioCard
                         key={d.value}
@@ -295,7 +295,6 @@ export default function SetupForm({ onSubmit, onBack }) {
                         label={d.label}
                         desc={d.desc}
                         onClick={() => setForm((f) => ({ ...f, difficulty: d.value }))}
-                        wide
                       />
                     ))}
                   </div>
