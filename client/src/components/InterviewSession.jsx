@@ -245,15 +245,17 @@ function getPhase(n) {
 
 let activeAudio = null
 
-async function speakElevenLabs(text, language, country, gender) {
+async function speakElevenLabs(text, language, country, gender, shouldCancel = () => false) {
   const res = await fetch('/api/speak', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ text, language, country, gender }),
   })
   if (!res.ok) throw new Error('TTS failed')
+  if (shouldCancel()) return
   const blob = await res.blob()
   const url = URL.createObjectURL(blob)
+  if (shouldCancel()) { URL.revokeObjectURL(url); return }
   return new Promise((resolve) => {
     const audio = new Audio(url)
     activeAudio = audio
@@ -300,11 +302,15 @@ export default function InterviewSession({ config, onEnd }) {
   const cameraStreamRef    = useRef(null)
   const interviewStarted   = useRef(false)
   const interviewerGender  = useRef(getInterviewerGender(config.country, config.language))
+  const skipPendingRef     = useRef(false)
+  const sessionEndedRef    = useRef(false)
+  const doClosingRef       = useRef(null)
 
   const locale = COUNTRY_LOCALE[config.country] || LANG_LOCALE[config.language] || 'en-US'
   const canInterrupt = config.interviewType === 'HR'
 
   useEffect(() => { messagesRef.current = messages }, [messages])
+  useEffect(() => { sessionEndedRef.current = sessionEnded }, [sessionEnded])
 
   // ── Camera toggle ─────────────────────────────────────────
   const toggleCamera = useCallback(async () => {
@@ -338,10 +344,16 @@ export default function InterviewSession({ config, onEnd }) {
   const playAudio = useCallback(async (text) => {
     setIsSpeaking(true)
     setStatusText(str.speaking[interviewerGender.current])
-    await speakElevenLabs(text, config.language, config.country, interviewerGender.current)
+    await speakElevenLabs(text, config.language, config.country, interviewerGender.current, () => sessionEndedRef.current)
     setIsSpeaking(false)
-    setStatusText(str.yourTurn)
+    if (sessionEndedRef.current) return
     setError(null)
+    if (skipPendingRef.current) {
+      skipPendingRef.current = false
+      doClosingRef.current?.()
+      return
+    }
+    setStatusText(str.yourTurn)
     startRecordingRef.current?.()
   }, [config.language, config.country, str.speaking, str.yourTurn])
 
@@ -535,10 +547,8 @@ export default function InterviewSession({ config, onEnd }) {
     recognitionRef.current?.stop()
   }, [clearInterruptTimer])
 
-  // ── Skip to closing ───────────────────────────────────────
-  const skipToEnd = useCallback(async () => {
-    if (sessionEnded) return
-    stopRecording()
+  // ── Closing sequence (extracted so it can be deferred) ────
+  const doClosing = useCallback(async () => {
     const skipMsg = {
       role: 'user',
       content: `[System: The candidate wants to wrap up. Ask your single final closing question now, mentioning naturally that this is your last question. Do not end the interview yet — wait for the candidate's answer before saying goodbye.]`,
@@ -556,10 +566,31 @@ export default function InterviewSession({ config, onEnd }) {
     } catch (err) {
       console.error(err)
     }
-  }, [sessionEnded, stopRecording, askClaude, playAudio])
+  }, [askClaude, playAudio])
+
+  useEffect(() => { doClosingRef.current = doClosing }, [doClosing])
+
+  // ── Skip to closing ───────────────────────────────────────
+  const skipToEnd = useCallback(() => {
+    if (sessionEnded) return
+    stopActiveAudio()
+    if (isRecording) {
+      // Finish transcribing what the candidate said, respond, then close
+      skipPendingRef.current = true
+      stopRecording()
+    } else if (!isSpeaking && !isProcessing) {
+      doClosingRef.current?.()
+    } else {
+      // Currently speaking or processing — close after current turn finishes
+      skipPendingRef.current = true
+    }
+  }, [sessionEnded, isRecording, isSpeaking, isProcessing, stopRecording])
 
   // ── End interview ──────────────────────────────────────────
   const endInterview = useCallback(async () => {
+    if (sessionEndedRef.current) return
+    sessionEndedRef.current = true
+    skipPendingRef.current = false
     window.speechSynthesis.cancel()
     stopActiveAudio()
     clearInterruptTimer()
@@ -608,7 +639,7 @@ export default function InterviewSession({ config, onEnd }) {
         <PhaseIndicator phase={phase} labels={str.phases} />
         <div className="meet-topbar-right">
           <span className="session-difficulty" data-level={config.difficulty}>{str.difficulty[config.difficulty]}</span>
-          <button className="btn-skip-end" onClick={skipToEnd} disabled={busy || sessionEnded} title="Ir al cierre">Ir al cierre →</button>
+          <button className="btn-skip-end" onClick={skipToEnd} disabled={busy || sessionEnded || phase >= 4} title="Ir al cierre">Ir al cierre →</button>
           <button className="btn-end-call" onClick={endInterview}>{str.endInterview}</button>
         </div>
       </header>
