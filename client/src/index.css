@@ -133,7 +133,6 @@ html, body, #root, .app {
 /* Radio cards */
 .sf-cards-row { display: flex; gap: 12px; }
 .sf-cards-row .rc--wide { flex: 1; }
-.sf-cards-col { display: flex; flex-direction: column; gap: 10px; }
 
 .rc {
   display: flex;

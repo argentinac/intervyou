@@ -287,7 +287,7 @@ export default function SetupForm({ onSubmit, onBack }) {
 
                 <div className="sf-field">
                   <label>Dificultad</label>
-                  <div className="sf-cards-col">
+                  <div className="sf-cards-row">
                     {DIFFICULTIES.map((d) => (
                       <RadioCard
                         key={d.value}
@@ -295,6 +295,7 @@ export default function SetupForm({ onSubmit, onBack }) {
                         label={d.label}
                         desc={d.desc}
                         onClick={() => setForm((f) => ({ ...f, difficulty: d.value }))}
+                        wide
                       />
                     ))}
                   </div>
