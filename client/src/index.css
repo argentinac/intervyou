@@ -71,7 +71,7 @@ html, body, #root, .app {
 
 /* Fields */
 .sf-fields { display: flex; flex-direction: column; gap: 14px; }
-.sf-fields--step2 { gap: 24px; }
+.sf-fields--step2 { gap: 36px; }
 .sf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 @media (max-width: 560px) { .sf-row { grid-template-columns: 1fr; } }
 
@@ -166,6 +166,8 @@ html, body, #root, .app {
 .rc-dot--active::after { content: ''; width: 6px; height: 6px; background: #fff; border-radius: 50%; }
 
 .rc-body { display: flex; flex-direction: column; gap: 4px; }
+.rc-icon { color: #6b7280; margin-bottom: 4px; }
+.rc--active .rc-icon { color: #4f46e5; }
 .rc-label { font-size: 15px; font-weight: 600; color: #111827; }
 .rc-desc  { font-size: 13px; color: #6b7280; line-height: 1.5; }
 
