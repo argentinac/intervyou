@@ -1,36 +1,21 @@
 import { useState } from 'react'
-import { useAuth } from '../contexts/AuthContext'
 import { supabase } from '../lib/supabase'
 
 export default function AuthForm({ onBack }) {
-  const { signIn, signUp } = useAuth()
-  const [mode, setMode] = useState('login') // 'login' | 'signup' | 'reset'
+  const [step, setStep] = useState('email') // 'email' | 'otp'
   const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [otp, setOtp] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-  const [success, setSuccess] = useState(null)
 
-  const handle = async (e) => {
+  const sendOtp = async (e) => {
     e.preventDefault()
     setError(null)
-    setSuccess(null)
     setLoading(true)
     try {
-      if (mode === 'reset') {
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: window.location.origin,
-        })
-        if (error) throw error
-        setSuccess('Revisá tu email — te enviamos un link para restablecer tu contraseña.')
-      } else if (mode === 'login') {
-        const { error } = await signIn(email, password)
-        if (error) throw error
-      } else {
-        const { error } = await signUp(email, password)
-        if (error) throw error
-        setSuccess('Revisá tu email para confirmar tu cuenta.')
-      }
+      const { error } = await supabase.auth.signInWithOtp({ email, options: { shouldCreateUser: true } })
+      if (error) throw error
+      setStep('otp')
     } catch (err) {
       setError(err.message)
     } finally {
@@ -38,7 +23,20 @@ export default function AuthForm({ onBack }) {
     }
   }
 
-  const switchMode = (next) => { setMode(next); setError(null); setSuccess(null) }
+  const verifyOtp = async (e) => {
+    e.preventDefault()
+    setError(null)
+    setLoading(true)
+    try {
+      const { error } = await supabase.auth.verifyOtp({ email, token: otp.trim(), type: 'email' })
+      if (error) throw error
+      // AuthContext onAuthStateChange will pick up the new session automatically
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <div className="auth-page">
@@ -50,65 +48,69 @@ export default function AuthForm({ onBack }) {
           <img src="/logo.png" alt="intervyou" style={{ height: 44, width: 'auto' }} />
         </div>
 
-        <h1 className="auth-title">
-          {mode === 'login' ? 'Iniciar sesión' : mode === 'signup' ? 'Crear cuenta' : 'Restablecer contraseña'}
-        </h1>
+        {step === 'email' ? (
+          <>
+            <h1 className="auth-title">Ingresá tu email</h1>
+            <p className="auth-subtitle">Te enviamos un código de 6 dígitos para acceder.</p>
 
-        <form onSubmit={handle} className="auth-form">
-          <div className="auth-field">
-            <label>Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="tu@email.com"
-              required
-              autoComplete="email"
-            />
-          </div>
+            <form onSubmit={sendOtp} className="auth-form">
+              <div className="auth-field">
+                <label>Email</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="tu@email.com"
+                  required
+                  autoComplete="email"
+                  autoFocus
+                />
+              </div>
 
-          {mode !== 'reset' && (
-            <div className="auth-field">
-              <label>Contraseña</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Mínimo 6 caracteres"
-                required
-                minLength={6}
-                autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-              />
-            </div>
-          )}
+              {error && <p className="auth-error">{error}</p>}
 
-          {mode === 'login' && (
-            <button type="button" className="auth-forgot" onClick={() => switchMode('reset')}>
-              ¿Olvidaste tu contraseña?
-            </button>
-          )}
+              <button type="submit" className="auth-submit" disabled={loading}>
+                {loading ? 'Enviando…' : 'Enviar código →'}
+              </button>
+            </form>
+          </>
+        ) : (
+          <>
+            <h1 className="auth-title">Revisá tu email</h1>
+            <p className="auth-subtitle">
+              Enviamos un código de 6 dígitos a <strong>{email}</strong>.
+            </p>
 
-          {error && <p className="auth-error">{error}</p>}
-          {success && <p className="auth-success">{success}</p>}
+            <form onSubmit={verifyOtp} className="auth-form">
+              <div className="auth-field">
+                <label>Código</label>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  placeholder="123456"
+                  required
+                  autoComplete="one-time-code"
+                  autoFocus
+                  className="auth-otp-input"
+                />
+              </div>
 
-          <button type="submit" className="auth-submit" disabled={loading}>
-            {loading
-              ? 'Un segundo…'
-              : mode === 'login' ? 'Entrar'
-              : mode === 'signup' ? 'Crear cuenta'
-              : 'Enviar link de recuperación'}
-          </button>
-        </form>
+              {error && <p className="auth-error">{error}</p>}
 
-        <p className="auth-switch">
-          {mode === 'login' ? (
-            <>¿No tenés cuenta? <button onClick={() => switchMode('signup')}>Registrate</button></>
-          ) : mode === 'signup' ? (
-            <>¿Ya tenés cuenta? <button onClick={() => switchMode('login')}>Iniciá sesión</button></>
-          ) : (
-            <><button onClick={() => switchMode('login')}>← Volver al inicio de sesión</button></>
-          )}
-        </p>
+              <button type="submit" className="auth-submit" disabled={loading || otp.length < 6}>
+                {loading ? 'Verificando…' : 'Ingresar'}
+              </button>
+            </form>
+
+            <p className="auth-switch">
+              <button onClick={() => { setStep('email'); setOtp(''); setError(null) }}>
+                ← Cambiar email
+              </button>
+            </p>
+          </>
+        )}
       </div>
     </div>
   )
