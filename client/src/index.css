@@ -276,6 +276,86 @@ html, body, #root, .app {
 /* ══════════════════════════════════════════════════════════
    MEET PAGE — light theme, consistent with setup/feedback
 ══════════════════════════════════════════════════════════ */
+/* ── Intro loading screen ── */
+.intro-loading {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.intro-loading-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+}
+.intro-loading-logo { opacity: 0.9; }
+.intro-loading-spinner {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.intro-loading-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  border-top-color: #6366f1;
+  border-right-color: #8b5cf6;
+  animation: spin 1.2s linear infinite;
+}
+.intro-loading-ring::after {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-bottom-color: #a78bfa;
+  animation: spin 1.8s linear infinite reverse;
+}
+.intro-loading-mic {
+  color: #a78bfa;
+}
+.intro-loading-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #e2e8f0;
+  margin: 0;
+  letter-spacing: -0.3px;
+}
+.intro-loading-tip {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  padding: 20px 24px;
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+.intro-loading-tip--in { opacity: 1; transform: translateY(0); }
+.intro-loading-tip--out { opacity: 0; transform: translateY(8px); }
+.intro-loading-tip-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #818cf8;
+  margin-bottom: 8px;
+}
+.intro-loading-tip p {
+  margin: 0;
+  font-size: 15px;
+  color: #cbd5e1;
+  line-height: 1.6;
+}
+
 .meet-page {
   height: 100vh;
   display: grid;

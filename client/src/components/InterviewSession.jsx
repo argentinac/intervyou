@@ -4,6 +4,103 @@ import Avatar from './Avatar'
 import FeedbackSummary from './FeedbackSummary'
 import { useAuth } from '../contexts/AuthContext'
 
+const INTERVIEW_TIPS = [
+  'Investigá la empresa antes: conocer su misión y productos te diferencia del resto.',
+  'Usá el método STAR: Situación, Tarea, Acción, Resultado para estructurar tus respuestas.',
+  'Preparate 3 logros concretos con números: "reduje el tiempo un 30%" impacta más que "mejoré el proceso".',
+  'Llegá (o conectate) 10 minutos antes. Muestra puntualidad y reduce el nerviosismo.',
+  'Mantené contacto visual — transmite confianza y que estás presente en la conversación.',
+  'No hables mal de empleadores anteriores, aunque la experiencia haya sido negativa.',
+  'Prepará preguntas para el entrevistador: demuestra interés genuino en el rol.',
+  'Escuchá activamente antes de responder — está bien tomarse unos segundos para pensar.',
+  'Adaptá tu lenguaje al nivel de la empresa: más formal para corporativas, más directo para startups.',
+  'Si no entendés una pregunta, pedí que la reformulen sin problema.',
+  'Cuantificá tus logros siempre que puedas: los números hacen tus respuestas más creíbles.',
+  'Preparate para "¿cuál es tu mayor debilidad?" — respondé con algo real y cómo lo trabajás.',
+  'Mostrá entusiasmo genuino por el rol: a los entrevistadores les importa que quieras ese trabajo.',
+  'Revisá tu LinkedIn antes: el entrevistador seguramente lo miró.',
+  'Tené a mano el CV durante la entrevista para referenciarlo si es necesario.',
+  'Cerrá la entrevista preguntando cuáles son los próximos pasos del proceso.',
+  'Mandá un mail de agradecimiento dentro de las 24 horas siguientes.',
+  'Practicá en voz alta — las respuestas que solo pensaste suenan muy distintas cuando las decís.',
+  'Usá el nombre del entrevistador durante la conversación: genera cercanía.',
+  'Sé honesto sobre lo que no sabés — es mejor que inventar y quedar expuesto.',
+  'Investigá el rango salarial del rol antes para negociar desde información, no intuición.',
+  'Tu postura comunica tanto como tus palabras: hombros abiertos, espalda recta.',
+  'No des respuestas demasiado largas — dos minutos por respuesta suele ser suficiente.',
+  'Conectá tus experiencias pasadas con los desafíos específicos del nuevo rol.',
+  'Si es remota, chequeá cámara, micrófono e internet 30 minutos antes.',
+  'Vestite una categoría por encima del dress code de la empresa — nunca está de más.',
+  'Evitá el "umm" y "este" — practicá haciendo pausas en silencio en cambio.',
+  'Mostrá que aprendés rápido: mencioná ejemplos de veces que enfrentaste algo nuevo.',
+  'Sé específico sobre por qué querés trabajar en esa empresa en particular.',
+  'Si preguntás por salario, hacelo al final — primero vendete, después negociá.',
+  'Tenés permitido pedir feedback al final de la entrevista.',
+  'Preparate para preguntas de comportamiento: "contame sobre una vez que fallaste".',
+  'Mostrá que conocés el mercado y la competencia de la empresa.',
+  'Una sonrisa genuina al inicio genera un primera impresión muy positiva.',
+  'Tené ejemplos de trabajo en equipo y de trabajo independiente listos.',
+  'No exageres en el CV — te van a preguntar sobre todo lo que pusiste.',
+  'Mostrá curiosidad: las personas curiosas aprenden más rápido y se adaptan mejor.',
+  'Si es una entrevista técnica, pensá en voz alta mientras resolvés.',
+  'Practicá tu "pitch personal" de 60 segundos para la pregunta "¿quién sos?".',
+  'Conectá tus valores personales con la cultura de la empresa.',
+  'Sé consistente entre lo que decís y lo que muestran tus redes profesionales.',
+  'Anotá los nombres de todos los entrevistadores para el mail de seguimiento.',
+  'Preparate para explicar los gaps en tu CV con honestidad y naturalidad.',
+  'Mostrá que tomás ownership: usá "yo hice" más que "nosotros hicimos".',
+  'Evitá revisar el teléfono antes de entrar — te desconcentra.',
+  'Respirá profundo antes de empezar: reduce el cortisol y te hace sonar más seguro.',
+  'Si te hacen una pregunta difícil, reformulala antes de responder para ganar tiempo.',
+  'Las entrevistas también son para que vos evalúes si querés trabajar ahí.',
+  'Mostrá tu proceso de pensamiento, no solo la respuesta final.',
+  'La práctica hace la diferencia: cada entrevista simulada te prepara mejor para la real.',
+]
+
+function IntroLoading() {
+  const [tipIndex, setTipIndex] = useState(() => Math.floor(Math.random() * INTERVIEW_TIPS.length))
+  const [visible, setVisible] = useState(true)
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setVisible(false)
+      setTimeout(() => {
+        setTipIndex(i => (i + 1) % INTERVIEW_TIPS.length)
+        setVisible(true)
+      }, 400)
+    }, 3500)
+    return () => clearInterval(interval)
+  }, [])
+
+  return (
+    <div className="intro-loading">
+      <div className="intro-loading-inner">
+        <div className="intro-loading-logo">
+          <img src="/logo.png" alt="CoachToWork" style={{ height: 40, width: 'auto', filter: 'brightness(0) invert(1)', opacity: 0.9 }} />
+        </div>
+
+        <div className="intro-loading-spinner">
+          <div className="intro-loading-ring" />
+          <div className="intro-loading-mic">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+              <line x1="12" y1="19" x2="12" y2="22"/>
+            </svg>
+          </div>
+        </div>
+
+        <p className="intro-loading-title">Preparando tu entrevista…</p>
+
+        <div className={`intro-loading-tip ${visible ? 'intro-loading-tip--in' : 'intro-loading-tip--out'}`}>
+          <span className="intro-loading-tip-label">💡 Tip</span>
+          <p>{INTERVIEW_TIPS[tipIndex]}</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 const COUNTRY_LOCALE = {
   Argentina: 'es-AR', Spain: 'es-ES', Mexico: 'es-MX', Colombia: 'es-CO',
   Chile: 'es-CL', Peru: 'es-PE', Venezuela: 'es-VE', Uruguay: 'es-UY',
@@ -288,6 +385,7 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
   const [feedback, setFeedback] = useState(null)
   const [statusText, setStatusText] = useState(() => str.connecting)
   const [error, setError] = useState(null)
+  const [introLoading, setIntroLoading] = useState(true)
 
   const interviewerLabel = config.interviewType === 'Technical' ? 'Tech Interviewer' : 'HR Interviewer'
   const interviewerName = config.companyName ? `${config.companyName} — ${interviewerLabel}` : interviewerLabel
@@ -345,6 +443,7 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
 
   // ── Play audio + auto-start mic when done ─────────────────
   const playAudio = useCallback(async (text) => {
+    setIntroLoading(false)
     setIsSpeaking(true)
     setStatusText(str.speaking[interviewerGender.current])
     await speakElevenLabs(text, config.language, config.country, interviewerGender.current, () => sessionEndedRef.current)
@@ -676,6 +775,7 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
   }, [clearInterruptTimer])
 
   if (sessionEnded) return <FeedbackSummary feedback={feedback} onRestart={onEnd} onDashboard={onDashboard} />
+  if (introLoading) return <IntroLoading />
 
   const busy = isSpeaking || isProcessing
 
