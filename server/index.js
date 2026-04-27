@@ -12,6 +12,7 @@ import multer from 'multer'
 import { transcribeRoute } from './routes/transcribe.js'
 import { chatRoute } from './routes/chat.js'
 import { speakRoute } from './routes/speak.js'
+import { interviewsRouter } from './routes/interviews.js'
 
 const app = express()
 const upload = multer({ storage: multer.memoryStorage() })
@@ -22,6 +23,7 @@ app.use(express.json())
 app.post('/api/transcribe', upload.single('audio'), transcribeRoute)
 app.post('/api/chat', chatRoute)
 app.post('/api/speak', speakRoute)
+app.use('/api/interviews', interviewsRouter)
 
 // Serve frontend in production
 const clientDist = resolve(process.cwd(), 'client/dist')

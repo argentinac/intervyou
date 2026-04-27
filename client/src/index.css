@@ -807,6 +807,105 @@ html, body, #root, .app {
 }
 .fb-restart:hover { background: #1f2937; }
 
+/* ══════════════════════════════════════════════════════════
+   AUTH PAGE
+══════════════════════════════════════════════════════════ */
+.auth-page {
+  min-height: 100vh;
+  background: #fafafa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  font-family: var(--font);
+}
+.auth-card {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.auth-logo { display: flex; justify-content: center; }
+.auth-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: #111827;
+  letter-spacing: -0.4px;
+  text-align: center;
+}
+.auth-form { display: flex; flex-direction: column; gap: 14px; }
+.auth-field { display: flex; flex-direction: column; gap: 5px; }
+.auth-field label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: .7px;
+}
+.auth-field input {
+  background: #fff;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
+  color: #111827;
+  font-family: var(--font);
+  font-size: 15px;
+  padding: 12px 14px;
+  outline: none;
+  transition: border-color .15s, box-shadow .15s;
+  width: 100%;
+}
+.auth-field input:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79,70,229,.08);
+}
+.auth-submit {
+  padding: 14px;
+  background: #111827;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-family: var(--font);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s;
+  margin-top: 4px;
+}
+.auth-submit:hover { background: #1f2937; }
+.auth-submit:disabled { background: #e5e7eb; color: #9ca3af; cursor: not-allowed; }
+.auth-error {
+  font-size: 13px;
+  color: #dc2626;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+.auth-success {
+  font-size: 13px;
+  color: #16a34a;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+.auth-switch {
+  text-align: center;
+  font-size: 13px;
+  color: #9ca3af;
+}
+.auth-switch button {
+  background: none;
+  border: none;
+  color: #4f46e5;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--font);
+  font-size: 13px;
+  padding: 0;
+}
+
 /* Loading */
 .fb-loading {
   min-height: 100vh;
