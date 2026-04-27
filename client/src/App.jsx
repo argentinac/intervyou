@@ -1,9 +1,10 @@
-import { useState, Component } from 'react'
+import { useState, useEffect, Component } from 'react'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import AuthForm from './components/AuthForm'
 import Landing from './components/Landing'
 import SetupForm from './components/SetupForm'
 import InterviewSession from './components/InterviewSession'
+import Dashboard from './components/Dashboard'
 
 class ErrorBoundary extends Component {
   constructor(props) {
@@ -30,10 +31,14 @@ class ErrorBoundary extends Component {
 
 function AppInner() {
   const { user } = useAuth()
-  const [view, setView] = useState('landing')
-  const [config, setConfig] = useState(null)
+  const [view, setView] = useState('landing') // 'landing' | 'auth' | 'dashboard' | 'interview'
+  const [interviewConfig, setInterviewConfig] = useState(null)
+  const [interviewReturn, setInterviewReturn] = useState('landing')
 
-  // Loading auth state
+  useEffect(() => {
+    if (user && view === 'auth') setView('dashboard')
+  }, [user])
+
   if (user === undefined) {
     return (
       <div style={{ display:'flex', alignItems:'center', justifyContent:'center', minHeight:'100vh', background:'#fafafa' }}>
@@ -42,28 +47,49 @@ function AppInner() {
     )
   }
 
-  // Not logged in
-  if (user === null) return <AuthForm />
-
   if (view === 'landing') {
-    return <Landing onStart={() => setView('setup')} />
-  }
-
-  if (view === 'setup') {
     return (
-      <SetupForm
-        onSubmit={(cfg) => { setConfig(cfg); setView('interview') }}
-        onBack={() => setView('landing')}
+      <Landing
+        user={user}
+        onLogin={() => setView('auth')}
+        onTryFree={() => { setInterviewReturn('landing'); setView('interview') }}
+        onDashboard={() => setView('dashboard')}
       />
     )
   }
 
-  return (
-    <InterviewSession
-      config={config}
-      onEnd={() => { setConfig(null); setView('landing') }}
-    />
-  )
+  if (view === 'auth') {
+    return <AuthForm onBack={() => setView('landing')} />
+  }
+
+  if (view === 'interview') {
+    if (!interviewConfig) {
+      return (
+        <SetupForm
+          onSubmit={(cfg) => setInterviewConfig(cfg)}
+          onBack={() => setView(interviewReturn)}
+        />
+      )
+    }
+    return (
+      <InterviewSession
+        config={interviewConfig}
+        onEnd={() => { setInterviewConfig(null); setView(interviewReturn) }}
+      />
+    )
+  }
+
+  if (view === 'dashboard') {
+    if (!user) { setView('auth'); return null }
+    return (
+      <Dashboard
+        onNewInterview={() => { setInterviewReturn('dashboard'); setView('interview') }}
+        onSignOut={() => setView('landing')}
+      />
+    )
+  }
+
+  return null
 }
 
 export default function App() {
