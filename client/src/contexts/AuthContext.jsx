@@ -4,9 +4,11 @@ import { supabase } from '../lib/supabase'
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(undefined) // undefined = loading, null = not logged in
+  // If Supabase isn't configured (missing env vars), skip auth entirely
+  const [user, setUser] = useState(supabase ? undefined : { id: 'guest', email: 'guest' })
 
   useEffect(() => {
+    if (!supabase) return
     supabase.auth.getSession().then(({ data }) => {
       setUser(data.session?.user ?? null)
     })
@@ -17,14 +19,16 @@ export function AuthProvider({ children }) {
   }, [])
 
   const signUp = (email, password) =>
-    supabase.auth.signUp({ email, password })
+    supabase ? supabase.auth.signUp({ email, password }) : Promise.resolve({})
 
   const signIn = (email, password) =>
-    supabase.auth.signInWithPassword({ email, password })
+    supabase ? supabase.auth.signInWithPassword({ email, password }) : Promise.resolve({})
 
-  const signOut = () => supabase.auth.signOut()
+  const signOut = () =>
+    supabase ? supabase.auth.signOut() : Promise.resolve()
 
   const getToken = async () => {
+    if (!supabase) return null
     const { data } = await supabase.auth.getSession()
     return data.session?.access_token ?? null
   }
