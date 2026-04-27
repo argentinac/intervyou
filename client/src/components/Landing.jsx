@@ -124,7 +124,7 @@ function FadeIn({ children, delay = 0, className = '' }) {
 
 // ── Component ───────────────────────────────────────────────
 
-export default function Landing({ onStart }) {
+export default function Landing({ user, onLogin, onTryFree, onDashboard }) {
   const [statsRef, statsVisible] = useInView()
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -145,8 +145,11 @@ export default function Landing({ onStart }) {
             <a href="#features">Recursos</a>
           </div>
           <div className="ld-nav-actions">
-            <button className="ld-btn-ghost">Iniciar sesión</button>
-            <button className="ld-btn-primary" onClick={onStart}>Probar gratis</button>
+            {user
+              ? <button className="ld-btn-ghost" onClick={onDashboard}>Mi cuenta</button>
+              : <button className="ld-btn-ghost" onClick={onLogin}>Iniciar sesión</button>
+            }
+            <button className="ld-btn-primary" onClick={onTryFree}>Probar gratis</button>
           </div>
           <button className="ld-hamburger" onClick={() => setMenuOpen(v => !v)}>
             <span /><span /><span />
@@ -169,7 +172,7 @@ export default function Landing({ onStart }) {
             Simulaciones realistas con IA que te ayudan a responder mejor, comunicarte con confianza y destacarte en tus entrevistas.
           </p>
           <div className="ld-hero-ctas">
-            <button className="ld-btn-primary ld-btn-lg" onClick={onStart}>
+            <button className="ld-btn-primary ld-btn-lg" onClick={onTryFree}>
               Empezar gratis <IconArrow />
             </button>
             <button className="ld-btn-video">
@@ -352,7 +355,7 @@ export default function Landing({ onStart }) {
           <div className="ld-cta-card">
             <h3>Empieza gratis hoy</h3>
             <p className="ld-cta-card-sub">Accedé a 3 entrevistas de prueba.</p>
-            <button className="ld-btn-primary ld-btn-full" onClick={onStart}>Crear mi cuenta gratis</button>
+            <button className="ld-btn-primary ld-btn-full" onClick={onTryFree}>Crear mi cuenta gratis</button>
             <div className="ld-cta-divider">o continuá con</div>
             <div className="ld-cta-oauth">
               <button className="ld-oauth-btn">

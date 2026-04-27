@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 
-export default function AuthForm() {
+export default function AuthForm({ onBack }) {
   const { signIn, signUp } = useAuth()
   const [mode, setMode] = useState('login') // 'login' | 'signup'
   const [email, setEmail] = useState('')
@@ -34,6 +34,11 @@ export default function AuthForm() {
   return (
     <div className="auth-page">
       <div className="auth-card">
+        {onBack && (
+          <button className="auth-back" onClick={onBack}>
+            ← Volver
+          </button>
+        )}
         <div className="auth-logo">
           <img src="/logo.png" alt="intervyou" style={{ height: 44, width: 'auto' }} />
         </div>
