@@ -111,15 +111,63 @@ function MiniScoreChart({ interviews }) {
   )
 }
 
-function HomeSection({ onNewInterview, user, fullName }) {
+function makeMockInterview(i, score, daysAgo) {
+  const companies = ['Mercado Libre', 'Globant', 'Despegar', 'OLX', 'Ualá', 'Naranja X', 'Auth0', 'Satellogic']
+  const titles = ['Product Manager', 'Frontend Developer', 'Data Analyst', 'UX Designer', 'Backend Engineer', 'Tech Lead']
+  const types = ['HR', 'Technical', 'Real Simulation']
+  const difficulties = ['Junior', 'Intermediate', 'Senior']
+  const date = new Date(Date.now() - daysAgo * 86400000).toISOString()
+  return {
+    id: `mock-${i}`,
+    completed_at: date,
+    config: {
+      jobTitle: titles[i % titles.length],
+      companyName: companies[i % companies.length],
+      interviewType: types[i % types.length],
+      difficulty: difficulties[i % difficulties.length],
+    },
+    interview_feedback: score != null ? [{
+      score,
+      headline: 'Buen desempeño general con áreas de mejora identificadas.',
+      went_well: ['Comunicación clara', 'Ejemplos concretos'],
+      to_improve: ['Profundidad técnica', 'Manejo del tiempo'],
+      suggestions: ['Practicá el método STAR', 'Investigá más sobre la empresa'],
+    }] : [],
+  }
+}
+
+const DEMO_STATES = [
+  { label: '0 entrevistas', interviews: [] },
+  { label: '1 entrevista', interviews: [makeMockInterview(0, 6.8, 3)] },
+  {
+    label: '5 entrevistas',
+    interviews: [
+      makeMockInterview(0, 5.2, 30),
+      makeMockInterview(1, 6.1, 22),
+      makeMockInterview(2, 6.8, 15),
+      makeMockInterview(3, 7.4, 8),
+      makeMockInterview(4, 8.1, 2),
+    ],
+  },
+  {
+    label: '50 entrevistas',
+    interviews: Array.from({ length: 50 }, (_, i) => {
+      const score = Math.min(10, 4.5 + (i / 50) * 4.5 + (Math.random() - 0.5) * 1.5)
+      return makeMockInterview(i, +score.toFixed(1), 180 - i * 3)
+    }),
+  },
+]
+
+function HomeSection({ onNewInterview, user, fullName, mockInterviews }) {
   const firstName = fullName
     ? fullName.split(' ')[0]
     : (user?.email?.split('@')[0] ?? 'ahí')
 
-  const [interviews, setInterviews] = useState(null)
+  const [realInterviews, setRealInterviews] = useState(null)
   const { getToken } = useAuth()
 
   useEffect(() => {
+    if (mockInterviews !== undefined) return
     async function load() {
       try {
         const token = await getToken?.()
@@ -127,13 +175,15 @@ function HomeSection({ onNewInterview, user, fullName }) {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         })
         const json = await res.json()
-        setInterviews(Array.isArray(json) ? json : [])
+        setRealInterviews(Array.isArray(json) ? json : [])
       } catch {
-        setInterviews([])
+        setRealInterviews([])
       }
     }
     load()
-  }, [])
+  }, [mockInterviews])
+
+  const interviews = mockInterviews !== undefined ? mockInterviews : realInterviews
 
   const hasInterviews = interviews && interviews.length > 0
   const scoredInterviews = interviews?.filter(iv => iv.interview_feedback?.[0]?.score != null) ?? []
@@ -279,6 +329,8 @@ export default function Dashboard({ onNewInterview, onSignOut }) {
   const [section, setSection] = useState('home')
   const [profile, setProfile] = useState(null)
   const [subscription, setSubscription] = useState(null)
+  const [demoIndex, setDemoIndex] = useState(null)
+  const isAdmin = user?.email === 'matiasabas@gmail.com'
 
   useEffect(() => {
     if (!user || !supabase) return
@@ -361,12 +413,39 @@ export default function Dashboard({ onNewInterview, onSignOut }) {
       </aside>
 
       <main className="db-content">
-        {section === 'home'       && <HomeSection onNewInterview={onNewInterview} user={user} fullName={profile?.full_name} />}
+        {section === 'home'       && (
+          <HomeSection
+            onNewInterview={onNewInterview}
+            user={user}
+            fullName={profile?.full_name}
+            mockInterviews={demoIndex !== null ? DEMO_STATES[demoIndex].interviews : undefined}
+          />
+        )}
         {section === 'interviews' && <MyInterviews onNewInterview={onNewInterview} />}
         {section === 'progress'   && <MyProgress />}
         {section === 'profile'    && <MyProfile />}
         {section === 'settings'   && <SettingsPage onSignOut={handleSignOut} />}
       </main>
+
+      {isAdmin && (
+        <div className="demo-bar">
+          <span className="demo-bar-label">🛠 Demo</span>
+          {DEMO_STATES.map((s, i) => (
+            <button
+              key={i}
+              className={`demo-bar-btn ${demoIndex === i ? 'demo-bar-btn--active' : ''}`}
+              onClick={() => { setDemoIndex(demoIndex === i ? null : i); setSection('home') }}
+            >
+              {s.label}
+            </button>
+          ))}
+          {demoIndex !== null && (
+            <button className="demo-bar-btn demo-bar-btn--reset" onClick={() => setDemoIndex(null)}>
+              ✕ Real
+            </button>
+          )}
+        </div>
+      )}
     </div>
   )
 }
