@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import PhaseIndicator from './PhaseIndicator'
 import Avatar from './Avatar'
 import FeedbackSummary from './FeedbackSummary'
+import { useAuth } from '../contexts/AuthContext'
 
 const COUNTRY_LOCALE = {
   Argentina: 'es-AR', Spain: 'es-ES', Mexico: 'es-MX', Colombia: 'es-CO',
@@ -275,6 +276,8 @@ function stopActiveAudio() {
 
 export default function InterviewSession({ config, onEnd }) {
   const str = UI_STRINGS[config.language] || UI_STRINGS.English
+  const { getToken } = useAuth()
+  const startTimeRef = useRef(Date.now())
 
   const [messages, setMessages] = useState([])
   const [phase, setPhase] = useState(0)
@@ -616,12 +619,32 @@ export default function InterviewSession({ config, onEnd }) {
       })
       const { text } = await res.json()
       const clean = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim()
-      setFeedback(JSON.parse(clean))
+      const parsed = JSON.parse(clean)
+      setFeedback(parsed)
+
+      // Save to DB (best-effort — never block the feedback screen)
+      try {
+        const token = await getToken()
+        if (token) {
+          await fetch('/api/interviews', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+            body: JSON.stringify({
+              config,
+              transcript: messagesRef.current,
+              feedback: parsed,
+              durationSeconds: Math.round((Date.now() - startTimeRef.current) / 1000),
+            }),
+          })
+        }
+      } catch (saveErr) {
+        console.warn('Could not save interview:', saveErr)
+      }
     } catch (err) {
       console.error('Feedback error:', err)
       setFeedback({ notEnoughData: false, parseError: true })
     }
-  }, [config.language, clearInterruptTimer])
+  }, [config, getToken, clearInterruptTimer])
 
   // Keep endInterviewRef in sync so processTurn can call it
   useEffect(() => { endInterviewRef.current = endInterview }, [endInterview])
