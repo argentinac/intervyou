@@ -59,6 +59,7 @@ html, body, #root, .app {
   padding: 52px 24px 64px;
 }
 .sf-card { width: 100%; max-width: 560px; display: flex; flex-direction: column; gap: 32px; }
+.sf-card > form { display: flex; flex-direction: column; gap: 32px; width: 100%; }
 
 /* Heading */
 .sf-heading h1 {
