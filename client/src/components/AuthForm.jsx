@@ -158,8 +158,8 @@ export default function AuthForm({ onBack }) {
                   type="text"
                   inputMode="numeric"
                   value={otp}
-                  onChange={(e) => setOtp(e.target.value.trim().slice(0, 8))}
-                  placeholder="12345678"
+                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  placeholder="123456"
                   required
                   autoComplete="one-time-code"
                   autoFocus
@@ -169,7 +169,7 @@ export default function AuthForm({ onBack }) {
 
               {error && <p className="auth-error">{error}</p>}
 
-              <button type="submit" className="auth-submit" disabled={loading || otp.length < 4}>
+              <button type="submit" className="auth-submit" disabled={loading || otp.length < 6}>
                 {loading ? 'Verificando…' : 'Ingresar'}
               </button>
             </form>
