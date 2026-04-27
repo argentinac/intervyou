@@ -60,7 +60,7 @@ function EmailInput({ value, onChange }) {
         onKeyDown={handleKeyDown}
         placeholder="tu@email.com"
         required
-        autoComplete="off"
+        autoComplete="email"
         autoFocus
       />
       {suggestions.length > 0 && (
