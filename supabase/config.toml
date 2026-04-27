@@ -1,0 +1,3 @@
+[auth.email]
+otp_length = 6
+otp_expiry = 600
