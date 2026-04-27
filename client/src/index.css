@@ -914,6 +914,31 @@ html, body, #root, .app {
   margin: -8px 0 4px;
   line-height: 1.5;
 }
+.auth-email-wrap { position: relative; }
+.auth-email-wrap input { width: 100%; }
+.auth-suggestions {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0; right: 0;
+  background: #fff;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  list-style: none;
+  padding: 4px;
+  z-index: 50;
+  overflow: hidden;
+}
+.auth-suggestion {
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #374151;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.auth-suggestion:hover,
+.auth-suggestion--active { background: #f0f4ff; color: #4f46e5; }
 .auth-otp-input {
   font-size: 24px !important;
   letter-spacing: 8px;
