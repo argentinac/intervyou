@@ -443,7 +443,6 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
 
   // ── Play audio + auto-start mic when done ─────────────────
   const playAudio = useCallback(async (text) => {
-    setIntroLoading(false)
     setIsSpeaking(true)
     setStatusText(str.speaking[interviewerGender.current])
     await speakElevenLabs(text, config.language, config.country, interviewerGender.current, () => sessionEndedRef.current)
@@ -505,15 +504,20 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
     async function startInterview() {
       try {
         const openingMessages = [{ role: 'user', content: '(The interview begins now.)' }]
-        const raw = await askClaude(openingMessages)
+        const [raw] = await Promise.all([
+          askClaude(openingMessages),
+          new Promise(resolve => setTimeout(resolve, 7000)),
+        ])
         const isEnd = raw.includes('[END_INTERVIEW]')
         const reply = raw.replace('[END_INTERVIEW]', '').trim()
         const fullMessages = [...openingMessages, { role: 'assistant', content: reply }]
         setMessages(fullMessages)
         setPhase(getPhase(0))
+        setIntroLoading(false)
         await playAudio(reply)
         if (isEnd) endInterviewRef.current?.()
       } catch (err) {
+        setIntroLoading(false)
         setError(str.startError)
         console.error(err)
       }
