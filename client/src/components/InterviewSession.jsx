@@ -610,7 +610,7 @@ export default function InterviewSession({ config, onEnd }) {
           system: `You are an expert communication coach analyzing a voice interview. The candidate spoke their answers aloud — there was no text or writing involved. Evaluate spoken communication: clarity, fluency, confidence, structure, and how natural they sound when speaking. Always respond with valid JSON only — no markdown, no explanation. Write your entire response in ${config.language}.`,
           messages: [{
             role: 'user',
-            content: `Interview transcript:\n\n${transcript}\n\nAnalyze ONLY how the candidate communicated — clarity, structure, conciseness, confidence in tone, use of examples, verbal expression. Do NOT evaluate the content of their answers or the interviewer.\n\nIf the candidate gave fewer than 2 substantive responses, return {"notEnoughData": true} and nothing else.\n\nOtherwise respond with this exact JSON structure:\n{\n  "notEnoughData": false,\n  "score": <integer 0-1000 reflecting overall interview performance across all axes: clarity, structure, confidence, use of examples, and verbal fluency. 0-400 = needs significant work, 401-600 = developing, 601-800 = solid, 801-1000 = excellent>,\n  "headline": "2-5 word verdict on overall communication (e.g. 'Muy buena comunicación', 'Sólido pero mejorable', 'Potencial claro, falta estructura')",\n  "wentWell": [\n    "**Key concept in bold**: concrete observation about what they did well. Be specific, reference actual patterns from the transcript.",\n    "**Another concept**: another specific observation"\n  ],\n  "toImprove": [\n    { "category": "Short category name", "items": ["**Concept**: specific observation with **bold** on key terms"] },\n    { "category": "Another category", "items": ["**Concept**: specific observation"] }\n  ],\n  "suggestions": [\n    "**Actionable verb**: specific, concrete action the candidate can practice immediately — with **bold** on the key idea.",\n    "**Another action**: specific suggestion",\n    "**Another action**: specific suggestion"\n  ]\n}\n\nUse **bold** (double asterisks) around the most important 1-3 words in each item. Maximum 2-3 items in wentWell, 2-3 categories in toImprove, 3 suggestions.`,
+            content: `Interview transcript:\n\n${transcript}\n\nAnalyze ONLY how the candidate communicated — clarity, structure, conciseness, confidence in tone, use of examples, verbal expression. Do NOT evaluate the content of their answers or the interviewer.\n\nIf the candidate gave fewer than 2 substantive responses, return {"notEnoughData": true} and nothing else.\n\nOtherwise respond with this exact JSON structure:\n{\n  "notEnoughData": false,\n  "score": <integer 0-1000 reflecting overall interview performance across all axes: clarity, structure, confidence, use of examples, and verbal fluency. 0-400 = needs significant work, 401-600 = developing, 601-800 = solid, 801-1000 = excellent>,\n  "headline": "2-5 word verdict on overall communication (e.g. 'Muy buena comunicación', 'Sólido pero mejorable', 'Potencial claro, falta estructura')",\n  "wentWell": [\n    "**Key concept in bold**: concrete observation about what they did well. Be specific, reference actual patterns from the transcript.",\n    "**Another concept**: another specific observation"\n  ],\n  "toImprove": [\n    "**Key concept in bold**: specific observation about what they need to improve, referencing actual patterns from the transcript.",\n    "**Another concept**: specific observation"\n  ],\n  "suggestions": [\n    "**Actionable verb**: specific, concrete action the candidate can practice immediately — with **bold** on the key idea.",\n    "**Another action**: specific suggestion",\n    "**Another action**: specific suggestion"\n  ]\n}\n\nUse **bold** (double asterisks) around the most important 1-3 words in each item. Maximum 2-3 items in wentWell, 2-3 items in toImprove, 3 suggestions.`,
           }],
         }),
       })
@@ -626,6 +626,32 @@ export default function InterviewSession({ config, onEnd }) {
   // Keep endInterviewRef in sync so processTurn can call it
   useEffect(() => { endInterviewRef.current = endInterview }, [endInterview])
 
+  // ── Demo feedback (skip interview, load mock data) ─────────
+  const showDemoFeedback = useCallback(() => {
+    window.speechSynthesis.cancel()
+    stopActiveAudio()
+    clearInterruptTimer()
+    setSessionEnded(true)
+    setFeedback({
+      notEnoughData: false,
+      score: 720,
+      headline: 'Comunicación sólida, con margen de mejora',
+      wentWell: [
+        '**Claridad en las respuestas**: expresaste tus ideas de forma directa y fácil de seguir a lo largo de la entrevista.',
+        '**Uso de ejemplos concretos**: respaldaste tus puntos con situaciones reales de tu experiencia profesional.',
+      ],
+      toImprove: [
+        '**Estructura de las respuestas**: algunas respuestas fueron extensas sin un hilo conductor claro que guiara al entrevistador.',
+        '**Manejo de preguntas bajo presión**: cuando te presionaron para profundizar, la respuesta perdió precisión y foco.',
+      ],
+      suggestions: [
+        '**Practicá el método STAR**: Situación, Tarea, Acción, Resultado para estructurar cada respuesta de forma ordenada.',
+        '**Grabate respondiendo**: escucharte te ayuda a detectar muletillas, repeticiones y dónde perdés el hilo.',
+        '**Preparate 3 historias clave**: tenelas listas para adaptar a distintas preguntas durante la entrevista.',
+      ],
+    })
+  }, [clearInterruptTimer])
+
   if (sessionEnded) return <FeedbackSummary feedback={feedback} onRestart={onEnd} />
 
   const busy = isSpeaking || isProcessing
@@ -639,6 +665,7 @@ export default function InterviewSession({ config, onEnd }) {
         <PhaseIndicator phase={phase} labels={str.phases} />
         <div className="meet-topbar-right">
           <span className="session-difficulty" data-level={config.difficulty}>{str.difficulty[config.difficulty]}</span>
+          <button className="btn-demo-feedback" onClick={showDemoFeedback} title="Ver feedback de demo">Demo</button>
           <button className="btn-skip-end" onClick={skipToEnd} disabled={busy || sessionEnded || phase >= 4} title="Ir al cierre">Ir al cierre →</button>
           <button className="btn-end-call" onClick={endInterview}>{str.endInterview}</button>
         </div>

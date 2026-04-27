@@ -309,6 +309,20 @@ html, body, #root, .app {
 .session-difficulty[data-level="Intermediate"] { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
 .session-difficulty[data-level="Advanced"]     { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
 
+.btn-demo-feedback {
+  background: #fff;
+  color: #9ca3af;
+  border: 1.5px solid #e5e7eb;
+  padding: 7px 12px;
+  border-radius: 8px;
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.btn-demo-feedback:hover { background: #f9fafb; color: #6b7280; }
+
 .btn-skip-end {
   background: #fff;
   color: #4f46e5;
