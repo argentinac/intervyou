@@ -236,19 +236,113 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews }) {
       <div className="home-section">
         <div className="home-section-title">Así es tu camino en CoachToWork</div>
         <div className="home-journey">
-          {[
-            { icon: '🎙️', n: '1', label: 'Practicá', sub: 'Simulá entrevistas reales con IA.' },
-            { icon: '📊', n: '2', label: 'Recibí feedback', sub: 'Obtené un análisis personalizado.' },
-            { icon: '📈', n: '3', label: 'Mejorá', sub: 'Aplicá las sugerencias y repetí.' },
-            { icon: '🏆', n: '4', label: 'Crecé', sub: 'Subí tu score y alcanzá tus objetivos.' },
-          ].map((step, i, arr) => (
-            <div key={i} className="home-journey-item">
-              <div className="home-journey-icon">{step.icon}</div>
-              {i < arr.length - 1 && <div className="home-journey-line" />}
-              <div className="home-journey-label">{step.n}. {step.label}</div>
-              <div className="home-journey-sub">{step.sub}</div>
+
+          {/* 1. Practicá — micrófono 3D */}
+          <div className="home-journey-item">
+            <div className="home-journey-icon">
+              <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="32" cy="32" r="32" fill="#eef2ff"/>
+                <circle cx="32" cy="32" r="22" fill="#e0e7ff"/>
+                <rect x="24" y="14" width="16" height="24" rx="8" fill="url(#mic-grad)"/>
+                <rect x="26" y="16" width="6" height="4" rx="2" fill="white" opacity="0.4"/>
+                <path d="M20 34c0 6.627 5.373 12 12 12s12-5.373 12-12" stroke="#6366f1" strokeWidth="2.5" strokeLinecap="round" fill="none"/>
+                <line x1="32" y1="46" x2="32" y2="52" stroke="#6366f1" strokeWidth="2.5" strokeLinecap="round"/>
+                <line x1="26" y1="52" x2="38" y2="52" stroke="#6366f1" strokeWidth="2.5" strokeLinecap="round"/>
+                <defs>
+                  <linearGradient id="mic-grad" x1="24" y1="14" x2="40" y2="38" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#818cf8"/>
+                    <stop offset="1" stopColor="#6366f1"/>
+                  </linearGradient>
+                </defs>
+              </svg>
             </div>
-          ))}
+            <div className="home-journey-label">1. Practicá</div>
+            <div className="home-journey-sub">Simulá entrevistas reales con IA.</div>
+          </div>
+
+          <div className="home-journey-connector" />
+
+          {/* 2. Recibí feedback — documento con check 3D */}
+          <div className="home-journey-item">
+            <div className="home-journey-icon">
+              <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="32" cy="32" r="32" fill="#f0fdf4"/>
+                <circle cx="32" cy="32" r="22" fill="#dcfce7"/>
+                <rect x="18" y="12" width="28" height="36" rx="4" fill="url(#doc-grad)"/>
+                <rect x="20" y="14" width="10" height="6" rx="2" fill="white" opacity="0.35"/>
+                <rect x="22" y="24" width="16" height="2.5" rx="1.25" fill="white" opacity="0.5"/>
+                <rect x="22" y="30" width="12" height="2.5" rx="1.25" fill="white" opacity="0.4"/>
+                <rect x="22" y="36" width="14" height="2.5" rx="1.25" fill="white" opacity="0.4"/>
+                <circle cx="44" cy="44" r="10" fill="#22c55e"/>
+                <path d="M39.5 44l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <defs>
+                  <linearGradient id="doc-grad" x1="18" y1="12" x2="46" y2="48" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#4ade80"/>
+                    <stop offset="1" stopColor="#16a34a"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+            <div className="home-journey-label">2. Recibí feedback</div>
+            <div className="home-journey-sub">Obtené un análisis personalizado.</div>
+          </div>
+
+          <div className="home-journey-connector" />
+
+          {/* 3. Mejorá — flecha curva hacia arriba 3D */}
+          <div className="home-journey-item">
+            <div className="home-journey-icon">
+              <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="32" cy="32" r="32" fill="#eff6ff"/>
+                <circle cx="32" cy="32" r="22" fill="#dbeafe"/>
+                <rect x="14" y="38" width="8" height="14" rx="2" fill="#60a5fa"/>
+                <rect x="26" y="30" width="8" height="22" rx="2" fill="#3b82f6"/>
+                <rect x="38" y="20" width="8" height="32" rx="2" fill="url(#bar-grad)"/>
+                <rect x="40" y="22" width="3" height="5" rx="1" fill="white" opacity="0.35"/>
+                <path d="M16 36 Q28 18 44 16" stroke="#1d4ed8" strokeWidth="2" strokeLinecap="round" fill="none" strokeDasharray="3 2"/>
+                <polygon points="44,10 50,18 38,18" fill="#1d4ed8"/>
+                <defs>
+                  <linearGradient id="bar-grad" x1="38" y1="20" x2="46" y2="52" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#93c5fd"/>
+                    <stop offset="1" stopColor="#2563eb"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+            <div className="home-journey-label">3. Mejorá</div>
+            <div className="home-journey-sub">Aplicá las sugerencias y repetí.</div>
+          </div>
+
+          <div className="home-journey-connector" />
+
+          {/* 4. Crecé — trofeo 3D */}
+          <div className="home-journey-item">
+            <div className="home-journey-icon">
+              <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="32" cy="32" r="32" fill="#fffbeb"/>
+                <circle cx="32" cy="32" r="22" fill="#fef3c7"/>
+                <path d="M22 14h20v16c0 5.523-4.477 10-10 10s-10-4.477-10-10V14z" fill="url(#trophy-grad)"/>
+                <path d="M24 16h14v4H24z" fill="white" opacity="0.25"/>
+                <path d="M22 18h-5a4 4 0 0 0 4 8h2" stroke="#d97706" strokeWidth="2" fill="none" strokeLinecap="round"/>
+                <path d="M42 18h5a4 4 0 0 1-4 8h-2" stroke="#d97706" strokeWidth="2" fill="none" strokeLinecap="round"/>
+                <rect x="28" y="40" width="8" height="6" rx="1" fill="#f59e0b"/>
+                <rect x="24" y="46" width="16" height="4" rx="2" fill="url(#base-grad)"/>
+                <defs>
+                  <linearGradient id="trophy-grad" x1="22" y1="14" x2="42" y2="40" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#fcd34d"/>
+                    <stop offset="1" stopColor="#f59e0b"/>
+                  </linearGradient>
+                  <linearGradient id="base-grad" x1="24" y1="46" x2="40" y2="50" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#fbbf24"/>
+                    <stop offset="1" stopColor="#d97706"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+            <div className="home-journey-label">4. Crecé</div>
+            <div className="home-journey-sub">Subí tu score y alcanzá tus objetivos.</div>
+          </div>
+
         </div>
       </div>
 
