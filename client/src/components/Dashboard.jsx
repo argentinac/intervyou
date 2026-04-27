@@ -48,8 +48,10 @@ const IconCrown = () => (
   </svg>
 )
 
-function HomeSection({ onNewInterview, user }) {
-  const firstName = user?.email?.split('@')[0] ?? 'ahí'
+function HomeSection({ onNewInterview, user, fullName }) {
+  const firstName = fullName
+    ? fullName.split(' ')[0]
+    : (user?.email?.split('@')[0] ?? 'ahí')
 
   return (
     <div className="db-home">
@@ -169,7 +171,7 @@ export default function Dashboard({ onNewInterview, onSignOut }) {
       </aside>
 
       <main className="db-content">
-        {section === 'home'       && <HomeSection onNewInterview={onNewInterview} user={user} />}
+        {section === 'home'       && <HomeSection onNewInterview={onNewInterview} user={user} fullName={profile?.full_name} />}
         {section === 'interviews' && <MyInterviews onNewInterview={onNewInterview} />}
         {section === 'progress'   && <MyProgress />}
         {section === 'profile'    && <MyProfile />}

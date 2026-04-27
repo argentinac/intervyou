@@ -1557,6 +1557,17 @@ html, body, #root, .app {
   display: block;
 }
 .auth-back:hover { color: #111827; }
+.auth-forgot {
+  background: none;
+  border: none;
+  color: #6366f1;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+  font-family: inherit;
+}
+.auth-forgot:hover { color: #4f46e5; text-decoration: underline; }
 
 /* ══════════════════════════════════════════════════════
    DASHBOARD
