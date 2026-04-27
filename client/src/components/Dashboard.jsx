@@ -125,7 +125,7 @@ export default function Dashboard({ onNewInterview, onSignOut }) {
   return (
     <div className="db-layout">
       <aside className="db-sidebar">
-        <div className="db-sidebar-logo">
+        <div className="db-sidebar-logo" onClick={() => setSection('home')} style={{ cursor: 'pointer' }}>
           <img src="/logo.png" alt="intervyou" style={{ height: 32, width: 'auto', filter: 'brightness(0) invert(1)', opacity: 0.9 }} />
         </div>
 

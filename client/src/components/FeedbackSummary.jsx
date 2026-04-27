@@ -39,7 +39,7 @@ function downloadFeedback() {
   window.print()
 }
 
-export default function FeedbackSummary({ feedback, onRestart }) {
+export default function FeedbackSummary({ feedback, onRestart, onDashboard }) {
   if (!feedback) {
     return (
       <div className="fb-loading">
@@ -83,7 +83,12 @@ export default function FeedbackSummary({ feedback, onRestart }) {
       <div className="fb-card">
 
         {/* Logo */}
-        <div className="fb-logo">
+        <div
+          className="fb-logo"
+          onClick={onDashboard}
+          style={onDashboard ? { cursor: 'pointer' } : undefined}
+          title={onDashboard ? 'Ir al inicio' : undefined}
+        >
           <IntervyouIcon />
         </div>
 

@@ -75,6 +75,7 @@ function AppInner() {
       <InterviewSession
         config={interviewConfig}
         onEnd={() => { setInterviewConfig(null); setView(interviewReturn) }}
+        onDashboard={user ? () => { setInterviewConfig(null); setView('dashboard') } : undefined}
       />
     )
   }

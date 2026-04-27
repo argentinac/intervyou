@@ -274,7 +274,7 @@ function stopActiveAudio() {
   }
 }
 
-export default function InterviewSession({ config, onEnd }) {
+export default function InterviewSession({ config, onEnd, onDashboard }) {
   const str = UI_STRINGS[config.language] || UI_STRINGS.English
   const { getToken } = useAuth()
   const startTimeRef = useRef(Date.now())
@@ -675,7 +675,7 @@ export default function InterviewSession({ config, onEnd }) {
     })
   }, [clearInterruptTimer])
 
-  if (sessionEnded) return <FeedbackSummary feedback={feedback} onRestart={onEnd} />
+  if (sessionEnded) return <FeedbackSummary feedback={feedback} onRestart={onEnd} onDashboard={onDashboard} />
 
   const busy = isSpeaking || isProcessing
 
