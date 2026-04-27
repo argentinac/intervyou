@@ -53,7 +53,7 @@ export default function FeedbackSummary({ feedback, onRestart }) {
     return (
       <div className="fb-page">
         <div className="fb-card">
-          <div className="fb-logo"><IntervyouIcon /></div>
+          <div className="fb-logo" />
           <div className="fb-notice fb-notice--warn">
             Ocurrió un problema al generar el feedback. Podés intentar una nueva entrevista.
           </div>
@@ -67,7 +67,7 @@ export default function FeedbackSummary({ feedback, onRestart }) {
     return (
       <div className="fb-page">
         <div className="fb-card">
-          <div className="fb-logo"><IntervyouIcon /></div>
+          <div className="fb-logo" />
           <div className="fb-notice fb-notice--info">
             <p>La entrevista fue demasiado corta para generar feedback detallado.</p>
             <p>Necesitamos al menos un par de respuestas tuyas para analizar cómo te expresás.</p>
@@ -85,7 +85,6 @@ export default function FeedbackSummary({ feedback, onRestart }) {
         {/* Logo */}
         <div className="fb-logo">
           <IntervyouIcon />
-          <span>intervyou</span>
         </div>
 
         {/* Score */}

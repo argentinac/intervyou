@@ -9,10 +9,18 @@ const LANG_OPTIONS = [
   { value: 'Italian',    label: 'Italiano' },
 ]
 
+const DiffIcon = ({ bars }) => (
+  <svg width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ display:'block' }}>
+    <rect x="0.5"  y="9.5"  width="4" height="6" rx="1" stroke="currentColor" strokeWidth="1.5" fill={bars >= 1 ? 'currentColor' : 'none'} fillOpacity={bars >= 1 ? 0.15 : 0}/>
+    <rect x="7.5"  y="5.5"  width="4" height="10" rx="1" stroke="currentColor" strokeWidth="1.5" fill={bars >= 2 ? 'currentColor' : 'none'} fillOpacity={bars >= 2 ? 0.15 : 0}/>
+    <rect x="14.5" y="0.5"  width="4" height="15" rx="1" stroke="currentColor" strokeWidth="1.5" fill={bars >= 3 ? 'currentColor' : 'none'} fillOpacity={bars >= 3 ? 0.15 : 0}/>
+  </svg>
+)
+
 const DIFFICULTIES = [
-  { value: 'Basic',        label: 'Básico',     desc: 'Tono amigable, preguntas directas.' },
-  { value: 'Intermediate', label: 'Intermedio', desc: 'Profesional y balanceado.' },
-  { value: 'Advanced',     label: 'Avanzado',   desc: 'Exigente, te va a presionar.' },
+  { value: 'Basic',        label: 'Básico',     desc: 'Tono amigable, preguntas directas.',  icon: <DiffIcon bars={1} /> },
+  { value: 'Intermediate', label: 'Intermedio', desc: 'Profesional y balanceado.',            icon: <DiffIcon bars={2} /> },
+  { value: 'Advanced',     label: 'Avanzado',   desc: 'Exigente, te va a presionar.',         icon: <DiffIcon bars={3} /> },
 ]
 
 const COUNTRIES = [
@@ -67,7 +75,7 @@ const IconSparkle = ({ size = 13 }) => (
 
 // ── Radio card ─────────────────────────────────────────────
 
-const RadioCard = ({ active, label, desc, onClick, wide }) => (
+const RadioCard = ({ active, label, desc, onClick, wide, icon }) => (
   <button
     type="button"
     className={`rc ${active ? 'rc--active' : ''} ${wide ? 'rc--wide' : ''}`}
@@ -77,6 +85,7 @@ const RadioCard = ({ active, label, desc, onClick, wide }) => (
       <span className={`rc-dot ${active ? 'rc-dot--active' : ''}`} />
     </div>
     <div className="rc-body">
+      {icon && <span className="rc-icon">{icon}</span>}
       <span className="rc-label">{label}</span>
       <span className="rc-desc">{desc}</span>
     </div>
@@ -294,6 +303,7 @@ export default function SetupForm({ onSubmit, onBack }) {
                         active={form.difficulty === d.value}
                         label={d.label}
                         desc={d.desc}
+                        icon={d.icon}
                         onClick={() => setForm((f) => ({ ...f, difficulty: d.value }))}
                         wide
                       />
