@@ -4,6 +4,31 @@ import { useAuth } from '../contexts/AuthContext'
 const DIFFICULTY_LABEL = { Junior: 'Junior', Intermediate: 'Semi-Senior', Senior: 'Senior' }
 const TYPE_LABEL = { HR: 'RRHH', Technical: 'Técnica', 'Real Simulation': 'Simulación real', Coach: 'Coach' }
 
+function companyDomain(name) {
+  if (!name) return null
+  return name.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '') + '.com'
+}
+
+function CompanyLogo({ name }) {
+  const [failed, setFailed] = useState(false)
+  const domain = companyDomain(name)
+  const initials = name ? name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() : '?'
+
+  if (!domain || failed) {
+    return (
+      <div className="iv-company-initials">{initials}</div>
+    )
+  }
+  return (
+    <img
+      className="iv-company-logo"
+      src={`https://logo.clearbit.com/${domain}`}
+      alt={name}
+      onError={() => setFailed(true)}
+    />
+  )
+}
+
 function formatDate(iso) {
   if (!iso) return ''
   const d = new Date(iso)
@@ -34,6 +59,11 @@ function InterviewRow({ interview, onClick }) {
       className={`iv-row ${hasFeedback ? 'iv-row--clickable' : 'iv-row--disabled'}`}
       onClick={hasFeedback ? onClick : undefined}
     >
+      {config?.companyName && (
+        <div className="iv-row-logo">
+          <CompanyLogo name={config.companyName} />
+        </div>
+      )}
       <div className="iv-row-main">
         <div className="iv-row-title">{title}</div>
         <div className="iv-row-meta">

@@ -1827,6 +1827,37 @@ html, body, #root, .app {
 .iv-row--clickable { cursor: pointer; }
 .iv-row--clickable:hover { border-color: #c7d2fe; box-shadow: 0 2px 12px rgba(99,102,241,0.08); }
 .iv-row--disabled { opacity: 0.65; cursor: default; }
+.iv-row-logo {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.iv-company-logo {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  padding: 4px;
+}
+.iv-company-initials {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: #eff6ff;
+  color: #3b82f6;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #bfdbfe;
+  letter-spacing: 0.5px;
+}
 .iv-row-main { flex: 1; min-width: 0; }
 .iv-row-title {
   font-size: 14px;
