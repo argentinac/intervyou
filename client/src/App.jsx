@@ -36,7 +36,7 @@ function AppInner() {
   const [interviewReturn, setInterviewReturn] = useState('landing')
 
   useEffect(() => {
-    if (user && view === 'auth') setView('dashboard')
+    if (user && view !== 'interview') setView('dashboard')
   }, [user])
 
   if (user === undefined) {
