@@ -34,8 +34,8 @@ export async function chatRoute(req, res) {
     const anthropic = new Anthropic({ apiKey })
     const { messages, system, max_tokens, model } = req.body
     const safeMessages = sanitizeMessages(messages)
-    const allowedModels = ['claude-sonnet-4-5', 'claude-haiku-4-5-20251001']
-    const resolvedModel = allowedModels.includes(model) ? model : 'claude-sonnet-4-5'
+    const allowedModels = ['claude-sonnet-4-6', 'claude-haiku-4-5-20251001']
+    const resolvedModel = allowedModels.includes(model) ? model : 'claude-sonnet-4-6'
 
     const response = await anthropic.messages.create({
       model: resolvedModel,
