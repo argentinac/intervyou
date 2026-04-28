@@ -315,9 +315,9 @@ export default function Landing({ user, onLogin, onTryFree, onDashboard, onBlogP
         </FadeIn>
         <div className="ld-testimonials-grid">
           {[
-            { quote: '"Practicar con CoachToWork me ayudó a ordenar mis ideas y ganar confianza. Conseguí el trabajo que quería 🙌"', name: 'Martina López', role: 'Product Manager en Mercado Libre', initials: 'ML' },
-            { quote: '"Los feedbacks son súper claros y accionables. Mejoré mucho mis respuestas y mi seguridad."', name: 'Juan Pablo Gómez', role: 'Data Analyst en Globant', initials: 'JG' },
-            { quote: '"Me encantó lo realista que se siente. Es como estar en la entrevista posta, pero sin los nervios."', name: 'Camila Torres', role: 'UX Designer en Ualá', initials: 'CT' },
+            { quote: '"Practicar con CoachToWork me ayudó a ordenar mis ideas y ganar confianza. Conseguí el trabajo que quería 🙌"', name: 'Martina López', role: 'Product Manager', initials: 'ML' },
+            { quote: '"Los feedbacks son súper claros y accionables. Mejoré mucho mis respuestas y mi seguridad."', name: 'Juan Pablo Gómez', role: 'Data Analyst', initials: 'JG' },
+            { quote: '"Me encantó lo realista que se siente. Es como estar en la entrevista posta, pero sin los nervios."', name: 'Camila Torres', role: 'UX Designer', initials: 'CT' },
           ].map((t, i) => (
             <FadeIn key={i} delay={i * 120}>
               <div className="ld-testimonial-card">

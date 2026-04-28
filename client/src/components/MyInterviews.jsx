@@ -107,11 +107,16 @@ function downloadFeedback(data) {
     feedback.suggestions.forEach(item => { text += `• ${stripBold(item)}\n` })
   }
 
+  const ts = completed_at ? new Date(completed_at) : new Date()
+  const pad = (n) => String(n).padStart(2, '0')
+  const dateTag = `${ts.getFullYear()}-${pad(ts.getMonth()+1)}-${pad(ts.getDate())}_${pad(ts.getHours())}-${pad(ts.getMinutes())}`
+  const filename = `${title.toLowerCase().replace(/[^a-z0-9áéíóúüñ]+/g, '-')}_${dateTag}.txt`
+
   const blob = new Blob([text], { type: 'text/plain;charset=utf-8' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = `${title.toLowerCase().replace(/\s+/g, '-')}.txt`
+  a.download = filename
   a.click()
   URL.revokeObjectURL(url)
 }

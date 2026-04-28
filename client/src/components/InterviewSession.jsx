@@ -83,6 +83,7 @@ const UI_STRINGS = {
     recording:       'Recording… will send on silence',
     processing:      'Processing your answer…',
     noSpeech:        "Didn't catch that. Try again.",
+    speakLabel:      'Speak',
     holdHint:        'Click to mute',
     releaseHint:     'Click to unmute',
     endInterview:    'End interview',
@@ -104,6 +105,7 @@ const UI_STRINGS = {
     recording:       'Grabando… para solo cuando terminás',
     processing:      'Procesando tu respuesta…',
     noSpeech:        'No te escuché. Intentá de nuevo.',
+    speakLabel:      'Hablar',
     holdHint:        'Click para silenciar',
     releaseHint:     'Click para activar',
     endInterview:    'Terminar entrevista',
@@ -125,6 +127,7 @@ const UI_STRINGS = {
     recording:       'Gravando… para no silêncio',
     processing:      'Processando sua resposta…',
     noSpeech:        'Não te ouvi. Tente novamente.',
+    speakLabel:      'Falar',
     holdHint:        'Clique para falar',
     releaseHint:     'Clique para parar',
     endInterview:    'Encerrar entrevista',
@@ -146,6 +149,7 @@ const UI_STRINGS = {
     recording:       'Enregistrement… s\'arrête au silence',
     processing:      'Traitement de votre réponse…',
     noSpeech:        "Je ne vous ai pas entendu. Réessayez.",
+    speakLabel:      'Parler',
     holdHint:        'Cliquer pour parler',
     releaseHint:     'Cliquer pour arrêter',
     endInterview:    "Terminer l'entretien",
@@ -167,6 +171,7 @@ const UI_STRINGS = {
     recording:       'Aufnahme… stoppt bei Stille',
     processing:      'Antwort wird verarbeitet…',
     noSpeech:        'Ich habe Sie nicht gehört. Versuchen Sie es erneut.',
+    speakLabel:      'Sprechen',
     holdHint:        'Klicken zum Sprechen',
     releaseHint:     'Klicken zum Stoppen',
     endInterview:    'Interview beenden',
@@ -188,6 +193,7 @@ const UI_STRINGS = {
     recording:       'Registrazione… si ferma nel silenzio',
     processing:      'Elaborazione della risposta…',
     noSpeech:        'Non ti ho sentito. Riprova.',
+    speakLabel:      'Parla',
     holdHint:        'Clicca per parlare',
     releaseHint:     'Clicca per fermare',
     endInterview:    'Termina il colloquio',
@@ -263,7 +269,7 @@ Hard rules:
 const INTERRUPT_SYSTEM = (language) =>
   `You are deciding whether a job interviewer should interrupt a candidate mid-answer. The interview is in ${language}. Reply ONLY with the word INTERRUPT or the word CONTINUE — nothing else.`
 
-const INTERRUPT_AFTER_MS = 18000
+const INTERRUPT_AFTER_MS = 60000
 
 // ── Icons (SVG, no emojis) ────────────────────────────────
 const IconMicOn  = () => (
@@ -272,8 +278,12 @@ const IconMicOn  = () => (
   </svg>
 )
 const IconMicOff = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M19 11a7 7 0 0 1-.57 2.73L17 12.3A5 5 0 0 0 17 11V7.83l-2-2V11a3 3 0 0 1-4.72 2.45L8.72 11.9A5 5 0 0 0 17 11zm-7 9.93V23h2v-2.07A10 10 0 0 0 22 11h-2a8 8 0 0 1-8 8zM3.27 2L2 3.27 7 8.27V11a5 5 0 0 0 7.94 4.04l1.5 1.5A7 7 0 0 1 5 11H3a9 9 0 0 0 7 8.77V22H8v2h8v-2h-2v-2.23A10 10 0 0 0 22 11h-2a8 8 0 0 1-1.46 4.61l-1.43-1.43A6 6 0 0 0 18 11V5a6 6 0 0 0-9.9-4.56L3.27 2zm5.61 5.61L12 10.72V5a2 2 0 0 0-3.12 1.61z"/>
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="9" y="1" width="6" height="13" rx="3"/>
+    <path d="M5 10a7 7 0 0 0 12.9 3.9"/>
+    <line x1="12" y1="19" x2="12" y2="23"/>
+    <line x1="8" y1="23" x2="16" y2="23"/>
+    <line x1="3" y1="3" x2="21" y2="21"/>
   </svg>
 )
 const IconStop  = () => (
@@ -313,11 +323,156 @@ function expandAbbreviations(text) {
     t.replace(new RegExp(`\\b${abbr}\\b\\.?`, 'g'), full), text)
 }
 
+function _numToWordsES(n) {
+  if (n < 0) return 'menos ' + _numToWordsES(-n)
+  if (n === 0) return 'cero'
+  const ones = ['', 'uno', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve',
+    'diez', 'once', 'doce', 'trece', 'catorce', 'quince', 'dieciséis', 'diecisiete', 'dieciocho', 'diecinueve']
+  const tens = ['', '', 'veinte', 'treinta', 'cuarenta', 'cincuenta', 'sesenta', 'setenta', 'ochenta', 'noventa']
+  const hundreds = ['', 'ciento', 'doscientos', 'trescientos', 'cuatrocientos', 'quinientos',
+    'seiscientos', 'setecientos', 'ochocientos', 'novecientos']
+  if (n < 20) return ones[n]
+  if (n < 30) return n === 20 ? 'veinte' : 'veinti' + ones[n - 20]
+  if (n < 100) return tens[Math.floor(n / 10)] + (n % 10 ? ' y ' + ones[n % 10] : '')
+  if (n === 100) return 'cien'
+  if (n < 1000) return hundreds[Math.floor(n / 100)] + (n % 100 ? ' ' + _numToWordsES(n % 100) : '')
+  if (n === 1000) return 'mil'
+  if (n < 2000) return 'mil ' + _numToWordsES(n - 1000)
+  if (n < 1000000) {
+    const th = Math.floor(n / 1000), rest = n % 1000
+    return _numToWordsES(th) + ' mil' + (rest ? ' ' + _numToWordsES(rest) : '')
+  }
+  const m = Math.floor(n / 1000000), rest = n % 1000000
+  return (m === 1 ? 'un millón' : _numToWordsES(m) + ' millones') + (rest ? ' ' + _numToWordsES(rest) : '')
+}
+
+function _numToWordsEN(n) {
+  if (n < 0) return 'negative ' + _numToWordsEN(-n)
+  if (n === 0) return 'zero'
+  const ones = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine',
+    'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen']
+  const tens = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety']
+  if (n < 20) return ones[n]
+  if (n < 100) return tens[Math.floor(n / 10)] + (n % 10 ? '-' + ones[n % 10] : '')
+  if (n < 1000) return ones[Math.floor(n / 100)] + ' hundred' + (n % 100 ? ' ' + _numToWordsEN(n % 100) : '')
+  if (n < 1000000) {
+    const th = Math.floor(n / 1000), rest = n % 1000
+    return _numToWordsEN(th) + ' thousand' + (rest ? ' ' + _numToWordsEN(rest) : '')
+  }
+  const m = Math.floor(n / 1000000), rest = n % 1000000
+  return (m === 1 ? 'one million' : _numToWordsEN(m) + ' million') + (rest ? ' ' + _numToWordsEN(rest) : '')
+}
+
+function _numToWordsPT(n) {
+  if (n < 0) return 'menos ' + _numToWordsPT(-n)
+  if (n === 0) return 'zero'
+  const ones = ['', 'um', 'dois', 'três', 'quatro', 'cinco', 'seis', 'sete', 'oito', 'nove',
+    'dez', 'onze', 'doze', 'treze', 'catorze', 'quinze', 'dezesseis', 'dezessete', 'dezoito', 'dezenove']
+  const tens = ['', '', 'vinte', 'trinta', 'quarenta', 'cinquenta', 'sessenta', 'setenta', 'oitenta', 'noventa']
+  const hundreds = ['', 'cento', 'duzentos', 'trezentos', 'quatrocentos', 'quinhentos',
+    'seiscentos', 'setecentos', 'oitocentos', 'novecentos']
+  if (n < 20) return ones[n]
+  if (n < 100) return tens[Math.floor(n / 10)] + (n % 10 ? ' e ' + ones[n % 10] : '')
+  if (n === 100) return 'cem'
+  if (n < 1000) return hundreds[Math.floor(n / 100)] + (n % 100 ? ' e ' + _numToWordsPT(n % 100) : '')
+  if (n === 1000) return 'mil'
+  if (n < 1000000) {
+    const th = Math.floor(n / 1000), rest = n % 1000
+    return _numToWordsPT(th) + ' mil' + (rest ? ' e ' + _numToWordsPT(rest) : '')
+  }
+  const m = Math.floor(n / 1000000), rest = n % 1000000
+  return (m === 1 ? 'um milhão' : _numToWordsPT(m) + ' milhões') + (rest ? ' ' + _numToWordsPT(rest) : '')
+}
+
+function _numToWordsFR(n) {
+  if (n < 0) return 'moins ' + _numToWordsFR(-n)
+  if (n === 0) return 'zéro'
+  const ones = ['', 'un', 'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf',
+    'dix', 'onze', 'douze', 'treize', 'quatorze', 'quinze', 'seize', 'dix-sept', 'dix-huit', 'dix-neuf']
+  if (n < 20) return ones[n]
+  if (n < 70) {
+    const t = Math.floor(n / 10), u = n % 10
+    const tw = ['', '', 'vingt', 'trente', 'quarante', 'cinquante', 'soixante']
+    return tw[t] + (u === 1 ? ' et un' : u > 0 ? '-' + ones[u] : '')
+  }
+  if (n < 80) { const u = n - 60; return 'soixante' + (u === 11 ? ' et onze' : '-' + ones[u]) }
+  if (n === 80) return 'quatre-vingts'
+  if (n < 100) return 'quatre-vingt-' + ones[n - 80]
+  if (n < 1000) {
+    const h = Math.floor(n / 100), rest = n % 100
+    if (h === 1) return 'cent' + (rest ? ' ' + _numToWordsFR(rest) : '')
+    return ones[h] + ' cent' + (rest ? ' ' + _numToWordsFR(rest) : 's')
+  }
+  if (n < 2000) return 'mille' + (n % 1000 ? ' ' + _numToWordsFR(n % 1000) : '')
+  if (n < 1000000) {
+    const th = Math.floor(n / 1000), rest = n % 1000
+    return _numToWordsFR(th) + ' mille' + (rest ? ' ' + _numToWordsFR(rest) : '')
+  }
+  const m = Math.floor(n / 1000000), rest = n % 1000000
+  return (m === 1 ? 'un million' : _numToWordsFR(m) + ' millions') + (rest ? ' ' + _numToWordsFR(rest) : '')
+}
+
+function _numToWordsDE(n) {
+  if (n < 0) return 'minus ' + _numToWordsDE(-n)
+  if (n === 0) return 'null'
+  const ones = ['', 'ein', 'zwei', 'drei', 'vier', 'fünf', 'sechs', 'sieben', 'acht', 'neun',
+    'zehn', 'elf', 'zwölf', 'dreizehn', 'vierzehn', 'fünfzehn', 'sechzehn', 'siebzehn', 'achtzehn', 'neunzehn']
+  const tensW = ['', '', 'zwanzig', 'dreißig', 'vierzig', 'fünfzig', 'sechzig', 'siebzig', 'achtzig', 'neunzig']
+  if (n < 20) return ones[n]
+  if (n < 100) { const t = Math.floor(n / 10), u = n % 10; return (u ? ones[u] + 'und' : '') + tensW[t] }
+  if (n < 1000) {
+    const h = Math.floor(n / 100), rest = n % 100
+    return (h === 1 ? 'ein' : ones[h]) + 'hundert' + (rest ? _numToWordsDE(rest) : '')
+  }
+  if (n < 1000000) {
+    const th = Math.floor(n / 1000), rest = n % 1000
+    return (th === 1 ? 'ein' : _numToWordsDE(th)) + 'tausend' + (rest ? _numToWordsDE(rest) : '')
+  }
+  const m = Math.floor(n / 1000000), rest = n % 1000000
+  return (m === 1 ? 'eine Million' : _numToWordsDE(m) + ' Millionen') + (rest ? ' ' + _numToWordsDE(rest) : '')
+}
+
+function _numToWordsIT(n) {
+  if (n < 0) return 'meno ' + _numToWordsIT(-n)
+  if (n === 0) return 'zero'
+  const ones = ['', 'uno', 'due', 'tre', 'quattro', 'cinque', 'sei', 'sette', 'otto', 'nove',
+    'dieci', 'undici', 'dodici', 'tredici', 'quattordici', 'quindici', 'sedici',
+    'diciassette', 'diciotto', 'diciannove']
+  const tensW = ['', '', 'venti', 'trenta', 'quaranta', 'cinquanta', 'sessanta', 'settanta', 'ottanta', 'novanta']
+  if (n < 20) return ones[n]
+  if (n < 100) {
+    const t = Math.floor(n / 10), u = n % 10
+    const base = tensW[t]
+    return (u === 1 || u === 8) ? base.slice(0, -1) + ones[u] : base + (u ? ones[u] : '')
+  }
+  if (n < 1000) {
+    const h = Math.floor(n / 100), rest = n % 100
+    return (h === 1 ? 'cento' : ones[h] + 'cento') + (rest ? _numToWordsIT(rest) : '')
+  }
+  if (n < 2000) return 'mille' + (n % 1000 ? _numToWordsIT(n % 1000) : '')
+  if (n < 1000000) {
+    const th = Math.floor(n / 1000), rest = n % 1000
+    return _numToWordsIT(th) + 'mila' + (rest ? _numToWordsIT(rest) : '')
+  }
+  const m = Math.floor(n / 1000000), rest = n % 1000000
+  return (m === 1 ? 'un milione' : _numToWordsIT(m) + ' milioni') + (rest ? ' ' + _numToWordsIT(rest) : '')
+}
+
+const NUM_TO_WORDS = {
+  Spanish: _numToWordsES, Portuguese: _numToWordsPT,
+  French: _numToWordsFR, German: _numToWordsDE, Italian: _numToWordsIT, English: _numToWordsEN,
+}
+
+function replaceNumbers(text, language) {
+  const fn = NUM_TO_WORDS[language] ?? _numToWordsEN
+  return text.replace(/\b(\d{1,9})\b/g, (_, num) => fn(parseInt(num, 10)))
+}
+
 async function speakElevenLabs(text, language, country, gender, shouldCancel = () => false) {
   const res = await fetch('/api/speak', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text: expandAbbreviations(text), language, country, gender }),
+    body: JSON.stringify({ text: replaceNumbers(expandAbbreviations(text), language), language, country, gender }),
   })
   if (!res.ok) throw new Error('TTS failed')
   if (shouldCancel()) return
@@ -723,10 +878,10 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           max_tokens: 4096,
-          system: `You are an expert communication coach analyzing a voice interview. The candidate spoke their answers aloud — there was no text or writing involved. Evaluate spoken communication: clarity, fluency, confidence, structure, and how natural they sound when speaking. Always respond with valid JSON only — no markdown, no explanation. Write your entire response in ${config.language}.`,
+          system: `You are an expert communication coach analyzing a voice interview. The candidate spoke their answers aloud — there was no text or writing involved. The transcript was generated by speech recognition software and may contain transcription errors: words may be missing, misheard, or substituted. Because of this, NEVER critique specific word choices, vocabulary, grammar, or phrasing from the transcript — you cannot know if an odd word is what the candidate actually said or a transcription error. Evaluate only observable communication patterns: structure, use of examples, logical flow, conciseness, confidence signals, and verbal organization. Always respond with valid JSON only — no markdown, no explanation. Write your entire response in ${config.language}.`,
           messages: [{
             role: 'user',
-            content: `Interview transcript:\n\n${transcript}\n\nAnalyze ONLY how the candidate communicated — clarity, structure, conciseness, confidence in tone, use of examples, verbal expression. Do NOT evaluate the content of their answers or the interviewer.\n\nIf the candidate gave fewer than 2 substantive responses, return {"notEnoughData": true} and nothing else.\n\nOtherwise respond with this exact JSON structure:\n{\n  "notEnoughData": false,\n  "score": <integer 0-1000 reflecting overall interview performance across all axes: clarity, structure, confidence, use of examples, and verbal fluency. 0-400 = needs significant work, 401-600 = developing, 601-800 = solid, 801-1000 = excellent>,\n  "headline": "2-5 word verdict on overall communication (e.g. 'Muy buena comunicación', 'Sólido pero mejorable', 'Potencial claro, falta estructura')",\n  "wentWell": [\n    "**Key concept in bold**: concrete observation. When possible, include a short verbatim quote from the candidate using \\"double quotes\\" to illustrate the point — only quote if you are certain the words appear in the transcript. Use (...) inside the quote to indicate omitted words, only when the language allows it orthographically. Apply correct capitalisation for the interview language.",\n    "**Another concept**: another specific observation with optional quote"\n  ],\n  "toImprove": [\n    "**Key concept in bold**: specific observation about what they need to improve. When possible, include a short verbatim quote using \\"double quotes\\" to illustrate the issue — only quote if certain. Use (...) for omissions when orthographically valid. Apply correct capitalisation.",\n    "**Another concept**: specific observation with optional quote"\n  ],\n  "suggestions": [\n    "**Actionable verb**: specific, concrete action the candidate can practice immediately — with **bold** on the key idea.",\n    "**Another action**: specific suggestion",\n    "**Another action**: specific suggestion"\n  ]\n}\n\nQuoting rules (CRITICAL):\n- Only include a quote if you are fully confident the exact words appear in the transcript. If any word is uncertain, omit the quote entirely.\n- Use straight double quotes: \\"like this\\".\n- (...) may be used inside a quote to indicate omitted words, but only when standard in the interview language (e.g. Spanish: valid; avoid in languages where it would look unnatural).\n- Begin each quote with the correct capitalisation for the language (e.g. in Spanish, lowercase after a colon unless it is a proper noun).\n- Keep quotes short: one clause or phrase maximum.\n\nUse **bold** (double asterisks) around the most important 1-3 words in each item. Maximum 2-3 items in wentWell, 2-3 items in toImprove, 3 suggestions.`,
+            content: `Interview transcript:\n\n${transcript}\n\nAnalyze ONLY how the candidate communicated — clarity, structure, conciseness, confidence in tone, use of examples, verbal organization. Do NOT evaluate the content of their answers or the interviewer. Do NOT critique word choices, vocabulary, grammar, or specific phrasing — the transcript comes from speech recognition and individual words may not be accurate.\n\nIf the candidate gave fewer than 2 substantive responses, return {"notEnoughData": true} and nothing else.\n\nOtherwise respond with this exact JSON structure:\n{\n  "notEnoughData": false,\n  "score": <integer 0-1000 reflecting overall interview performance across all axes: clarity, structure, confidence, use of examples, and verbal fluency. 0-400 = needs significant work, 401-600 = developing, 601-800 = solid, 801-1000 = excellent>,\n  "headline": "2-5 word verdict on overall communication (e.g. 'Muy buena comunicación', 'Sólido pero mejorable', 'Potencial claro, falta estructura')",\n  "wentWell": [\n    "**Key concept in bold**: concrete observation about a communication pattern — structure, use of examples, clarity, pacing, etc. Do NOT quote specific words from the transcript.",\n    "**Another concept**: another specific observation"\n  ],\n  "toImprove": [\n    "**Key concept in bold**: specific observation about a communication pattern to improve. Do NOT quote specific words from the transcript.",\n    "**Another concept**: specific observation"\n  ],\n  "suggestions": [\n    "**Actionable verb**: specific, concrete action the candidate can practice immediately — with **bold** on the key idea.",\n    "**Another action**: specific suggestion",\n    "**Another action**: specific suggestion"\n  ]\n}\n\nUse **bold** (double asterisks) around the most important 1-3 words in each item. Maximum 2-3 items in wentWell, 2-3 items in toImprove, 3 suggestions.`,
           }],
         }),
       })
@@ -840,7 +995,7 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
           <video ref={videoRef} autoPlay muted playsInline className="candidate-video" />
           <Avatar name={str.youLabel} isSpeaking={isRecording} isYou={true} />
           <div className={`mute-badge ${isRecording ? 'mute-badge--live' : 'mute-badge--muted'}`}>
-            {isRecording ? <IconMicOn /> : <IconMicOff />}
+            <IconMicOn />
           </div>
         </div>
       </main>
@@ -851,14 +1006,19 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
           : <p className="meet-status">{statusText}</p>
         }
         <div className="footer-controls">
-          <button
-            className={`mic-btn ${isRecording ? 'mic-btn--active' : ''} ${busy ? 'mic-btn--disabled' : ''}`}
-            onClick={() => { if (busy) return; isRecording ? stopRecording() : startRecording() }}
-            disabled={busy}
-            title={isRecording ? str.releaseHint : str.holdHint}
-          >
-            {isRecording ? <IconStop /> : <IconMicOn />}
-          </button>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+            <button
+              className={`mic-btn ${isRecording ? 'mic-btn--active' : ''} ${busy ? 'mic-btn--disabled' : ''}`}
+              onClick={() => { if (busy) return; isRecording ? stopRecording() : startRecording() }}
+              disabled={busy}
+              title={isRecording ? str.releaseHint : str.holdHint}
+            >
+              {isRecording ? <IconStop /> : <IconMicOn />}
+            </button>
+            <span className={`mic-label ${isRecording ? 'mic-label--live' : 'mic-label--idle'}`}>
+              {isRecording ? (str.recording ?? 'Grabando') : (str.speakLabel ?? 'Hablar')}
+            </span>
+          </div>
           <button
             className={`cam-btn ${cameraOn ? 'cam-btn--on' : 'cam-btn--off'}`}
             onClick={toggleCamera}
