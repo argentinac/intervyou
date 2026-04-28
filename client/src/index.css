@@ -2091,6 +2091,9 @@ html, body, #root, .app {
 .home-stat { text-align: center; flex: 1; }
 .home-stat-val { font-size: 22px; font-weight: 800; color: #6366f1; }
 .home-stat-key { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+.home-stats-single { text-align: center; padding: 8px 0; }
+.home-stat-val-big { font-size: 48px; font-weight: 800; color: #6366f1; line-height: 1; }
+.home-stat-key-sub { font-size: 12px; color: #94a3b8; margin-top: 6px; }
 .home-stats-empty {
   display: flex;
   flex-direction: column;
@@ -2317,6 +2320,12 @@ html, body, #root, .app {
 
 /* ── Interview detail ────────────────────────────────────── */
 .iv-detail { padding: 32px 36px; max-width: 720px; }
+.iv-detail-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
 .iv-back-btn {
   background: none;
   border: none;
@@ -2325,10 +2334,25 @@ html, body, #root, .app {
   font-weight: 600;
   cursor: pointer;
   padding: 0;
-  margin-bottom: 24px;
   font-family: inherit;
 }
 .iv-back-btn:hover { color: #4f46e5; }
+.iv-download-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 6px 12px;
+  font-family: inherit;
+  transition: border-color 0.15s, color 0.15s;
+}
+.iv-download-btn:hover { border-color: #6366f1; color: #6366f1; }
 .iv-detail-header {
   display: flex;
   align-items: flex-start;
