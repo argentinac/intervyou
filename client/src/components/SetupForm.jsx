@@ -151,9 +151,13 @@ export default function SetupForm({ onSubmit, onBack }) {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    // Unlock browser autoplay policy while we're inside the click event
+    // Play a silent 1-sample audio to unlock browser autoplay within the click gesture
     const ctx = new (window.AudioContext || window.webkitAudioContext)()
-    ctx.resume().catch(() => {})
+    const buf = ctx.createBuffer(1, 1, 22050)
+    const src = ctx.createBufferSource()
+    src.buffer = buf
+    src.connect(ctx.destination)
+    src.start(0)
     onSubmit(form)
   }
 
