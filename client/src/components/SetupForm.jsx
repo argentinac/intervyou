@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { unlockAudio } from '../audioContext'
 
 const LANG_OPTIONS = [
   { value: 'Spanish',    label: 'Español' },
@@ -151,13 +152,7 @@ export default function SetupForm({ onSubmit, onBack }) {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    // Play a silent 1-sample audio to unlock browser autoplay within the click gesture
-    const ctx = new (window.AudioContext || window.webkitAudioContext)()
-    const buf = ctx.createBuffer(1, 1, 22050)
-    const src = ctx.createBufferSource()
-    src.buffer = buf
-    src.connect(ctx.destination)
-    src.start(0)
+    unlockAudio()
     onSubmit(form)
   }
 
