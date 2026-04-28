@@ -1913,7 +1913,6 @@ html, body, #root, .app {
 /* ── Page sections ───────────────────────────────────────── */
 .iv-page {
   padding: 32px 36px;
-  max-width: 860px;
 }
 .db-page-header {
   margin-bottom: 28px;
@@ -2375,7 +2374,7 @@ html, body, #root, .app {
 .iv-loading { display: flex; align-items: center; justify-content: center; padding: 80px; }
 
 /* ── Interview detail ────────────────────────────────────── */
-.iv-detail { padding: 32px 36px; max-width: 720px; }
+.iv-detail { padding: 32px 36px; max-width: 720px; margin: 0 auto; }
 .iv-detail-topbar {
   display: flex;
   align-items: center;
@@ -2483,6 +2482,44 @@ html, body, #root, .app {
   margin-bottom: 20px;
 }
 .prog-empty-art { margin-bottom: 8px; }
+
+.prog-tooltip {
+  position: absolute;
+  transform: translate(-50%, calc(-100% - 14px));
+  background: #1e293b;
+  color: #f8fafc;
+  border-radius: 10px;
+  padding: 10px 14px;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 10;
+  box-shadow: 0 4px 16px rgba(0,0,0,.18);
+  min-width: 160px;
+}
+.prog-tooltip-title {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 3px;
+  white-space: normal;
+  max-width: 220px;
+}
+.prog-tooltip-meta {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-bottom: 2px;
+}
+.prog-tooltip-score {
+  font-size: 16px;
+  font-weight: 700;
+  color: #818cf8;
+  margin-top: 6px;
+}
+.prog-tooltip-score span { font-size: 12px; font-weight: 400; color: #64748b; }
+.prog-tooltip-hint {
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 6px;
+}
 
 /* ── Profile ─────────────────────────────────────────────── */
 .myprofile-art { margin-bottom: 8px; }

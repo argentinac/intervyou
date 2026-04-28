@@ -1,7 +1,19 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 
-function ScoreLineChart({ points }) {
+const DIFFICULTY_LABEL = { Junior: 'Junior', Intermediate: 'Semi-Senior', Senior: 'Senior' }
+const TYPE_LABEL = { HR: 'RRHH', Technical: 'Técnica', 'Real Simulation': 'Simulación real', Coach: 'Coach' }
+
+function formatDate(iso) {
+  if (!iso) return ''
+  const d = new Date(iso)
+  return d.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+}
+
+function ScoreLineChart({ points, onPointClick }) {
+  const [tooltip, setTooltip] = useState(null)
+  const svgRef = useRef(null)
+
   if (points.length < 1) return null
 
   const W = 600, H = 220
@@ -21,44 +33,96 @@ function ScoreLineChart({ points }) {
 
   const gridScores = [0, 250, 500, 750, 1000].filter(v => v >= minS && v <= maxS)
 
+  const handlePointEnter = (e, p, i) => {
+    const svgEl = svgRef.current
+    if (!svgEl) return
+    const rect = svgEl.getBoundingClientRect()
+    const svgW = rect.width
+    const scaleX = svgW / W
+    const scaleY = rect.height / H
+    const cx = xOf(i) * scaleX
+    const cy = yOf(p.score) * scaleY
+    setTooltip({ p, cx, cy })
+  }
+
+  const handlePointLeave = () => setTooltip(null)
+
+  const handlePointClick = (p) => {
+    if (onPointClick) onPointClick(p.id)
+  }
+
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', maxWidth: W, display: 'block' }}>
-      {/* Grid */}
-      {gridScores.map(v => (
-        <g key={v}>
-          <line x1={pad.left} x2={W - pad.right} y1={yOf(v)} y2={yOf(v)} stroke="#e2e8f0" strokeWidth="1" />
-          <text x={pad.left - 8} y={yOf(v) + 4} textAnchor="end" fontSize="11" fill="#94a3b8">{v}</text>
-        </g>
-      ))}
+    <div style={{ position: 'relative' }}>
+      <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', maxWidth: W, display: 'block' }}>
+        {/* Grid */}
+        {gridScores.map(v => (
+          <g key={v}>
+            <line x1={pad.left} x2={W - pad.right} y1={yOf(v)} y2={yOf(v)} stroke="#e2e8f0" strokeWidth="1" />
+            <text x={pad.left - 8} y={yOf(v) + 4} textAnchor="end" fontSize="11" fill="#94a3b8">{v}</text>
+          </g>
+        ))}
 
-      {/* Area fill */}
-      <polygon points={area} fill="url(#scoreGrad)" opacity="0.15" />
+        {/* Area fill */}
+        <polygon points={area} fill="url(#scoreGrad)" opacity="0.15" />
 
-      {/* Line */}
-      <polyline points={polyline} fill="none" stroke="#6366f1" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
+        {/* Line */}
+        <polyline points={polyline} fill="none" stroke="#6366f1" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
 
-      {/* Points */}
-      {points.map((p, i) => (
-        <g key={i}>
-          <circle cx={xOf(i)} cy={yOf(p.score)} r="5" fill="#fff" stroke="#6366f1" strokeWidth="2.5" />
-          <text x={xOf(i)} y={yOf(p.score) - 10} textAnchor="middle" fontSize="11" fontWeight="600" fill="#6366f1">{Math.round(p.score)}</text>
-        </g>
-      ))}
+        {/* Points */}
+        {points.map((p, i) => (
+          <g
+            key={i}
+            style={{ cursor: onPointClick ? 'pointer' : 'default' }}
+            onMouseEnter={(e) => handlePointEnter(e, p, i)}
+            onMouseLeave={handlePointLeave}
+            onClick={() => handlePointClick(p)}
+          >
+            <circle cx={xOf(i)} cy={yOf(p.score)} r="14" fill="transparent" />
+            <circle cx={xOf(i)} cy={yOf(p.score)} r="5" fill="#fff" stroke="#6366f1" strokeWidth="2.5" />
+            <text x={xOf(i)} y={yOf(p.score) - 10} textAnchor="middle" fontSize="11" fontWeight="600" fill="#6366f1">{Math.round(p.score)}</text>
+          </g>
+        ))}
 
-      {/* X-axis labels */}
-      {points.map((p, i) => (
-        <text key={i} x={xOf(i)} y={H - 8} textAnchor="middle" fontSize="10" fill="#94a3b8">
-          {new Date(p.date).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' })}
-        </text>
-      ))}
+        {/* X-axis labels */}
+        {points.map((p, i) => (
+          <text key={i} x={xOf(i)} y={H - 8} textAnchor="middle" fontSize="10" fill="#94a3b8">
+            {new Date(p.date).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' })}
+          </text>
+        ))}
 
-      <defs>
-        <linearGradient id="scoreGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#6366f1" />
-          <stop offset="100%" stopColor="#6366f1" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-    </svg>
+        <defs>
+          <linearGradient id="scoreGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#6366f1" />
+            <stop offset="100%" stopColor="#6366f1" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+      </svg>
+
+      {tooltip && (
+        <div
+          className="prog-tooltip"
+          style={{
+            left: tooltip.cx,
+            top: tooltip.cy,
+          }}
+        >
+          <div className="prog-tooltip-title">
+            {[tooltip.p.jobTitle, tooltip.p.companyName].filter(Boolean).join(' para ') || 'Entrevista'}
+          </div>
+          <div className="prog-tooltip-meta">
+            {formatDate(tooltip.p.date)}
+          </div>
+          {tooltip.p.type && (
+            <div className="prog-tooltip-meta">
+              {TYPE_LABEL[tooltip.p.type] ?? tooltip.p.type}
+              {tooltip.p.difficulty ? ` · ${DIFFICULTY_LABEL[tooltip.p.difficulty] ?? tooltip.p.difficulty}` : ''}
+            </div>
+          )}
+          <div className="prog-tooltip-score">{Math.round(tooltip.p.score)}<span>/1000</span></div>
+          {onPointClick && <div className="prog-tooltip-hint">Click para ver detalle</div>}
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -77,21 +141,15 @@ function EmptyProgress({ onNewInterview }) {
               <stop offset="100%" stopColor="#a5b4fc"/>
             </linearGradient>
           </defs>
-          {/* base platform */}
           <ellipse cx="80" cy="118" rx="60" ry="12" fill="#e2e8f0"/>
-          {/* bar 1 */}
           <rect x="32" y="70" width="22" height="44" rx="4" fill="url(#g2)" opacity="0.7"/>
           <rect x="32" y="66" width="22" height="8" rx="4" fill="#c7d2fe"/>
-          {/* bar 2 */}
           <rect x="60" y="44" width="22" height="70" rx="4" fill="url(#g1)" opacity="0.85"/>
           <rect x="60" y="40" width="22" height="8" rx="4" fill="#818cf8"/>
-          {/* bar 3 */}
           <rect x="88" y="56" width="22" height="58" rx="4" fill="url(#g2)" opacity="0.7"/>
           <rect x="88" y="52" width="22" height="8" rx="4" fill="#c7d2fe"/>
-          {/* bar 4 */}
           <rect x="116" y="30" width="22" height="84" rx="4" fill="url(#g1)"/>
           <rect x="116" y="26" width="22" height="8" rx="4" fill="#6366f1"/>
-          {/* sparkle */}
           <circle cx="130" cy="20" r="4" fill="#f59e0b" opacity="0.8"/>
           <circle cx="40" cy="58" r="3" fill="#10b981" opacity="0.6"/>
         </svg>
@@ -102,7 +160,7 @@ function EmptyProgress({ onNewInterview }) {
   )
 }
 
-export default function MyProgress() {
+export default function MyProgress({ onInterviewClick }) {
   const { getToken } = useAuth()
   const [points, setPoints] = useState([])
   const [loading, setLoading] = useState(true)
@@ -116,7 +174,15 @@ export default function MyProgress() {
       const list = await res.json()
       const scored = (Array.isArray(list) ? list : [])
         .filter(iv => iv.interview_feedback?.[0]?.score != null)
-        .map(iv => ({ date: iv.completed_at, score: iv.interview_feedback[0].score }))
+        .map(iv => ({
+          id: iv.id,
+          date: iv.completed_at,
+          score: iv.interview_feedback[0].score,
+          jobTitle: iv.config?.jobTitle,
+          companyName: iv.config?.companyName,
+          type: iv.config?.interviewType,
+          difficulty: iv.config?.difficulty,
+        }))
         .reverse()
       setPoints(scored)
       setLoading(false)
@@ -161,7 +227,7 @@ export default function MyProgress() {
 
           <div className="prog-chart-card">
             <div className="prog-chart-title">Evolución de puntuaciones</div>
-            <ScoreLineChart points={points} />
+            <ScoreLineChart points={points} onPointClick={onInterviewClick} />
           </div>
         </>
       )}
