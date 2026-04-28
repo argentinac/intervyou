@@ -5,6 +5,7 @@ import Landing from './components/Landing'
 import SetupForm from './components/SetupForm'
 import InterviewSession from './components/InterviewSession'
 import Dashboard from './components/Dashboard'
+import BlogPost from './components/BlogPost'
 
 class ErrorBoundary extends Component {
   constructor(props) {
@@ -29,21 +30,55 @@ class ErrorBoundary extends Component {
   }
 }
 
+function getInitialView() {
+  const path = window.location.pathname
+  if (path.startsWith('/blog/')) return 'blog'
+  return 'landing'
+}
+
+function getBlogSlugFromUrl() {
+  return window.location.pathname.replace('/blog/', '').replace(/\/$/, '')
+}
+
 function AppInner() {
   const { user } = useAuth()
-  const [view, setView] = useState('landing') // 'landing' | 'auth' | 'dashboard' | 'interview'
+  const [view, setView] = useState(getInitialView) // 'landing' | 'auth' | 'dashboard' | 'interview' | 'blog'
   const [interviewConfig, setInterviewConfig] = useState(null)
   const [interviewReturn, setInterviewReturn] = useState('landing')
+  const [blogSlug, setBlogSlug] = useState(getBlogSlugFromUrl)
 
   useEffect(() => {
-    if (user && view !== 'interview') setView('dashboard')
+    if (user && view !== 'interview' && view !== 'blog') setView('dashboard')
   }, [user])
+
+  const goToBlog = (slug) => {
+    setBlogSlug(slug)
+    setView('blog')
+    window.history.pushState({}, '', `/blog/${slug}`)
+    window.scrollTo(0, 0)
+  }
+
+  const leaveBlog = () => {
+    setView('landing')
+    window.history.pushState({}, '', '/')
+    window.scrollTo(0, 0)
+  }
 
   if (user === undefined) {
     return (
       <div style={{ display:'flex', alignItems:'center', justifyContent:'center', minHeight:'100vh', background:'#fafafa' }}>
         <div className="spinner" />
       </div>
+    )
+  }
+
+  if (view === 'blog') {
+    return (
+      <BlogPost
+        slug={blogSlug}
+        onBack={leaveBlog}
+        onTryFree={() => { setInterviewReturn('landing'); setView('interview'); window.history.pushState({}, '', '/') }}
+      />
     )
   }
 
@@ -54,6 +89,7 @@ function AppInner() {
         onLogin={() => setView('auth')}
         onTryFree={() => { setInterviewReturn('landing'); setView('interview') }}
         onDashboard={() => setView('dashboard')}
+        onBlogPost={goToBlog}
       />
     )
   }
