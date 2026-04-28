@@ -2012,6 +2012,8 @@ html, body, #root, .app {
   border: 1px solid #e2e8f0;
   border-radius: 16px;
   padding: 20px;
+  display: flex;
+  flex-direction: column;
 }
 .home-card-title {
   font-size: 13px;
@@ -2036,10 +2038,12 @@ html, body, #root, .app {
 }
 .home-tip-body {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 8px;
   text-align: center;
+  flex: 1;
 }
 .home-tip-text { flex: 1; }
 .home-tip-quote {
@@ -2087,7 +2091,7 @@ html, body, #root, .app {
 .home-practice-sub { font-size: 11px; color: #94a3b8; margin-top: 1px; }
 
 /* Stats */
-.home-stats { display: flex; flex-direction: column; gap: 14px; }
+.home-stats { display: flex; flex-direction: column; gap: 14px; flex: 1; justify-content: center; }
 .home-stats-nums { display: flex; gap: 16px; }
 .home-stat { text-align: center; flex: 1; }
 .home-stat-val { font-size: 22px; font-weight: 800; color: #6366f1; }
