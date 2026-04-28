@@ -290,6 +290,15 @@ function getPhase(n) {
 }
 
 let activeAudio = null
+let sharedAudioContext = null
+
+function getAudioContext() {
+  if (!sharedAudioContext || sharedAudioContext.state === 'closed') {
+    sharedAudioContext = new (window.AudioContext || window.webkitAudioContext)()
+  }
+  if (sharedAudioContext.state === 'suspended') sharedAudioContext.resume()
+  return sharedAudioContext
+}
 
 async function speakElevenLabs(text, language, country, gender, shouldCancel = () => false) {
   const res = await fetch('/api/speak', {
@@ -299,22 +308,24 @@ async function speakElevenLabs(text, language, country, gender, shouldCancel = (
   })
   if (!res.ok) throw new Error('TTS failed')
   if (shouldCancel()) return
-  const blob = await res.blob()
-  const url = URL.createObjectURL(blob)
-  if (shouldCancel()) { URL.revokeObjectURL(url); return }
+  const arrayBuffer = await res.arrayBuffer()
+  if (shouldCancel()) return
+  const ctx = getAudioContext()
+  const audioBuffer = await ctx.decodeAudioData(arrayBuffer)
+  if (shouldCancel()) return
   return new Promise((resolve) => {
-    const audio = new Audio(url)
-    activeAudio = audio
-    audio.onended = () => { URL.revokeObjectURL(url); activeAudio = null; resolve() }
-    audio.onerror = () => { URL.revokeObjectURL(url); activeAudio = null; resolve() }
-    audio.play()
+    const source = ctx.createBufferSource()
+    source.buffer = audioBuffer
+    source.connect(ctx.destination)
+    activeAudio = source
+    source.onended = () => { activeAudio = null; resolve() }
+    source.start(0)
   })
 }
 
 function stopActiveAudio() {
   if (activeAudio) {
-    activeAudio.pause()
-    activeAudio.src = ''
+    try { activeAudio.stop() } catch {}
     activeAudio = null
   }
 }
