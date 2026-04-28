@@ -27,9 +27,13 @@ const KNOWN_DOMAINS = {
 
 function companyDomain(name) {
   if (!name) return null
-  const key = name.toLowerCase().trim()
-  if (KNOWN_DOMAINS[key]) return KNOWN_DOMAINS[key]
-  return key.replace(/\s+/g, '').replace(/[^a-z0-9]/g, '') + '.com'
+  // Normalize: lowercase, trim, remove punctuation for matching
+  const normalized = name.toLowerCase().trim().replace(/[^a-z0-9\s]/g, '').trim()
+  if (KNOWN_DOMAINS[normalized]) return KNOWN_DOMAINS[normalized]
+  // Also try without spaces
+  const noSpaces = normalized.replace(/\s+/g, '')
+  if (KNOWN_DOMAINS[noSpaces]) return KNOWN_DOMAINS[noSpaces]
+  return noSpaces + '.com'
 }
 
 function renderBold(text) {
@@ -37,12 +41,18 @@ function renderBold(text) {
   return parts.map((part, i) => i % 2 === 1 ? <strong key={i}>{part}</strong> : part)
 }
 
+const LOGO_SOURCES = (domain) => [
+  `https://logo.clearbit.com/${domain}`,
+  `https://www.google.com/s2/favicons?domain=${domain}&sz=128`,
+]
+
 function CompanyLogo({ name }) {
-  const [failed, setFailed] = useState(false)
+  const [srcIndex, setSrcIndex] = useState(0)
   const domain = companyDomain(name)
   const initials = name ? name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() : '?'
+  const sources = domain ? LOGO_SOURCES(domain) : []
 
-  if (!domain || failed) {
+  if (!domain || srcIndex >= sources.length) {
     return (
       <div className="iv-company-initials">{initials}</div>
     )
@@ -50,9 +60,9 @@ function CompanyLogo({ name }) {
   return (
     <img
       className="iv-company-logo"
-      src={`https://logo.clearbit.com/${domain}`}
+      src={sources[srcIndex]}
       alt={name}
-      onError={() => setFailed(true)}
+      onError={() => setSrcIndex(i => i + 1)}
     />
   )
 }
