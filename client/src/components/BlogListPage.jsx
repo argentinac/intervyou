@@ -2,7 +2,7 @@ import { blogPosts } from '../data/blogPosts'
 
 export default function BlogListPage({ onBlogPost }) {
   return (
-    <div className="iv-page">
+    <div className="iv-page blp-page">
       <div className="db-page-header">
         <h2>Recursos</h2>
         <p style={{ fontSize: 14, color: '#6b7280', marginTop: 4 }}>

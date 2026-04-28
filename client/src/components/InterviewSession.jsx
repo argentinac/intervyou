@@ -3,8 +3,12 @@ import PhaseIndicator from './PhaseIndicator'
 import Avatar from './Avatar'
 import FeedbackSummary from './FeedbackSummary'
 import { useAuth } from '../contexts/AuthContext'
+import { supabase } from '../lib/supabase'
 import { INTERVIEW_TIPS } from '../data/tips'
 import { getAudioContext } from '../audioContext'
+
+const INACTIVITY_MS = 120000   // 2 minutos de inactividad → mostrar alerta
+const WARN_SECS     = 30       // 30 segundos de countdown antes de cerrar
 
 function IntroLoading() {
   const [tipIndex, setTipIndex] = useState(() => Math.floor(Math.random() * INTERVIEW_TIPS.length))
@@ -359,6 +363,11 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
   const interviewerName = config.companyName ? `${config.companyName} — ${interviewerLabel}` : interviewerLabel
 
   const [cameraOn, setCameraOn] = useState(false)
+  const [inactivityWarning, setInactivityWarning] = useState(false)
+  const [warnCountdown, setWarnCountdown] = useState(WARN_SECS)
+
+  const inactivityTimerRef = useRef(null)
+  const countdownTimerRef  = useRef(null)
 
   const recognitionRef     = useRef(null)
   const interimTextRef     = useRef('')
@@ -380,6 +389,39 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
 
   useEffect(() => { messagesRef.current = messages }, [messages])
   useEffect(() => { sessionEndedRef.current = sessionEnded }, [sessionEnded])
+
+  // ── Inactivity timer ──────────────────────────────────────
+  const resetInactivity = useCallback(() => {
+    if (sessionEndedRef.current) return
+    setInactivityWarning(false)
+    setWarnCountdown(WARN_SECS)
+    clearTimeout(inactivityTimerRef.current)
+    clearInterval(countdownTimerRef.current)
+    inactivityTimerRef.current = setTimeout(() => {
+      if (sessionEndedRef.current) return
+      setInactivityWarning(true)
+      let remaining = WARN_SECS
+      countdownTimerRef.current = setInterval(() => {
+        remaining -= 1
+        setWarnCountdown(remaining)
+        if (remaining <= 0) {
+          clearInterval(countdownTimerRef.current)
+          endInterviewRef.current?.()
+        }
+      }, 1000)
+    }, INACTIVITY_MS)
+  }, [])
+
+  // Iniciar timer solo cuando la entrevista empiece (primer mensaje del entrevistador)
+  useEffect(() => {
+    if (messages.length > 0 && !sessionEnded) resetInactivity()
+  }, [messages.length, sessionEnded]) // eslint-disable-line
+
+  // Limpiar timers al desmontar
+  useEffect(() => () => {
+    clearTimeout(inactivityTimerRef.current)
+    clearInterval(countdownTimerRef.current)
+  }, [])
 
   // ── Camera toggle ─────────────────────────────────────────
   const toggleCamera = useCallback(async () => {
@@ -695,7 +737,12 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
 
       // Save to DB (best-effort — never block the feedback screen)
       try {
-        const token = await getToken()
+        let token = await getToken()
+        if (!token && supabase) {
+          // Guest: sign in anonymously so the interview gets saved
+          const { data: anonData } = await supabase.auth.signInAnonymously()
+          token = anonData?.session?.access_token ?? null
+        }
         if (token) {
           await fetch('/api/interviews', {
             method: 'POST',
@@ -753,6 +800,24 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
 
   return (
     <div className="meet-page">
+      {inactivityWarning && !sessionEnded && (
+        <div className="inactivity-overlay">
+          <div className="inactivity-modal">
+            <div className="inactivity-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+            </div>
+            <h3 className="inactivity-title">¿Estás ahí?</h3>
+            <p className="inactivity-msg">No detectamos actividad. Vamos a cerrar la simulación en</p>
+            <div className="inactivity-countdown">{warnCountdown}</div>
+            <p className="inactivity-sub">segundos</p>
+            <button className="inactivity-btn" onClick={() => { resetInactivity() }}>
+              Sigo aquí →
+            </button>
+          </div>
+        </div>
+      )}
       <header className="meet-topbar">
         <div className="logo">
           <img src="/logo.png" alt="intervyou" style={{height:44,width:'auto'}} />
