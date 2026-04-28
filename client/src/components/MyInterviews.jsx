@@ -42,17 +42,24 @@ function renderBold(text) {
 }
 
 function CompanyLogo({ name }) {
-  const [failed, setFailed] = useState(false)
+  const [srcIndex, setSrcIndex] = useState(0)
   const domain = companyDomain(name)
   const initials = name ? name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() : '?'
 
-  if (!domain || failed) return <div className="iv-company-initials">{initials}</div>
+  const sources = domain ? [
+    `https://logo.clearbit.com/${domain}`,
+    `https://www.google.com/s2/favicons?domain=${domain}&sz=128`,
+  ] : []
+
+  if (!sources.length || srcIndex >= sources.length) {
+    return <div className="iv-company-initials">{initials}</div>
+  }
   return (
     <img
       className="iv-company-logo"
-      src={`https://logo.clearbit.com/${domain}`}
+      src={sources[srcIndex]}
       alt={name}
-      onError={() => setFailed(true)}
+      onError={() => setSrcIndex(prev => prev + 1)}
     />
   )
 }
@@ -84,7 +91,7 @@ function downloadFeedback(data) {
   text += `${formatDate(completed_at)}\n`
   if (config?.interviewType) text += `Tipo: ${TYPE_LABEL[config.interviewType] ?? config.interviewType}\n`
   if (config?.difficulty) text += `Nivel: ${DIFFICULTY_LABEL[config.difficulty] ?? config.difficulty}\n`
-  if (feedback?.score) text += `Score: ${Math.round(feedback.score)}/10\n`
+  if (feedback?.score) text += `Score: ${Math.round(feedback.score)}/1000\n`
   if (feedback?.headline) text += `\n${feedback.headline}\n`
 
   if (feedback?.went_well?.length) {

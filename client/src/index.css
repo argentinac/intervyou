@@ -2012,6 +2012,8 @@ html, body, #root, .app {
   border: 1px solid #e2e8f0;
   border-radius: 16px;
   padding: 20px;
+  display: flex;
+  flex-direction: column;
 }
 .home-card-title {
   font-size: 13px;
@@ -2036,9 +2038,12 @@ html, body, #root, .app {
 }
 .home-tip-body {
   display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   gap: 8px;
+  text-align: center;
+  flex: 1;
 }
 .home-tip-text { flex: 1; }
 .home-tip-quote {
@@ -2086,12 +2091,12 @@ html, body, #root, .app {
 .home-practice-sub { font-size: 11px; color: #94a3b8; margin-top: 1px; }
 
 /* Stats */
-.home-stats { display: flex; flex-direction: column; gap: 14px; }
+.home-stats { display: flex; flex-direction: column; gap: 14px; flex: 1; justify-content: center; }
 .home-stats-nums { display: flex; gap: 16px; }
 .home-stat { text-align: center; flex: 1; }
 .home-stat-val { font-size: 22px; font-weight: 800; color: #6366f1; }
 .home-stat-key { font-size: 11px; color: #94a3b8; margin-top: 2px; }
-.home-stats-single { text-align: center; padding: 8px 0; }
+.home-stats-single { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; text-align: center; padding: 16px 0; }
 .home-stat-val-big { font-size: 48px; font-weight: 800; color: #6366f1; line-height: 1; }
 .home-stat-key-sub { font-size: 12px; color: #94a3b8; margin-top: 6px; }
 .home-stats-empty {
@@ -2898,4 +2903,37 @@ html, body, #root, .app {
   .blog-section-title { font-size: 24px; }
   .bp-content h1 { font-size: 24px; }
   .bp-cta-box { padding: 28px 20px; }
+}
+
+/* ── BlogListPage (Recursos en dashboard) ─────────────────── */
+.blp-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-top: 8px;
+}
+.blp-card {
+  background: #fff;
+  border: 1px solid #f1f5f9;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.18s, transform 0.18s;
+}
+.blp-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.10); transform: translateY(-2px); }
+.blp-card-img-wrap { width: 100%; aspect-ratio: 16/9; overflow: hidden; background: #e5e7eb; }
+.blp-card-img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.3s; }
+.blp-card:hover .blp-card-img { transform: scale(1.04); }
+.blp-card-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.blp-card-title { font-size: 13px; font-weight: 700; color: #111827; line-height: 1.35; margin: 0; }
+.blp-card-excerpt { font-size: 12px; color: #6b7280; line-height: 1.5; margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.blp-card-link { font-size: 12px; font-weight: 500; color: #4f46e5; margin-top: auto; padding-top: 4px; }
+
+@media (max-width: 900px) {
+  .blp-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 540px) {
+  .blp-grid { grid-template-columns: 1fr; }
 }

@@ -5,6 +5,7 @@ import MyInterviews from './MyInterviews'
 import MyProgress from './MyProgress'
 import MyProfile from './MyProfile'
 import SettingsPage from './SettingsPage'
+import BlogListPage from './BlogListPage'
 import { INTERVIEW_TIPS } from '../data/tips'
 import targetImg from '../assets/Target.png'
 import mountainImg from '../assets/Montaña.png'
@@ -50,6 +51,11 @@ const IconCrown = () => (
     <path d="M2 20h20v2H2zM3 8l4 8h10l4-8-5 3-4-6-4 6z"/>
   </svg>
 )
+const IconBook = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+  </svg>
+)
 
 const DAILY_TIP = INTERVIEW_TIPS[Math.floor(Date.now() / 86400000) % INTERVIEW_TIPS.length]
 
@@ -90,8 +96,8 @@ function MiniScoreChart({ interviews }) {
   if (scored.length < 2) return null
   const scores = scored.map(iv => iv.interview_feedback[0].score)
   const W = 220, H = 80, pad = 8
-  const min = Math.max(0, Math.min(...scores) - 1)
-  const max = Math.min(10, Math.max(...scores) + 1)
+  const min = Math.max(0, Math.min(...scores) - 50)
+  const max = Math.min(1000, Math.max(...scores) + 50)
   const x = (i) => pad + (i / (scores.length - 1)) * (W - pad * 2)
   const y = (s) => H - pad - ((s - min) / (max - min)) * (H - pad * 2)
   const points = scores.map((s, i) => `${x(i)},${y(s)}`).join(' ')
@@ -140,22 +146,22 @@ function makeMockInterview(i, score, daysAgo) {
 
 const DEMO_STATES = [
   { label: '0 entrevistas', interviews: [] },
-  { label: '1 entrevista', interviews: [makeMockInterview(0, 6.8, 3)] },
+  { label: '1 entrevista', interviews: [makeMockInterview(0, 680, 3)] },
   {
     label: '5 entrevistas',
     interviews: [
-      makeMockInterview(0, 5.2, 30),
-      makeMockInterview(1, 6.1, 22),
-      makeMockInterview(2, 6.8, 15),
-      makeMockInterview(3, 7.4, 8),
-      makeMockInterview(4, 8.1, 2),
+      makeMockInterview(0, 520, 30),
+      makeMockInterview(1, 610, 22),
+      makeMockInterview(2, 680, 15),
+      makeMockInterview(3, 740, 8),
+      makeMockInterview(4, 810, 2),
     ],
   },
   {
     label: '50 entrevistas',
     interviews: Array.from({ length: 50 }, (_, i) => {
-      const score = Math.min(10, 4.5 + (i / 50) * 4.5 + (Math.random() - 0.5) * 1.5)
-      return makeMockInterview(i, +score.toFixed(1), 180 - i * 3)
+      const score = Math.min(1000, 450 + (i / 50) * 450 + (Math.random() - 0.5) * 150)
+      return makeMockInterview(i, Math.round(score), 180 - i * 3)
     }),
   },
 ]
@@ -360,7 +366,7 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews }) {
         {/* Consejo del día */}
         <div className="home-card home-card--tip">
           <div className="home-tip-label">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21h6"/><path d="M12 3a6 6 0 0 1 6 6c0 2.5-1.5 4.7-3.5 5.9V17H9.5v-2.1C7.5 13.7 6 11.5 6 9a6 6 0 0 1 6-6z"/></svg>
             Consejo del día
           </div>
           <div className="home-tip-body">
@@ -426,7 +432,7 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews }) {
   )
 }
 
-export default function Dashboard({ onNewInterview, onSignOut }) {
+export default function Dashboard({ onNewInterview, onSignOut, onBlogPost }) {
   const { user, signOut } = useAuth()
   const [section, setSection] = useState('home')
   const [profile, setProfile] = useState(null)
@@ -457,6 +463,7 @@ export default function Dashboard({ onNewInterview, onSignOut }) {
     { id: 'new',        label: 'Nueva entrevista',      icon: <IconPlus />, primary: true },
     { id: 'interviews', label: 'Mis entrevistas',       icon: <IconList /> },
     { id: 'progress',   label: 'Mi progreso',           icon: <IconTrend /> },
+    { id: 'recursos',   label: 'Recursos',              icon: <IconBook /> },
     { id: 'profile',    label: 'Mi perfil profesional', icon: <IconUser /> },
     { id: 'settings',   label: 'Configuración',         icon: <IconSettings /> },
   ]
@@ -525,6 +532,7 @@ export default function Dashboard({ onNewInterview, onSignOut }) {
         )}
         {section === 'interviews' && <MyInterviews onNewInterview={onNewInterview} />}
         {section === 'progress'   && <MyProgress />}
+        {section === 'recursos'   && <BlogListPage onBlogPost={onBlogPost} />}
         {section === 'profile'    && <MyProfile />}
         {section === 'settings'   && <SettingsPage onSignOut={handleSignOut} />}
       </main>
