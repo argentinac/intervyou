@@ -41,28 +41,18 @@ function renderBold(text) {
   return parts.map((part, i) => i % 2 === 1 ? <strong key={i}>{part}</strong> : part)
 }
 
-const LOGO_SOURCES = (domain) => [
-  `https://logo.clearbit.com/${domain}`,
-  `https://www.google.com/s2/favicons?domain=${domain}&sz=128`,
-]
-
 function CompanyLogo({ name }) {
-  const [srcIndex, setSrcIndex] = useState(0)
+  const [failed, setFailed] = useState(false)
   const domain = companyDomain(name)
   const initials = name ? name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() : '?'
-  const sources = domain ? LOGO_SOURCES(domain) : []
 
-  if (!domain || srcIndex >= sources.length) {
-    return (
-      <div className="iv-company-initials">{initials}</div>
-    )
-  }
+  if (!domain || failed) return <div className="iv-company-initials">{initials}</div>
   return (
     <img
       className="iv-company-logo"
-      src={sources[srcIndex]}
+      src={`https://logo.clearbit.com/${domain}`}
       alt={name}
-      onError={() => setSrcIndex(i => i + 1)}
+      onError={() => setFailed(true)}
     />
   )
 }
@@ -76,10 +66,10 @@ function formatDate(iso) {
 
 function ScoreBadge({ score }) {
   if (score === null || score === undefined) return null
-  const color = score >= 8 ? '#10b981' : score >= 6 ? '#f59e0b' : '#ef4444'
+  const color = score >= 800 ? '#10b981' : score >= 600 ? '#f59e0b' : '#ef4444'
   return (
     <span className="iv-score-badge" style={{ background: color + '18', color }}>
-      {Math.round(score)}<span style={{ fontSize: 11, opacity: 0.7 }}>/10</span>
+      <span style={{ fontSize: 11, opacity: 0.7 }}>Score </span>{Math.round(score)}
     </span>
   )
 }
