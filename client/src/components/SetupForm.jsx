@@ -153,6 +153,10 @@ export default function SetupForm({ onSubmit, onBack }) {
   const handleSubmit = (e) => {
     e.preventDefault()
     unlockAudio()
+    // Request mic permission now (on user gesture) so it doesn't pop up mid-interview
+    navigator.mediaDevices?.getUserMedia({ audio: true })
+      .then(s => s.getTracks().forEach(t => t.stop()))
+      .catch(() => {})
     onSubmit(form)
   }
 

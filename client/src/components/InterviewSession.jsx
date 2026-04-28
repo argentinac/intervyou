@@ -247,6 +247,7 @@ END OF INTERVIEW: Append the token [END_INTERVIEW] at the very end of your farew
 
 Hard rules:
 - This is a VOICE-ONLY interview. Your responses will be read aloud by a text-to-speech engine. Never use bullet points, numbered lists, markdown, symbols, or any visual formatting. Write in natural spoken sentences only.
+- Never use abbreviations or acronyms (HR, CEO, CTO, IT, etc.) — always spell them out in full (e.g. "Recursos Humanos", "director ejecutivo"). This is critical because abbreviations sound unnatural when read aloud.
 - Keep every response under 2 sentences.
 - Never break character. You are a real human interviewer.
 - Never acknowledge being an AI or a simulation.
@@ -294,11 +295,25 @@ function getPhase(n) {
 
 let activeAudio = null
 
+const ABBREV_MAP = {
+  'HR': 'Recursos Humanos', 'CEO': 'director ejecutivo', 'CTO': 'director de tecnología',
+  'CFO': 'director financiero', 'COO': 'director de operaciones', 'IT': 'tecnología',
+  'UX': 'experiencia de usuario', 'UI': 'interfaz de usuario', 'PM': 'product manager',
+  'KPI': 'indicador clave', 'OKR': 'objetivo clave', 'API': 'interfaz de programación',
+  'SQL': 'sequel', 'CSS': 'ce ese ese', 'JS': 'javascript',
+  'Sr': 'Senior', 'Jr': 'Junior',
+}
+
+function expandAbbreviations(text) {
+  return Object.entries(ABBREV_MAP).reduce((t, [abbr, full]) =>
+    t.replace(new RegExp(`\\b${abbr}\\b\\.?`, 'g'), full), text)
+}
+
 async function speakElevenLabs(text, language, country, gender, shouldCancel = () => false) {
   const res = await fetch('/api/speak', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text, language, country, gender }),
+    body: JSON.stringify({ text: expandAbbreviations(text), language, country, gender }),
   })
   if (!res.ok) throw new Error('TTS failed')
   if (shouldCancel()) return
