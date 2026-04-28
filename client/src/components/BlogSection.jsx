@@ -1,7 +1,8 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { blogPosts } from '../data/blogPosts'
 
 const VISIBLE = 4
+const MAX_DOTS = 4
 
 export default function BlogSection({ onBlogPost }) {
   const [index, setIndex] = useState(0)
@@ -11,6 +12,10 @@ export default function BlogSection({ onBlogPost }) {
   const next = () => setIndex(i => Math.min(maxIndex, i + 1))
 
   const visible = blogPosts.slice(index, index + VISIBLE)
+
+  // Sliding window of MAX_DOTS dots
+  const windowStart = Math.max(0, Math.min(index - Math.floor(MAX_DOTS / 2), maxIndex + 1 - MAX_DOTS))
+  const dots = Array.from({ length: Math.min(MAX_DOTS, maxIndex + 1) }, (_, i) => windowStart + i)
 
   return (
     <section className="blog-section">
@@ -33,7 +38,7 @@ export default function BlogSection({ onBlogPost }) {
 
         <div className="blog-cards-grid">
           {visible.map(post => (
-            <article key={post.slug} className="blog-card">
+            <article key={post.slug} className="blog-card" onClick={() => onBlogPost(post.slug)} role="button" tabIndex={0} onKeyDown={e => e.key === 'Enter' && onBlogPost(post.slug)}>
               <div className="blog-card-img-wrap">
                 <img
                   src={post.image}
@@ -45,16 +50,14 @@ export default function BlogSection({ onBlogPost }) {
               <div className="blog-card-body">
                 <h3 className="blog-card-title">{post.title}</h3>
                 <p className="blog-card-excerpt">{post.excerpt}</p>
-                <button className="blog-card-link" onClick={() => onBlogPost(post.slug)}>
-                  Leer artículo <span>→</span>
-                </button>
+                <span className="blog-card-link">Leer artículo <span>→</span></span>
               </div>
             </article>
           ))}
         </div>
 
         <div className="blog-dots">
-          {Array.from({ length: maxIndex + 1 }).map((_, i) => (
+          {dots.map(i => (
             <button
               key={i}
               className={`blog-dot${i === index ? ' blog-dot--active' : ''}`}
