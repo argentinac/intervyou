@@ -41,7 +41,7 @@ function ScoreLineChart({ points }) {
       {points.map((p, i) => (
         <g key={i}>
           <circle cx={xOf(i)} cy={yOf(p.score)} r="5" fill="#fff" stroke="#6366f1" strokeWidth="2.5" />
-          <text x={xOf(i)} y={yOf(p.score) - 10} textAnchor="middle" fontSize="11" fontWeight="600" fill="#6366f1">{p.score.toFixed(1)}</text>
+          <text x={xOf(i)} y={yOf(p.score) - 10} textAnchor="middle" fontSize="11" fontWeight="600" fill="#6366f1">{Math.round(p.score)}</text>
         </g>
       ))}
 
@@ -124,9 +124,9 @@ export default function MyProgress() {
     load()
   }, [])
 
-  const avg = points.length ? (points.reduce((s, p) => s + p.score, 0) / points.length).toFixed(1) : null
-  const best = points.length ? Math.max(...points.map(p => p.score)).toFixed(1) : null
-  const last = points.length ? points[points.length - 1].score.toFixed(1) : null
+  const avg = points.length ? Math.round(points.reduce((s, p) => s + p.score, 0) / points.length) : null
+  const best = points.length ? Math.round(Math.max(...points.map(p => p.score))) : null
+  const last = points.length ? Math.round(points[points.length - 1].score) : null
 
   return (
     <div className="iv-page">

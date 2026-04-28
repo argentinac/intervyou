@@ -64,11 +64,11 @@ export async function speakRoute(req, res) {
           model_id: 'eleven_turbo_v2_5',
           language_code: languageCode,
           voice_settings: {
-            stability: 0.30,
+            stability: 0.60,
             similarity_boost: 0.75,
-            style: 0.45,
+            style: 0.15,
             use_speaker_boost: true,
-            speed: 1.15,
+            speed: 1.0,
           },
         }),
       }
