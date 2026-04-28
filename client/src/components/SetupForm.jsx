@@ -12,9 +12,9 @@ const LANG_OPTIONS = [
 
 const DiffIcon = ({ bars }) => (
   <svg width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ display:'block' }}>
-    <rect x="0.5"  y="9.5"  width="4" height="6" rx="1" stroke="currentColor" strokeWidth="1.5" fill={bars >= 1 ? 'currentColor' : 'none'} fillOpacity={bars >= 1 ? 0.15 : 0}/>
-    <rect x="7.5"  y="5.5"  width="4" height="10" rx="1" stroke="currentColor" strokeWidth="1.5" fill={bars >= 2 ? 'currentColor' : 'none'} fillOpacity={bars >= 2 ? 0.15 : 0}/>
-    <rect x="14.5" y="0.5"  width="4" height="15" rx="1" stroke="currentColor" strokeWidth="1.5" fill={bars >= 3 ? 'currentColor' : 'none'} fillOpacity={bars >= 3 ? 0.15 : 0}/>
+    <rect x="0.5"  y="9.5"  width="4" height="6" rx="1" stroke="currentColor" strokeWidth="1.5" fill={bars >= 1 ? 'currentColor' : 'none'} fillOpacity={bars >= 1 ? 0.85 : 0}/>
+    <rect x="7.5"  y="5.5"  width="4" height="10" rx="1" stroke="currentColor" strokeWidth="1.5" fill={bars >= 2 ? 'currentColor' : 'none'} fillOpacity={bars >= 2 ? 0.85 : 0}/>
+    <rect x="14.5" y="0.5"  width="4" height="15" rx="1" stroke="currentColor" strokeWidth="1.5" fill={bars >= 3 ? 'currentColor' : 'none'} fillOpacity={bars >= 3 ? 0.85 : 0}/>
   </svg>
 )
 
@@ -95,16 +95,16 @@ const RadioCard = ({ active, label, desc, onClick, wide, icon }) => (
 
 // ── Main ───────────────────────────────────────────────────
 
-export default function SetupForm({ onSubmit, onBack }) {
+export default function SetupForm({ onSubmit, onBack, initialConfig }) {
   const [step, setStep] = useState(1)
   const [form, setForm] = useState({
-    country: '',
-    language: 'Spanish',
-    interviewType: 'HR',
-    difficulty: 'Intermediate',
-    jobTitle: '',
-    jobDescription: '',
-    companyName: '',
+    country: initialConfig?.country ?? '',
+    language: initialConfig?.language ?? 'Spanish',
+    interviewType: initialConfig?.interviewType ?? 'HR',
+    difficulty: initialConfig?.difficulty ?? 'Intermediate',
+    jobTitle: initialConfig?.jobTitle ?? '',
+    jobDescription: initialConfig?.jobDescription ?? '',
+    companyName: initialConfig?.companyName ?? '',
   })
   const [generatingDesc, setGeneratingDesc] = useState(false)
 

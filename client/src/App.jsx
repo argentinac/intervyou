@@ -58,6 +58,12 @@ function AppInner() {
     window.scrollTo(0, 0)
   }
 
+  const repeatInterview = (config) => {
+    setInterviewConfig(config)
+    setInterviewReturn('dashboard')
+    setView('interview')
+  }
+
   const leaveBlog = () => {
     setView('landing')
     window.history.pushState({}, '', '/')
@@ -103,7 +109,8 @@ function AppInner() {
       return (
         <SetupForm
           onSubmit={(cfg) => setInterviewConfig(cfg)}
-          onBack={() => setView(interviewReturn)}
+          onBack={() => { setInterviewConfig(null); setView(interviewReturn) }}
+          initialConfig={interviewConfig}
         />
       )
     }
@@ -123,6 +130,7 @@ function AppInner() {
         onNewInterview={() => { setInterviewReturn('dashboard'); setView('interview') }}
         onSignOut={() => setView('landing')}
         onBlogPost={goToBlog}
+        onRepeatInterview={repeatInterview}
       />
     )
   }

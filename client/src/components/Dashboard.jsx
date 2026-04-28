@@ -432,7 +432,7 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews }) {
   )
 }
 
-export default function Dashboard({ onNewInterview, onSignOut, onBlogPost }) {
+export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRepeatInterview }) {
   const { user, signOut } = useAuth()
   const [section, setSection] = useState('home')
   const [profile, setProfile] = useState(null)
@@ -530,7 +530,7 @@ export default function Dashboard({ onNewInterview, onSignOut, onBlogPost }) {
             mockInterviews={demoIndex !== null ? DEMO_STATES[demoIndex].interviews : undefined}
           />
         )}
-        {section === 'interviews' && <MyInterviews onNewInterview={onNewInterview} />}
+        {section === 'interviews' && <MyInterviews onNewInterview={onNewInterview} onRepeat={onRepeatInterview} />}
         {section === 'progress'   && <MyProgress />}
         {section === 'recursos'   && <BlogListPage onBlogPost={onBlogPost} />}
         {section === 'profile'    && <MyProfile />}

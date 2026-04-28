@@ -1128,10 +1128,12 @@ html, body, #root, .app {
 
 /* ── Nav ── */
 .ld-nav {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 100;
-  background: rgba(255,255,255,0.92);
+  background: rgba(255,255,255,0.95);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid #e5e7eb;
 }
@@ -1205,7 +1207,7 @@ html, body, #root, .app {
 .ld-hero {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 80px 24px 60px;
+  padding: 144px 24px 60px; /* 80px original + 64px navbar */
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 60px;
@@ -2314,9 +2316,11 @@ html, body, #root, .app {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   text-align: center;
   padding: 64px 24px;
   gap: 12px;
+  width: 100%;
 }
 .iv-empty-icon { color: #cbd5e1; margin-bottom: 8px; }
 .iv-empty h3 { font-size: 17px; font-weight: 600; color: #374151; margin: 0; }
@@ -2906,6 +2910,7 @@ html, body, #root, .app {
 }
 
 /* ── BlogListPage (Recursos en dashboard) ─────────────────── */
+.blp-page { max-width: 1100px; }
 .blp-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -2937,3 +2942,79 @@ html, body, #root, .app {
 @media (max-width: 540px) {
   .blp-grid { grid-template-columns: 1fr; }
 }
+
+/* ── Inactivity warning modal ────────────────────────────── */
+.inactivity-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.inactivity-modal {
+  background: #fff;
+  border-radius: 20px;
+  padding: 40px 36px;
+  text-align: center;
+  max-width: 360px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+}
+.inactivity-icon { margin-bottom: 12px; }
+.inactivity-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #111827;
+  margin: 0 0 8px;
+}
+.inactivity-msg {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0 0 12px;
+  line-height: 1.5;
+}
+.inactivity-countdown {
+  font-size: 56px;
+  font-weight: 900;
+  color: #f59e0b;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.inactivity-sub {
+  font-size: 13px;
+  color: #9ca3af;
+  margin: 0 0 24px;
+}
+.inactivity-btn {
+  background: #111827;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 28px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.15s;
+}
+.inactivity-btn:hover { opacity: 0.85; }
+
+/* ── Botón Realizar nuevamente ───────────────────────────── */
+.iv-repeat-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #f0f4ff;
+  color: #4f46e5;
+  border: 1px solid #c7d2fe;
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+.iv-repeat-btn:hover { background: #e0e7ff; }
