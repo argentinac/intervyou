@@ -13,7 +13,8 @@ export default function BlogPost({ slug, onBack, onTryFree }) {
       .then(r => r.text())
       .then(text => {
         const match = text.match(/<article[^>]*>([\s\S]*?)<\/article>/i)
-        setHtml(match ? match[1] : text)
+        const content = (match ? match[1] : text).replace(/20\d\d|21\d\d/g, new Date().getFullYear())
+        setHtml(content)
         setLoading(false)
       })
       .catch(() => setLoading(false))
@@ -63,7 +64,7 @@ export default function BlogPost({ slug, onBack, onTryFree }) {
       </main>
 
       <footer className="bp-footer">
-        <span>© 2025 CoachToWork · </span>
+        <span>© {new Date().getFullYear()} CoachToWork · </span>
         <button className="bp-footer-link" onClick={onBack}>Blog</button>
       </footer>
     </div>

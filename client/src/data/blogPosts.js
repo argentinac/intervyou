@@ -2,7 +2,7 @@ export const blogPosts = [
   {
     slug: '01-como-prepararse-entrevista-recursos-humanos',
     title: 'Cómo prepararse para una entrevista con Recursos Humanos',
-    excerpt: 'Aprende cómo prepararse para una entrevista de trabajo con RRHH en 2026. Checklist, errores frecuentes y estrategias comprobadas.',
+    excerpt: `Aprende cómo prepararse para una entrevista de trabajo con RRHH en ${new Date().getFullYear()}. Checklist, errores frecuentes y estrategias comprobadas.`,
     image: 'https://images.unsplash.com/photo-1573496799246-7a3c3a4c?w=800&h=450&fit=crop&auto=format',
     imageAlt: 'Profesional preparándose para entrevista',
   },
