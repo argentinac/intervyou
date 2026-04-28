@@ -122,6 +122,7 @@ function AppInner() {
       <Dashboard
         onNewInterview={() => { setInterviewReturn('dashboard'); setView('interview') }}
         onSignOut={() => setView('landing')}
+        onBlogPost={goToBlog}
       />
     )
   }

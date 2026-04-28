@@ -10,8 +10,8 @@ function ScoreLineChart({ points }) {
   const chartH = H - pad.top - pad.bottom
 
   const scores = points.map(p => p.score)
-  const minS = Math.max(0, Math.min(...scores) - 1)
-  const maxS = Math.min(10, Math.max(...scores) + 1)
+  const minS = Math.max(0, Math.min(...scores) - 50)
+  const maxS = Math.min(1000, Math.max(...scores) + 50)
 
   const xOf = (i) => pad.left + (points.length === 1 ? chartW / 2 : (i / (points.length - 1)) * chartW)
   const yOf = (s) => pad.top + chartH - ((s - minS) / (maxS - minS)) * chartH
@@ -19,7 +19,7 @@ function ScoreLineChart({ points }) {
   const polyline = points.map((p, i) => `${xOf(i)},${yOf(p.score)}`).join(' ')
   const area = `${xOf(0)},${pad.top + chartH} ${polyline} ${xOf(points.length - 1)},${pad.top + chartH}`
 
-  const gridScores = [Math.floor(minS), 5, 7, 9, 10].filter(v => v >= minS && v <= maxS)
+  const gridScores = [0, 250, 500, 750, 1000].filter(v => v >= minS && v <= maxS)
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', maxWidth: W, display: 'block' }}>
@@ -143,15 +143,15 @@ export default function MyProgress() {
           <div className="prog-stats">
             <div className="prog-stat-card">
               <div className="prog-stat-label">Última puntuación</div>
-              <div className="prog-stat-value">{last}<span>/10</span></div>
+              <div className="prog-stat-value">{last}<span>/1000</span></div>
             </div>
             <div className="prog-stat-card">
               <div className="prog-stat-label">Promedio general</div>
-              <div className="prog-stat-value">{avg}<span>/10</span></div>
+              <div className="prog-stat-value">{avg}<span>/1000</span></div>
             </div>
             <div className="prog-stat-card">
               <div className="prog-stat-label">Mejor puntuación</div>
-              <div className="prog-stat-value prog-stat-value--best">{best}<span>/10</span></div>
+              <div className="prog-stat-value prog-stat-value--best">{best}<span>/1000</span></div>
             </div>
             <div className="prog-stat-card">
               <div className="prog-stat-label">Entrevistas</div>
