@@ -41,7 +41,7 @@ function ScoreBadge({ score }) {
   const color = score >= 8 ? '#10b981' : score >= 6 ? '#f59e0b' : '#ef4444'
   return (
     <span className="iv-score-badge" style={{ background: color + '18', color }}>
-      {score.toFixed(1)}<span style={{ fontSize: 11, opacity: 0.7 }}>/10</span>
+      {Math.round(score)}<span style={{ fontSize: 11, opacity: 0.7 }}>/10</span>
     </span>
   )
 }

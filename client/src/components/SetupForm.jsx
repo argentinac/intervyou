@@ -105,8 +105,6 @@ export default function SetupForm({ onSubmit, onBack }) {
     jobDescription: '',
     companyName: '',
   })
-  const [micError, setMicError] = useState(null)
-  const [requesting, setRequesting] = useState(false)
   const [generatingDesc, setGeneratingDesc] = useState(false)
 
   const generateDescription = async () => {
@@ -151,19 +149,8 @@ export default function SetupForm({ onSubmit, onBack }) {
 
   const step1Valid = form.country && form.jobTitle && form.jobDescription.trim()
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault()
-    setMicError(null)
-    setRequesting(true)
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-      stream.getTracks().forEach((t) => t.stop())
-    } catch {
-      setMicError('Necesitamos acceso al micrófono. Habilitalo en tu navegador y volvé a intentar.')
-      setRequesting(false)
-      return
-    }
-    setRequesting(false)
     onSubmit(form)
   }
 
@@ -311,15 +298,14 @@ export default function SetupForm({ onSubmit, onBack }) {
                   </div>
                 </div>
 
-                {micError && <p className="sf-error">{micError}</p>}
               </div>
 
               <div className="sf-footer">
                 <button type="button" className="sf-back" onClick={() => setStep(1)}>
                   ← Volver
                 </button>
-                <button type="submit" className="sf-next" disabled={requesting}>
-                  {requesting ? 'Un segundo…' : 'Empezar entrevista →'}
+                <button type="submit" className="sf-next">
+                  Empezar entrevista →
                 </button>
               </div>
             </form>
