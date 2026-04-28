@@ -6,6 +6,8 @@ import MyProgress from './MyProgress'
 import MyProfile from './MyProfile'
 import SettingsPage from './SettingsPage'
 import { INTERVIEW_TIPS } from '../data/tips'
+import targetImg from '../assets/Target.png'
+import mountainImg from '../assets/Montaña.png'
 
 const IconHome = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -217,17 +219,7 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews }) {
             </button>
           </div>
           <div className="home-hero-art" aria-hidden="true">
-            <svg width="140" height="140" viewBox="0 0 140 140" fill="none">
-              <circle cx="70" cy="70" r="70" fill="#eef2ff"/>
-              <circle cx="70" cy="70" r="50" fill="#e0e7ff"/>
-              <rect x="42" y="38" width="56" height="64" rx="10" fill="#6366f1" opacity="0.15"/>
-              <rect x="50" y="46" width="40" height="48" rx="8" fill="#fff"/>
-              <rect x="58" y="56" width="24" height="3" rx="1.5" fill="#6366f1" opacity="0.5"/>
-              <rect x="58" y="64" width="18" height="3" rx="1.5" fill="#6366f1" opacity="0.3"/>
-              <rect x="58" y="72" width="20" height="3" rx="1.5" fill="#6366f1" opacity="0.3"/>
-              <circle cx="70" cy="90" r="8" fill="#6366f1"/>
-              <path d="M67 90l2 2 4-4" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+            <img src={targetImg} alt="" className="home-hero-img" />
           </div>
         </div>
       )}
@@ -367,8 +359,17 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews }) {
 
         {/* Consejo del día */}
         <div className="home-card home-card--tip">
-          <div className="home-tip-label">💡 Consejo del día</div>
-          <p className="home-tip-text">"{DAILY_TIP}"</p>
+          <div className="home-tip-label">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Consejo del día
+          </div>
+          <div className="home-tip-body">
+            <div className="home-tip-text">
+              <blockquote className="home-tip-quote">"{DAILY_TIP}"</blockquote>
+              <p className="home-tip-sub">Cuanto más practiques, más seguro y claro vas a ser.</p>
+            </div>
+            <img src={mountainImg} alt="" className="home-tip-img" />
+          </div>
         </div>
 
         {/* Estadísticas */}
@@ -424,7 +425,7 @@ export default function Dashboard({ onNewInterview, onSignOut }) {
   const [profile, setProfile] = useState(null)
   const [subscription, setSubscription] = useState(null)
   const [demoIndex, setDemoIndex] = useState(null)
-  const isAdmin = user?.email === 'matiasabas@gmail.com'
+  const isAdmin = import.meta.env.DEV || user?.email === 'matiasabas@gmail.com'
 
   useEffect(() => {
     if (!user || !supabase) return

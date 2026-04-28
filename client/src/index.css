@@ -1953,6 +1953,12 @@ html, body, #root, .app {
 }
 .home-hero-btn:hover { background: #4338ca; transform: translateY(-1px); }
 .home-hero-art { flex-shrink: 0; }
+.home-hero-img {
+  width: 180px;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 8px 24px rgba(99,102,241,0.18));
+}
 
 /* Sección con título */
 .home-section-title {
@@ -2018,19 +2024,43 @@ html, body, #root, .app {
   border-color: #bbf7d0;
 }
 .home-tip-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  color: #16a34a;
-  margin-bottom: 10px;
+  color: #059669;
+  margin-bottom: 12px;
 }
-.home-tip-text {
-  font-size: 14px;
-  color: #166534;
-  line-height: 1.6;
+.home-tip-body {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px;
+}
+.home-tip-text { flex: 1; }
+.home-tip-quote {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 8px;
+  line-height: 1.35;
+  quotes: none;
+}
+.home-tip-sub {
+  font-size: 12px;
+  color: #374151;
   margin: 0;
-  font-style: italic;
+  line-height: 1.4;
+}
+.home-tip-img {
+  width: 88px;
+  height: auto;
+  display: block;
+  flex-shrink: 0;
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.1));
 }
 
 /* Practicar */
