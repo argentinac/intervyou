@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import BlogSection from './BlogSection'
 
 // ── Hooks ───────────────────────────────────────────────────
 
@@ -124,7 +125,7 @@ function FadeIn({ children, delay = 0, className = '' }) {
 
 // ── Component ───────────────────────────────────────────────
 
-export default function Landing({ user, onLogin, onTryFree, onDashboard }) {
+export default function Landing({ user, onLogin, onTryFree, onDashboard, onBlogPost }) {
   const [statsRef, statsVisible] = useInView()
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -371,6 +372,9 @@ export default function Landing({ user, onLogin, onTryFree, onDashboard }) {
           </div>
         </div>
       </section>
+
+      {/* BLOG */}
+      <BlogSection onBlogPost={onBlogPost} />
 
       {/* FOOTER */}
       <footer className="ld-footer">
