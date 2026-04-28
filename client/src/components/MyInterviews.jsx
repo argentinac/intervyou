@@ -48,7 +48,6 @@ function CompanyLogo({ name }) {
 
   const sources = domain ? [
     `https://logo.clearbit.com/${domain}`,
-    `https://www.google.com/s2/favicons?domain=${domain}&sz=128`,
   ] : []
 
   if (!sources.length || srcIndex >= sources.length) {
@@ -85,40 +84,56 @@ function downloadFeedback(data) {
   const { config, completed_at, interview_feedback } = data
   const feedback = interview_feedback?.[0]
   const title = [config?.jobTitle, config?.companyName].filter(Boolean).join(' para ') || 'Entrevista'
-  const stripBold = (s) => s.replace(/\*\*/g, '')
+  const strip = (s) => (s || '').replace(/\*\*/g, '')
+  const typeLabel = TYPE_LABEL[config?.interviewType] ?? config?.interviewType ?? ''
+  const diffLabel = DIFFICULTY_LABEL[config?.difficulty] ?? config?.difficulty ?? ''
 
-  let text = `${title}\n`
-  text += `${formatDate(completed_at)}\n`
-  if (config?.interviewType) text += `Tipo: ${TYPE_LABEL[config.interviewType] ?? config.interviewType}\n`
-  if (config?.difficulty) text += `Nivel: ${DIFFICULTY_LABEL[config.difficulty] ?? config.difficulty}\n`
-  if (feedback?.score) text += `Score: ${Math.round(feedback.score)}/1000\n`
-  if (feedback?.headline) text += `\n${feedback.headline}\n`
+  const sectionHtml = (heading, items) => items?.length
+    ? `<h2>${heading}</h2><ul>${items.map(i => `<li>${strip(i)}</li>`).join('')}</ul>`
+    : ''
 
-  if (feedback?.went_well?.length) {
-    text += `\nPuntos fuertes\n`
-    feedback.went_well.forEach(item => { text += `• ${stripBold(item)}\n` })
-  }
-  if (feedback?.to_improve?.length) {
-    text += `\nOportunidades de mejora\n`
-    feedback.to_improve.forEach(item => { text += `• ${stripBold(item)}\n` })
-  }
-  if (feedback?.suggestions?.length) {
-    text += `\nAccionables concretos\n`
-    feedback.suggestions.forEach(item => { text += `• ${stripBold(item)}\n` })
-  }
+  const html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>${title}</title>
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,sans-serif;max-width:680px;margin:40px auto;padding:0 24px;color:#1e293b;line-height:1.6}
+  h1{font-size:22px;margin:0 0 4px;color:#0f172a}
+  .meta{font-size:13px;color:#64748b;margin-bottom:8px}
+  .badges{margin-bottom:16px}
+  .badge{display:inline-block;padding:2px 10px;border-radius:99px;font-size:12px;font-weight:600;background:#eff6ff;color:#3b82f6;margin-right:6px}
+  .score{font-size:20px;font-weight:700;color:#6366f1;margin-bottom:12px}
+  .headline{font-size:15px;color:#475569;font-style:italic;margin-bottom:24px;border-left:3px solid #6366f1;padding-left:12px}
+  h2{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin:24px 0 8px}
+  ul{padding-left:20px;margin:0}
+  li{font-size:14px;color:#374151;margin-bottom:5px;line-height:1.55}
+  hr{border:none;border-top:1px solid #e2e8f0;margin:20px 0}
+  @media print{body{margin:0}}
+</style>
+</head>
+<body>
+  <h1>${title}</h1>
+  <div class="meta">${formatDate(completed_at)}</div>
+  <div class="badges">
+    ${typeLabel ? `<span class="badge">${typeLabel}</span>` : ''}
+    ${diffLabel ? `<span class="badge">${diffLabel}</span>` : ''}
+  </div>
+  ${feedback?.score ? `<div class="score">Score: ${Math.round(feedback.score)}/1000</div>` : ''}
+  ${feedback?.headline ? `<div class="headline">${strip(feedback.headline)}</div>` : ''}
+  <hr>
+  ${sectionHtml('Puntos fuertes', feedback?.went_well)}
+  ${sectionHtml('Oportunidades de mejora', feedback?.to_improve)}
+  ${sectionHtml('Accionables concretos', feedback?.suggestions)}
+</body>
+</html>`
 
-  const ts = completed_at ? new Date(completed_at) : new Date()
-  const pad = (n) => String(n).padStart(2, '0')
-  const dateTag = `${ts.getFullYear()}-${pad(ts.getMonth()+1)}-${pad(ts.getDate())}_${pad(ts.getHours())}-${pad(ts.getMinutes())}`
-  const filename = `${title.toLowerCase().replace(/[^a-z0-9áéíóúüñ]+/g, '-')}_${dateTag}.txt`
-
-  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = filename
-  a.click()
-  URL.revokeObjectURL(url)
+  const win = window.open('', '_blank')
+  if (!win) return
+  win.document.write(html)
+  win.document.close()
+  win.focus()
+  setTimeout(() => { win.print() }, 300)
 }
 
 function InterviewRow({ interview, onClick }) {
@@ -262,11 +277,15 @@ function InterviewDetail({ id, onBack, onRepeat }) {
   )
 }
 
-export default function MyInterviews({ onNewInterview, onRepeat }) {
+export default function MyInterviews({ onNewInterview, onRepeat, initialSelectedId }) {
   const { getToken } = useAuth()
   const [interviews, setInterviews] = useState([])
   const [loading, setLoading] = useState(true)
-  const [selectedId, setSelectedId] = useState(null)
+  const [selectedId, setSelectedId] = useState(initialSelectedId || null)
+
+  useEffect(() => {
+    if (initialSelectedId) setSelectedId(initialSelectedId)
+  }, [initialSelectedId])
 
   useEffect(() => {
     async function load() {
