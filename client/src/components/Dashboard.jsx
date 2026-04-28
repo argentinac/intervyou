@@ -377,20 +377,27 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews }) {
           <div className="home-card-title">Estadísticas</div>
           {scoredInterviews.length > 0 ? (
             <div className="home-stats">
-              <div className="home-stats-nums">
-                <div className="home-stat">
-                  <div className="home-stat-val">{lastScore?.toFixed(1)}</div>
-                  <div className="home-stat-key">Última</div>
+              {scoredInterviews.length === 1 ? (
+                <div className="home-stats-single">
+                  <div className="home-stat-val-big">{Math.round(lastScore)}</div>
+                  <div className="home-stat-key-sub">Tu última entrevista</div>
                 </div>
-                <div className="home-stat">
-                  <div className="home-stat-val">{avgScore}</div>
-                  <div className="home-stat-key">Promedio</div>
+              ) : (
+                <div className="home-stats-nums">
+                  <div className="home-stat">
+                    <div className="home-stat-val">{Math.round(lastScore)}</div>
+                    <div className="home-stat-key">Última</div>
+                  </div>
+                  <div className="home-stat">
+                    <div className="home-stat-val">{Math.round(avgScore)}</div>
+                    <div className="home-stat-key">Promedio</div>
+                  </div>
+                  <div className="home-stat">
+                    <div className="home-stat-val">{scoredInterviews.length}</div>
+                    <div className="home-stat-key">Total</div>
+                  </div>
                 </div>
-                <div className="home-stat">
-                  <div className="home-stat-val">{scoredInterviews.length}</div>
-                  <div className="home-stat-key">Total</div>
-                </div>
-              </div>
+              )}
               <MiniScoreChart interviews={interviews} />
             </div>
           ) : (

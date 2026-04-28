@@ -4,9 +4,37 @@ import { useAuth } from '../contexts/AuthContext'
 const DIFFICULTY_LABEL = { Junior: 'Junior', Intermediate: 'Semi-Senior', Senior: 'Senior' }
 const TYPE_LABEL = { HR: 'RRHH', Technical: 'Técnica', 'Real Simulation': 'Simulación real', Coach: 'Coach' }
 
+const KNOWN_DOMAINS = {
+  'gcba': 'buenosaires.gob.ar',
+  'gobierno de la ciudad': 'buenosaires.gob.ar',
+  'gobierno ciudad': 'buenosaires.gob.ar',
+  'tiendanube': 'tiendanube.com',
+  'tienda nube': 'tiendanube.com',
+  'mercadolibre': 'mercadolibre.com',
+  'mercado libre': 'mercadolibre.com',
+  'mercadopago': 'mercadopago.com',
+  'mercado pago': 'mercadopago.com',
+  'naranjax': 'naranjax.com',
+  'naranja x': 'naranjax.com',
+  'auth0': 'auth0.com',
+  'satellogic': 'satellogic.com',
+  'despegar': 'despegar.com',
+  'globant': 'globant.com',
+  'ualá': 'uala.com.ar',
+  'uala': 'uala.com.ar',
+  'olx': 'olx.com',
+}
+
 function companyDomain(name) {
   if (!name) return null
-  return name.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '') + '.com'
+  const key = name.toLowerCase().trim()
+  if (KNOWN_DOMAINS[key]) return KNOWN_DOMAINS[key]
+  return key.replace(/\s+/g, '').replace(/[^a-z0-9]/g, '') + '.com'
+}
+
+function renderBold(text) {
+  const parts = text.split(/\*\*(.*?)\*\*/g)
+  return parts.map((part, i) => i % 2 === 1 ? <strong key={i}>{part}</strong> : part)
 }
 
 function CompanyLogo({ name }) {
@@ -44,6 +72,41 @@ function ScoreBadge({ score }) {
       {Math.round(score)}<span style={{ fontSize: 11, opacity: 0.7 }}>/10</span>
     </span>
   )
+}
+
+function downloadFeedback(data) {
+  const { config, completed_at, interview_feedback } = data
+  const feedback = interview_feedback?.[0]
+  const title = [config?.jobTitle, config?.companyName].filter(Boolean).join(' para ') || 'Entrevista'
+  const stripBold = (s) => s.replace(/\*\*/g, '')
+
+  let text = `${title}\n`
+  text += `${formatDate(completed_at)}\n`
+  if (config?.interviewType) text += `Tipo: ${TYPE_LABEL[config.interviewType] ?? config.interviewType}\n`
+  if (config?.difficulty) text += `Nivel: ${DIFFICULTY_LABEL[config.difficulty] ?? config.difficulty}\n`
+  if (feedback?.score) text += `Score: ${Math.round(feedback.score)}/10\n`
+  if (feedback?.headline) text += `\n${feedback.headline}\n`
+
+  if (feedback?.went_well?.length) {
+    text += `\nPuntos fuertes\n`
+    feedback.went_well.forEach(item => { text += `• ${stripBold(item)}\n` })
+  }
+  if (feedback?.to_improve?.length) {
+    text += `\nOportunidades de mejora\n`
+    feedback.to_improve.forEach(item => { text += `• ${stripBold(item)}\n` })
+  }
+  if (feedback?.suggestions?.length) {
+    text += `\nAccionables concretos\n`
+    feedback.suggestions.forEach(item => { text += `• ${stripBold(item)}\n` })
+  }
+
+  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `${title.toLowerCase().replace(/\s+/g, '-')}.txt`
+  a.click()
+  URL.revokeObjectURL(url)
 }
 
 function InterviewRow({ interview, onClick }) {
@@ -115,9 +178,21 @@ function InterviewDetail({ id, onBack }) {
 
   return (
     <div className="iv-detail">
-      <button className="iv-back-btn" onClick={onBack}>
-        ← Volver a mis entrevistas
-      </button>
+      <div className="iv-detail-topbar">
+        <button className="iv-back-btn" onClick={onBack}>
+          ← Volver a mis entrevistas
+        </button>
+        {feedback && (
+          <button className="iv-download-btn" onClick={() => downloadFeedback(data)}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Descargar
+          </button>
+        )}
+      </div>
 
       <div className="iv-detail-header">
         <div>
@@ -139,7 +214,7 @@ function InterviewDetail({ id, onBack }) {
         <div className="iv-detail-section">
           <h3>Puntos fuertes</h3>
           <ul>
-            {feedback.went_well.map((item, i) => <li key={i}>{item}</li>)}
+            {feedback.went_well.map((item, i) => <li key={i}>{renderBold(item)}</li>)}
           </ul>
         </div>
       )}
@@ -148,7 +223,7 @@ function InterviewDetail({ id, onBack }) {
         <div className="iv-detail-section">
           <h3>Oportunidades de mejora</h3>
           <ul>
-            {feedback.to_improve.map((item, i) => <li key={i}>{item}</li>)}
+            {feedback.to_improve.map((item, i) => <li key={i}>{renderBold(item)}</li>)}
           </ul>
         </div>
       )}
@@ -157,7 +232,7 @@ function InterviewDetail({ id, onBack }) {
         <div className="iv-detail-section">
           <h3>Accionables concretos</h3>
           <ul className="iv-detail-suggestions">
-            {feedback.suggestions.map((item, i) => <li key={i}>{item}</li>)}
+            {feedback.suggestions.map((item, i) => <li key={i}>{renderBold(item)}</li>)}
           </ul>
         </div>
       )}

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { unlockAudio } from '../audioContext'
 
 const LANG_OPTIONS = [
   { value: 'Spanish',    label: 'Español' },
@@ -151,6 +152,7 @@ export default function SetupForm({ onSubmit, onBack }) {
 
   const handleSubmit = (e) => {
     e.preventDefault()
+    unlockAudio()
     onSubmit(form)
   }
 
