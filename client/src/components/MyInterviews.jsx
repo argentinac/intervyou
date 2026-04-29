@@ -298,7 +298,7 @@ export default function MyInterviews({ onNewInterview, onRepeat, initialSelected
       setLoading(false)
     }
     load()
-  }, [])
+  }, [getToken])
 
   if (selectedId) {
     return <InterviewDetail id={selectedId} onBack={() => setSelectedId(null)} onRepeat={onRepeat} />

@@ -188,7 +188,7 @@ export default function MyProgress({ onInterviewClick }) {
       setLoading(false)
     }
     load()
-  }, [])
+  }, [getToken])
 
   const avg = points.length ? Math.round(points.reduce((s, p) => s + p.score, 0) / points.length) : null
   const best = points.length ? Math.round(Math.max(...points.map(p => p.score))) : null

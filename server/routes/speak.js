@@ -45,6 +45,9 @@ const LANG_CODE_FALLBACK = {
 export async function speakRoute(req, res) {
   try {
     const { text, language, country, gender = 'female' } = req.body
+    if (!text || typeof text !== 'string' || !text.trim()) {
+      return res.status(400).json({ error: 'Text is required' })
+    }
     const voiceId = COUNTRY_VOICE[country]
       ? COUNTRY_VOICE[country](gender)
       : (LANGUAGE_VOICE[language] || GENDER_VOICE[gender] || GENDER_VOICE.female)

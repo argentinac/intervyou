@@ -885,8 +885,10 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
           }],
         }),
       })
-      const { text } = await res.json()
-      const clean = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim()
+      if (!res.ok) throw new Error(`API error: ${res.status}`)
+      const data = await res.json()
+      if (!data.text || typeof data.text !== 'string') throw new Error('Invalid response format from Claude')
+      const clean = data.text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim()
       const parsed = JSON.parse(clean)
       setFeedback(parsed)
 

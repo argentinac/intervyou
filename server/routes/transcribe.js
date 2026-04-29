@@ -7,6 +7,7 @@ const LANGUAGE_CODES = {
 
 export async function transcribeRoute(req, res) {
   try {
+    if (!req.file) return res.status(400).json({ error: 'No audio file provided' })
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
     const language = req.body?.language || 'English'
     const file = await toFile(req.file.buffer, 'recording.webm', {

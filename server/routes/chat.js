@@ -44,6 +44,7 @@ export async function chatRoute(req, res) {
       messages: safeMessages,
     })
 
+    if (!response.content?.[0]?.text) throw new Error('Empty response from Claude API')
     res.json({ text: response.content[0].text })
   } catch (err) {
     console.error('Chat error:', err)
