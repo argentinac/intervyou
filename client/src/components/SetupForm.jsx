@@ -95,8 +95,12 @@ const RadioCard = ({ active, label, desc, onClick, wide, icon }) => (
 
 // ── Main ───────────────────────────────────────────────────
 
+const PASSWORD = 'matias'
+
 export default function SetupForm({ onSubmit, onBack, initialConfig }) {
-  const [step, setStep] = useState(1)
+  const [step, setStep] = useState(() => sessionStorage.getItem('sf_auth') === '1' ? 1 : 0)
+  const [pwInput, setPwInput] = useState('')
+  const [pwError, setPwError] = useState(false)
   const [form, setForm] = useState({
     country: initialConfig?.country ?? '',
     language: initialConfig?.language ?? 'Spanish',
@@ -164,14 +168,51 @@ export default function SetupForm({ onSubmit, onBack, initialConfig }) {
           <IntervyouIcon />
         </div>
         <div className="sf-progress">
-          <div className="sf-progress-bar" style={{ width: step === 1 ? '50%' : '100%' }} />
+          <div className="sf-progress-bar" style={{ width: step === 0 ? '0%' : step === 1 ? '50%' : '100%' }} />
         </div>
-        <span className="sf-step-label">{step} / 2</span>
+        {step > 0 && <span className="sf-step-label">{step} / 2</span>}
       </header>
 
       {/* Content */}
       <main className="sf-main">
         <div className="sf-card">
+
+          {/* ── Step 0: Password ── */}
+          {step === 0 && (
+            <form onSubmit={(e) => {
+              e.preventDefault()
+              if (pwInput === PASSWORD) {
+                sessionStorage.setItem('sf_auth', '1')
+                setStep(1)
+              } else {
+                setPwError(true)
+                setPwInput('')
+              }
+            }}>
+              <div className="sf-heading">
+                <h1>Acceso</h1>
+              </div>
+              <div className="sf-fields">
+                <div className="sf-field">
+                  <label>Contraseña</label>
+                  <input
+                    type="password"
+                    value={pwInput}
+                    onChange={(e) => { setPwInput(e.target.value); setPwError(false) }}
+                    placeholder="Ingresá la contraseña"
+                    autoFocus
+                  />
+                  {pwError && <span style={{ color: '#ef4444', fontSize: 13 }}>Contraseña incorrecta</span>}
+                </div>
+              </div>
+              <div className="sf-footer">
+                <span />
+                <button type="submit" className="sf-next" disabled={!pwInput}>
+                  Continuar →
+                </button>
+              </div>
+            </form>
+          )}
 
           {/* ── Step 1 ── */}
           {step === 1 && (
