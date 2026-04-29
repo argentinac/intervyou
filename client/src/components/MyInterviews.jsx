@@ -48,6 +48,7 @@ function CompanyLogo({ name }) {
 
   const sources = domain ? [
     `https://logo.clearbit.com/${domain}`,
+    `https://www.google.com/s2/favicons?domain=${domain}&sz=128`,
   ] : []
 
   if (!sources.length || srcIndex >= sources.length) {
@@ -298,7 +299,7 @@ export default function MyInterviews({ onNewInterview, onRepeat, initialSelected
       setLoading(false)
     }
     load()
-  }, [getToken])
+  }, [])
 
   if (selectedId) {
     return <InterviewDetail id={selectedId} onBack={() => setSelectedId(null)} onRepeat={onRepeat} />
