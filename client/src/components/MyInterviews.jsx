@@ -48,7 +48,6 @@ function CompanyLogo({ name }) {
 
   const sources = domain ? [
     `https://logo.clearbit.com/${domain}`,
-    `https://www.google.com/s2/favicons?domain=${domain}&sz=128`,
   ] : []
 
   if (!sources.length || srcIndex >= sources.length) {
