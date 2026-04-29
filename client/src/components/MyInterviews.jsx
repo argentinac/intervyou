@@ -47,7 +47,7 @@ function CompanyLogo({ name }) {
   const initials = name ? name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() : '?'
 
   const sources = domain ? [
-    `https://logo.clearbit.com/${domain}`,
+    `https://img.logo.dev/${domain}?token=pk_IIJF6dh5Sd-mR00qgPmF9g`,
   ] : []
 
   if (!sources.length || srcIndex >= sources.length) {
