@@ -434,7 +434,7 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews }) {
   )
 }
 
-export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRepeatInterview, onPricing, onPaymentSuccess }) {
+export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRepeatInterview, onPricing, onPaymentSuccess, onPaymentError }) {
   const { user, signOut } = useAuth()
   const { isPro, planStatus, showUpgradeModal, openUpgradeModal, setDemoPlan } = usePlan()
   const [section, setSection] = useState('home')
@@ -503,24 +503,41 @@ export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRep
                     <IconCrown />
                   </div>
                   <span className="db-plan-name">Plan Premium</span>
-                  <span className="db-plan-status-active">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                    Activo
-                  </span>
+                  {planStatus === 'past_due' ? null : (
+                    <span className="db-plan-status-active">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                      Activo
+                    </span>
+                  )}
                 </div>
                 <div className="db-plan-divider" />
-                <div className="db-plan-feature-row">
-                  <div className="db-plan-feature-icon">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M12 12c-2-2.5-4-4-6-4a4 4 0 0 0 0 8c2 0 4-1.5 6-4z"/>
-                      <path d="M12 12c2 2.5 4 4 6 4a4 4 0 0 0 0-8c-2 0-4 1.5-6 4z"/>
-                    </svg>
+                {planStatus === 'past_due' ? (
+                  <div className="db-plan-feature-row">
+                    <div className="db-plan-feature-icon db-plan-feature-icon--error">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                      </svg>
+                    </div>
+                    <div>
+                      <div className="db-plan-feature-title db-plan-feature-title--error">Pago fallido</div>
+                      <button className="db-plan-pastdue-link" onClick={onPaymentError}>Actualizar método de pago</button>
+                    </div>
                   </div>
-                  <div>
-                    <div className="db-plan-feature-title">Entrevistas ilimitadas</div>
-                    <div className="db-plan-feature-sub">Practicá sin límites este mes.</div>
+                ) : (
+                  <div className="db-plan-feature-row">
+                    <div className="db-plan-feature-icon">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 12c-2-2.5-4-4-6-4a4 4 0 0 0 0 8c2 0 4-1.5 6-4z"/>
+                        <path d="M12 12c2 2.5 4 4 6 4a4 4 0 0 0 0-8c-2 0-4 1.5-6 4z"/>
+                      </svg>
+                    </div>
+                    <div>
+                      <div className="db-plan-feature-title">Entrevistas ilimitadas</div>
+                      <div className="db-plan-feature-sub">Practicá sin límites este mes.</div>
+                    </div>
                   </div>
-                </div>
+                )}
               </>
             ) : (
               <>
@@ -608,6 +625,7 @@ export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRep
           <button className="demo-bar-btn" onClick={openUpgradeModal}>Ver modal upgrade</button>
           <button className="demo-bar-btn" onClick={onPricing}>Ver pricing page</button>
           <button className="demo-bar-btn" onClick={onPaymentSuccess}>Ver pago exitoso</button>
+          <button className="demo-bar-btn" onClick={onPaymentError}>Ver error de pago</button>
         </div>
       )}
     </div>

@@ -9,6 +9,7 @@ import Dashboard from './components/Dashboard'
 import BlogPost from './components/BlogPost'
 import PricingPage from './components/PricingPage'
 import PaymentSuccessPage from './components/PaymentSuccessPage'
+import PaymentErrorPage from './components/PaymentErrorPage'
 
 class ErrorBoundary extends Component {
   constructor(props) {
@@ -45,7 +46,7 @@ function getBlogSlugFromUrl() {
 
 function AppInner() {
   const { user } = useAuth()
-  const [view, setView] = useState(getInitialView) // 'landing' | 'auth' | 'dashboard' | 'interview' | 'blog' | 'pricing' | 'payment-success'
+  const [view, setView] = useState(getInitialView) // 'landing' | 'auth' | 'dashboard' | 'interview' | 'blog' | 'pricing' | 'payment-success' | 'payment-error'
   const [interviewConfig, setInterviewConfig] = useState(null)
   const [interviewReturn, setInterviewReturn] = useState('landing')
   const [blogSlug, setBlogSlug] = useState(getBlogSlugFromUrl)
@@ -136,6 +137,7 @@ function AppInner() {
         onRepeatInterview={repeatInterview}
         onPricing={() => setView('pricing')}
         onPaymentSuccess={() => setView('payment-success')}
+        onPaymentError={() => setView('payment-error')}
       />
     )
   }
@@ -156,6 +158,15 @@ function AppInner() {
     return (
       <PaymentSuccessPage
         onStart={() => { setInterviewReturn('dashboard'); setView('interview') }}
+        onHome={() => setView('dashboard')}
+      />
+    )
+  }
+
+  if (view === 'payment-error') {
+    return (
+      <PaymentErrorPage
+        onRetry={() => setView('pricing')}
         onHome={() => setView('dashboard')}
       />
     )
