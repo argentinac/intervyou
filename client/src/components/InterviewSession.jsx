@@ -80,7 +80,7 @@ const UI_STRINGS = {
     thinking:        { male: 'Interviewer is thinking…',   female: 'Interviewer is thinking…' },
     speaking:        { male: 'Interviewer is speaking…',   female: 'Interviewer is speaking…' },
     yourTurn:        'Your turn — click the mic to speak',
-    recording:       'Recording… will send on silence',
+    recording:       'Listening…',
     processing:      'Processing your answer…',
     noSpeech:        "Didn't catch that. Try again.",
     speakLabel:      'Speak',
@@ -102,7 +102,7 @@ const UI_STRINGS = {
     thinking:        { male: 'El entrevistador está pensando…',   female: 'La entrevistadora está pensando…' },
     speaking:        { male: 'El entrevistador está hablando…',   female: 'La entrevistadora está hablando…' },
     yourTurn:        'Tu turno — hacé click para hablar',
-    recording:       'Grabando… para solo cuando terminás',
+    recording:       'Escuchando…',
     processing:      'Procesando tu respuesta…',
     noSpeech:        'No te escuché. Intentá de nuevo.',
     speakLabel:      'Hablar',
@@ -124,7 +124,7 @@ const UI_STRINGS = {
     thinking:        { male: 'O entrevistador está pensando…',   female: 'A entrevistadora está pensando…' },
     speaking:        { male: 'O entrevistador está falando…',    female: 'A entrevistadora está falando…' },
     yourTurn:        'Sua vez — clique para falar',
-    recording:       'Gravando… para no silêncio',
+    recording:       'Ouvindo…',
     processing:      'Processando sua resposta…',
     noSpeech:        'Não te ouvi. Tente novamente.',
     speakLabel:      'Falar',
@@ -146,7 +146,7 @@ const UI_STRINGS = {
     thinking:        { male: "L'intervieweur réfléchit…",   female: "L'intervieweuse réfléchit…" },
     speaking:        { male: "L'intervieweur parle…",       female: "L'intervieweuse parle…" },
     yourTurn:        'À vous — cliquez pour parler',
-    recording:       'Enregistrement… s\'arrête au silence',
+    recording:       'Écoute…',
     processing:      'Traitement de votre réponse…',
     noSpeech:        "Je ne vous ai pas entendu. Réessayez.",
     speakLabel:      'Parler',
@@ -168,7 +168,7 @@ const UI_STRINGS = {
     thinking:        { male: 'Der Interviewer denkt nach…',   female: 'Die Interviewerin denkt nach…' },
     speaking:        { male: 'Der Interviewer spricht…',      female: 'Die Interviewerin spricht…' },
     yourTurn:        'Sie sind dran — klicken zum Sprechen',
-    recording:       'Aufnahme… stoppt bei Stille',
+    recording:       'Zuhören…',
     processing:      'Antwort wird verarbeitet…',
     noSpeech:        'Ich habe Sie nicht gehört. Versuchen Sie es erneut.',
     speakLabel:      'Sprechen',
@@ -190,7 +190,7 @@ const UI_STRINGS = {
     thinking:        { male: "L'intervistatore sta pensando…",   female: "L'intervistatrice sta pensando…" },
     speaking:        { male: "L'intervistatore sta parlando…",   female: "L'intervistatrice sta parlando…" },
     yourTurn:        'Tocca a te — clicca per parlare',
-    recording:       'Registrazione… si ferma nel silenzio',
+    recording:       'In ascolto…',
     processing:      'Elaborazione della risposta…',
     noSpeech:        'Non ti ho sentito. Riprova.',
     speakLabel:      'Parla',
@@ -1017,8 +1017,8 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
             >
               {isRecording ? <IconStop /> : <IconMicOn />}
             </button>
-            <span className={`mic-label ${isRecording ? 'mic-label--live' : 'mic-label--idle'}`}>
-              {isRecording ? (str.recording ?? 'Grabando') : (str.speakLabel ?? 'Hablar')}
+            <span className="mic-label mic-label--idle">
+              {str.speakLabel ?? 'Hablar'}
             </span>
           </div>
           <button
@@ -1029,7 +1029,7 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
             {cameraOn ? <IconCamOn /> : <IconCamOff />}
           </button>
         </div>
-        <p className="mic-hint">{isRecording ? str.releaseHint : busy ? '' : str.holdHint}</p>
+        <p className="mic-hint">{!isRecording && !busy ? str.holdHint : ''}</p>
       </footer>
     </div>
   )
