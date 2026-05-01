@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
+import { usePlan } from '../contexts/PlanContext'
 import { supabase } from '../lib/supabase'
 import MyInterviews from './MyInterviews'
 import MyProgress from './MyProgress'
 import MyProfile from './MyProfile'
 import SettingsPage from './SettingsPage'
 import BlogListPage from './BlogListPage'
+import UpgradeModal from './UpgradeModal'
 import { INTERVIEW_TIPS } from '../data/tips'
 import targetImg from '../assets/Target.png'
 import mountainImg from '../assets/Montaña.png'
@@ -432,14 +434,17 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews }) {
   )
 }
 
-export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRepeatInterview }) {
+export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRepeatInterview, onPricing, onPaymentSuccess }) {
   const { user, signOut } = useAuth()
+  const { isPro, planStatus, showUpgradeModal, openUpgradeModal, setDemoPlan } = usePlan()
   const [section, setSection] = useState('home')
   const [deepInterviewId, setDeepInterviewId] = useState(null)
   const [profile, setProfile] = useState(null)
   const [subscription, setSubscription] = useState(null)
   const [demoIndex, setDemoIndex] = useState(null)
+  const [paymentBannerDismissed, setPaymentBannerDismissed] = useState(false)
   const isAdmin = import.meta.env.DEV || user?.email === 'matiasabas@gmail.com'
+  const showPaymentBanner = isPro && planStatus === 'past_due' && !paymentBannerDismissed
 
   useEffect(() => {
     if (!user || !supabase) return
@@ -453,11 +458,6 @@ export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRep
     await signOut()
     onSignOut()
   }
-
-  const isPremium = profile?.tier === 'premium'
-  const daysLeft = subscription?.current_period_end
-    ? Math.max(0, Math.ceil((new Date(subscription.current_period_end) - Date.now()) / 86400000))
-    : null
 
   const navItems = [
     { id: 'home',       label: 'Inicio',               icon: <IconHome /> },
@@ -496,22 +496,38 @@ export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRep
 
         <div className="db-sidebar-bottom">
           <div className="db-plan-badge">
-            {isPremium ? (
+            {isPro ? (
               <>
                 <div className="db-plan-row">
-                  <span className="db-plan-crown"><IconCrown /></span>
+                  <div className="db-plan-crown-wrap">
+                    <IconCrown />
+                  </div>
                   <span className="db-plan-name">Plan Premium</span>
+                  <span className="db-plan-status-active">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    Activo
+                  </span>
                 </div>
-                {daysLeft !== null && (
-                  <div className="db-plan-sub">{daysLeft} días restantes</div>
-                )}
+                <div className="db-plan-divider" />
+                <div className="db-plan-feature-row">
+                  <div className="db-plan-feature-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 12c-2-2.5-4-4-6-4a4 4 0 0 0 0 8c2 0 4-1.5 6-4z"/>
+                      <path d="M12 12c2 2.5 4 4 6 4a4 4 0 0 0 0-8c-2 0-4 1.5-6 4z"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <div className="db-plan-feature-title">Entrevistas ilimitadas</div>
+                    <div className="db-plan-feature-sub">Practicá sin límites este mes.</div>
+                  </div>
+                </div>
               </>
             ) : (
               <>
                 <div className="db-plan-row">
                   <span className="db-plan-name">Plan Free</span>
                 </div>
-                <button className="db-plan-upgrade">Upgrade a Premium →</button>
+                <button className="db-plan-upgrade" onClick={openUpgradeModal}>Upgrade a Premium →</button>
               </>
             )}
           </div>
@@ -523,6 +539,31 @@ export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRep
       </aside>
 
       <main className="db-content">
+        {showPaymentBanner && (
+          <div className="db-payment-banner">
+            <div className="db-payment-banner-left">
+              <div className="db-payment-banner-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                  <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+              </div>
+              <div>
+                <div className="db-payment-banner-title">No pudimos procesar tu pago</div>
+                <div className="db-payment-banner-sub">Actualizá tu método de pago para evitar la suspensión de tu plan y seguir accediendo a todas las funcionalidades.</div>
+              </div>
+            </div>
+            <div className="db-payment-banner-actions">
+              <button className="db-payment-banner-btn">Actualizar pago</button>
+              <button className="db-payment-banner-close" onClick={() => setPaymentBannerDismissed(true)}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        )}
+
         {section === 'home'       && (
           <HomeSection
             onNewInterview={onNewInterview}
@@ -538,9 +579,13 @@ export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRep
         {section === 'settings'   && <SettingsPage onSignOut={handleSignOut} />}
       </main>
 
+      {showUpgradeModal && <UpgradeModal />}
+
       {isAdmin && (
         <div className="demo-bar">
           <span className="demo-bar-label">🛠 Demo</span>
+          <span className="demo-bar-sep">|</span>
+          <span className="demo-bar-label">Entrevistas:</span>
           {DEMO_STATES.map((s, i) => (
             <button
               key={i}
@@ -555,6 +600,14 @@ export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRep
               ✕ Real
             </button>
           )}
+          <span className="demo-bar-sep">|</span>
+          <span className="demo-bar-label">Plan:</span>
+          <button className="demo-bar-btn" onClick={() => { setDemoPlan({ plan: 'free', status: 'active' }); setPaymentBannerDismissed(false) }}>Free</button>
+          <button className="demo-bar-btn" onClick={() => { setDemoPlan({ plan: 'pro', status: 'active', period: 'monthly' }); setPaymentBannerDismissed(false) }}>Pro Activo</button>
+          <button className="demo-bar-btn" onClick={() => { setDemoPlan({ plan: 'pro', status: 'past_due', period: 'monthly' }); setPaymentBannerDismissed(false) }}>Pro Pago fallido</button>
+          <button className="demo-bar-btn" onClick={openUpgradeModal}>Ver modal upgrade</button>
+          <button className="demo-bar-btn" onClick={onPricing}>Ver pricing page</button>
+          <button className="demo-bar-btn" onClick={onPaymentSuccess}>Ver pago exitoso</button>
         </div>
       )}
     </div>
