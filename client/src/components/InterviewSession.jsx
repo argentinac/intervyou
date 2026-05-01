@@ -736,7 +736,7 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
     recognition.continuous = true
     recognition.interimResults = true
 
-    const SILENCE_MS = 2500
+    const SILENCE_MS = 1200
     recognition.onresult = (event) => {
       interimTextRef.current = Array.from(event.results).map((r) => r[0].transcript).join(' ').trim()
       clearTimeout(silenceTimerRef.current)
