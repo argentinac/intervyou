@@ -35,14 +35,24 @@ export async function chatRoute(req, res) {
     const { messages, system, max_tokens, model } = req.body
     const safeMessages = sanitizeMessages(messages)
     const allowedModels = ['claude-sonnet-4-6', 'claude-haiku-4-5-20251001']
-    const resolvedModel = allowedModels.includes(model) ? model : 'claude-sonnet-4-6'
+    const resolvedModel = allowedModels.includes(model) ? model : 'claude-haiku-4-5-20251001'
+
+    // Cache system prompt to avoid reprocessing on every turn
+    const cachedSystem = [{ type: 'text', text: system, cache_control: { type: 'ephemeral' } }]
+
+    // Cache conversation history up to the penultimate message so only the latest exchange is processed fresh
+    const messagesWithCache = safeMessages.map((msg, i) => {
+      if (i !== safeMessages.length - 2) return msg
+      const text = typeof msg.content === 'string' ? msg.content : msg.content.map((c) => c.text).join('')
+      return { ...msg, content: [{ type: 'text', text, cache_control: { type: 'ephemeral' } }] }
+    })
 
     const t3 = Date.now()
     const response = await anthropic.messages.create({
       model: resolvedModel,
-      max_tokens: max_tokens || 1024,
-      system,
-      messages: safeMessages,
+      max_tokens: max_tokens || 400,
+      system: cachedSystem,
+      messages: messagesWithCache,
     })
     const t4 = Date.now()
 
