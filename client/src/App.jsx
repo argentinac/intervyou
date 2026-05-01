@@ -1,11 +1,14 @@
 import { useState, useEffect, Component } from 'react'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
+import { PlanProvider } from './contexts/PlanContext'
 import AuthForm from './components/AuthForm'
 import Landing from './components/Landing'
 import SetupForm from './components/SetupForm'
 import InterviewSession from './components/InterviewSession'
 import Dashboard from './components/Dashboard'
 import BlogPost from './components/BlogPost'
+import PricingPage from './components/PricingPage'
+import PaymentSuccessPage from './components/PaymentSuccessPage'
 
 class ErrorBoundary extends Component {
   constructor(props) {
@@ -42,7 +45,7 @@ function getBlogSlugFromUrl() {
 
 function AppInner() {
   const { user } = useAuth()
-  const [view, setView] = useState(getInitialView) // 'landing' | 'auth' | 'dashboard' | 'interview' | 'blog'
+  const [view, setView] = useState(getInitialView) // 'landing' | 'auth' | 'dashboard' | 'interview' | 'blog' | 'pricing' | 'payment-success'
   const [interviewConfig, setInterviewConfig] = useState(null)
   const [interviewReturn, setInterviewReturn] = useState('landing')
   const [blogSlug, setBlogSlug] = useState(getBlogSlugFromUrl)
@@ -131,6 +134,29 @@ function AppInner() {
         onSignOut={() => setView('landing')}
         onBlogPost={goToBlog}
         onRepeatInterview={repeatInterview}
+        onPricing={() => setView('pricing')}
+        onPaymentSuccess={() => setView('payment-success')}
+      />
+    )
+  }
+
+  if (view === 'pricing') {
+    return (
+      <PricingPage
+        onSelectPlan={(period) => {
+          // TODO: integrar con Stripe/MP — por ahora simula éxito
+          setView('payment-success')
+        }}
+        onBack={() => setView(user ? 'dashboard' : 'landing')}
+      />
+    )
+  }
+
+  if (view === 'payment-success') {
+    return (
+      <PaymentSuccessPage
+        onStart={() => { setInterviewReturn('dashboard'); setView('interview') }}
+        onHome={() => setView('dashboard')}
       />
     )
   }
@@ -142,7 +168,9 @@ export default function App() {
   return (
     <ErrorBoundary>
       <AuthProvider>
-        <AppInner />
+        <PlanProvider>
+          <AppInner />
+        </PlanProvider>
       </AuthProvider>
     </ErrorBoundary>
   )
