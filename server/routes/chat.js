@@ -1,5 +1,10 @@
 import Anthropic from '@anthropic-ai/sdk'
 
+const LLM_PRICE = {
+  'claude-haiku-4-5-20251001': { input: 0.80, output: 4.00, cache_write: 1.00, cache_read: 0.08 },
+  'claude-sonnet-4-6':         { input: 3.00, output: 15.00, cache_write: 3.75, cache_read: 0.30 },
+}
+
 const INJECTION_PATTERNS = [
   /ignore (all |previous |your |the )?instructions/i,
   /forget (everything|all|your instructions)/i,
@@ -57,7 +62,14 @@ export async function chatRoute(req, res) {
     const t4 = Date.now()
 
     if (!response.content?.[0]?.text) throw new Error('Empty response from Claude API')
-    res.json({ text: response.content[0].text, t3, t4 })
+    const usage = response.usage
+    const price = LLM_PRICE[resolvedModel] || LLM_PRICE['claude-haiku-4-5-20251001']
+    const llm_cost_usd =
+      ((usage.input_tokens || 0) * price.input +
+       (usage.output_tokens || 0) * price.output +
+       (usage.cache_creation_input_tokens || 0) * price.cache_write +
+       (usage.cache_read_input_tokens || 0) * price.cache_read) / 1e6
+    res.json({ text: response.content[0].text, t3, t4, usage, llm_cost_usd })
   } catch (err) {
     console.error('Chat error:', err)
     res.status(500).json({ error: err.message })

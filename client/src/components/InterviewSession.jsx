@@ -477,6 +477,8 @@ async function speakElevenLabs(text, language, country, gender, shouldCancel = (
   })
   if (!res.ok) throw new Error('TTS failed')
   const t6 = parseInt(res.headers.get('X-T6') || '0', 10) || Date.now()
+  const tts_chars = parseInt(res.headers.get('X-Chars') || '0', 10)
+  const tts_cost_usd = parseFloat(res.headers.get('X-TTS-Cost') || '0')
   if (shouldCancel()) return
   const arrayBuffer = await res.arrayBuffer()
   if (shouldCancel()) return
@@ -491,7 +493,7 @@ async function speakElevenLabs(text, language, country, gender, shouldCancel = (
     source.onended = () => { activeAudio = null; resolve() }
     const t7 = Date.now()
     source.start(0)
-    onPlay?.({ t5, t6, t7 })
+    onPlay?.({ t5, t6, t7, tts_chars, tts_cost_usd })
   })
 }
 
@@ -641,7 +643,16 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
     })
     if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.error || 'Request failed') }
     const data = await res.json()
-    if (data.t3 && data.t4) timingsRef.current = { ...timingsRef.current, t3_ms: data.t3, t4_ms: data.t4 }
+    if (data.t3 && data.t4) timingsRef.current = {
+      ...timingsRef.current,
+      t3_ms: data.t3,
+      t4_ms: data.t4,
+      llm_cost_usd: data.llm_cost_usd ?? null,
+      llm_tokens_input: data.usage?.input_tokens ?? null,
+      llm_tokens_output: data.usage?.output_tokens ?? null,
+      llm_tokens_cache_read: data.usage?.cache_read_input_tokens ?? null,
+      llm_tokens_cache_write: data.usage?.cache_creation_input_tokens ?? null,
+    }
     setIsProcessing(false)
     return data.text
   }, [config])
@@ -658,7 +669,7 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
     setMessages(final)
     setPhase(getPhase(final.filter((m) => m.role === 'assistant').length))
 
-    await playAudio(reply, ({ t5, t6, t7 }) => {
+    await playAudio(reply, ({ t5, t6, t7, tts_chars, tts_cost_usd }) => {
       const t = timingsRef.current
       if (t.t0_ms) {
         const turn = ++turnNumberRef.current
@@ -676,6 +687,13 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
             t7_ms: t7,
             language: config.language,
             interview_type: config.interviewType,
+            llm_cost_usd: t.llm_cost_usd ?? null,
+            llm_tokens_input: t.llm_tokens_input ?? null,
+            llm_tokens_output: t.llm_tokens_output ?? null,
+            llm_tokens_cache_read: t.llm_tokens_cache_read ?? null,
+            llm_tokens_cache_write: t.llm_tokens_cache_write ?? null,
+            tts_chars: tts_chars || null,
+            tts_cost_usd: tts_cost_usd || null,
           }),
         }).catch(() => {})
       }
