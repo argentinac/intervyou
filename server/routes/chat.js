@@ -37,15 +37,17 @@ export async function chatRoute(req, res) {
     const allowedModels = ['claude-sonnet-4-6', 'claude-haiku-4-5-20251001']
     const resolvedModel = allowedModels.includes(model) ? model : 'claude-sonnet-4-6'
 
+    const t3 = Date.now()
     const response = await anthropic.messages.create({
       model: resolvedModel,
       max_tokens: max_tokens || 1024,
       system,
       messages: safeMessages,
     })
+    const t4 = Date.now()
 
     if (!response.content?.[0]?.text) throw new Error('Empty response from Claude API')
-    res.json({ text: response.content[0].text })
+    res.json({ text: response.content[0].text, t3, t4 })
   } catch (err) {
     console.error('Chat error:', err)
     res.status(500).json({ error: err.message })

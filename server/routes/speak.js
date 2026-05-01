@@ -53,6 +53,7 @@ export async function speakRoute(req, res) {
       : (LANGUAGE_VOICE[language] || GENDER_VOICE[gender] || GENDER_VOICE.female)
     const languageCode = COUNTRY_LANG_CODE[country] || LANG_CODE_FALLBACK[language] || 'en'
 
+    const t5 = Date.now()
     const response = await fetch(
       `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
       {
@@ -82,8 +83,12 @@ export async function speakRoute(req, res) {
       throw new Error(`ElevenLabs error: ${errText}`)
     }
 
+    const t6 = Date.now()
     const buffer = Buffer.from(await response.arrayBuffer())
     res.set('Content-Type', 'audio/mpeg')
+    res.set('X-T5', String(t5))
+    res.set('X-T6', String(t6))
+    res.set('Access-Control-Expose-Headers', 'X-T5, X-T6')
     res.send(buffer)
   } catch (err) {
     console.error('Speak error:', err)

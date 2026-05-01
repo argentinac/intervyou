@@ -468,13 +468,15 @@ function replaceNumbers(text, language) {
   return text.replace(/\b(\d{1,9})\b/g, (_, num) => fn(parseInt(num, 10)))
 }
 
-async function speakElevenLabs(text, language, country, gender, shouldCancel = () => false) {
+async function speakElevenLabs(text, language, country, gender, shouldCancel = () => false, onPlay = null) {
+  const t5 = Date.now()
   const res = await fetch('/api/speak', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ text: replaceNumbers(expandAbbreviations(text), language), language, country, gender }),
   })
   if (!res.ok) throw new Error('TTS failed')
+  const t6 = parseInt(res.headers.get('X-T6') || '0', 10) || Date.now()
   if (shouldCancel()) return
   const arrayBuffer = await res.arrayBuffer()
   if (shouldCancel()) return
@@ -487,7 +489,9 @@ async function speakElevenLabs(text, language, country, gender, shouldCancel = (
     source.connect(ctx.destination)
     activeAudio = source
     source.onended = () => { activeAudio = null; resolve() }
+    const t7 = Date.now()
     source.start(0)
+    onPlay?.({ t5, t6, t7 })
   })
 }
 
@@ -502,6 +506,9 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
   const str = UI_STRINGS[config.language] || UI_STRINGS.English
   const { getToken } = useAuth()
   const startTimeRef = useRef(Date.now())
+  const sessionIdRef  = useRef(crypto.randomUUID())
+  const turnNumberRef = useRef(0)
+  const timingsRef    = useRef({})
 
   const [messages, setMessages] = useState([])
   const [phase, setPhase] = useState(0)
@@ -607,10 +614,10 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
   const startRecordingRef = useRef(null)
 
   // ── Play audio + auto-start mic when done ─────────────────
-  const playAudio = useCallback(async (text) => {
+  const playAudio = useCallback(async (text, onPlay = null) => {
     setIsSpeaking(true)
     setStatusText(str.speaking[interviewerGender.current])
-    await speakElevenLabs(text, config.language, config.country, interviewerGender.current, () => sessionEndedRef.current)
+    await speakElevenLabs(text, config.language, config.country, interviewerGender.current, () => sessionEndedRef.current, onPlay)
     setIsSpeaking(false)
     if (sessionEndedRef.current) return
     setError(null)
@@ -633,9 +640,10 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
       body: JSON.stringify({ system: SYSTEM_PROMPT({ ...config, gender: interviewerGender.current }), messages: updatedMessages }),
     })
     if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.error || 'Request failed') }
-    const { text } = await res.json()
+    const data = await res.json()
+    if (data.t3 && data.t4) timingsRef.current = { ...timingsRef.current, t3_ms: data.t3, t4_ms: data.t4 }
     setIsProcessing(false)
-    return text
+    return data.text
   }, [config])
 
   // ── Process candidate turn → get reply → play → maybe auto-end
@@ -649,7 +657,30 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
     const final = [...updated, { role: 'assistant', content: reply }]
     setMessages(final)
     setPhase(getPhase(final.filter((m) => m.role === 'assistant').length))
-    await playAudio(reply)
+
+    await playAudio(reply, ({ t5, t6, t7 }) => {
+      const t = timingsRef.current
+      if (t.t0_ms) {
+        const turn = ++turnNumberRef.current
+        fetch('/api/logs/latency', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            session_id: sessionIdRef.current,
+            turn_number: turn,
+            t0_ms: t.t0_ms,
+            t3_ms: t.t3_ms ?? null,
+            t4_ms: t.t4_ms ?? null,
+            t5_ms: t5,
+            t6_ms: t6,
+            t7_ms: t7,
+            language: config.language,
+            interview_type: config.interviewType,
+          }),
+        }).catch(() => {})
+      }
+      timingsRef.current = {}
+    })
 
     if (isEnd) {
       // Small pause so the closing message finishes before feedback screen appears
@@ -657,7 +688,7 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
       endInterviewRef.current?.()
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [askClaude, playAudio])
+  }, [askClaude, playAudio, config.language, config.interviewType])
 
   // Keep a stable ref to endInterview for use inside processTurn
   const endInterviewRef = useRef(null)
@@ -721,6 +752,8 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
       const text = interimTextRef.current.trim()
       setIsRecording(false)
       if (!text) { setStatusText(str.noSpeech); return }
+
+      timingsRef.current = { t0_ms: Date.now() }
 
       setIsProcessing(true)
       setStatusText(str.processing)
