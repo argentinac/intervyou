@@ -502,6 +502,50 @@ function stopActiveAudio() {
   }
 }
 
+// Split accumulated streaming text into complete sentences, return sentences + remainder
+function extractSentences(buffer, minLen = 12) {
+  const sentences = []
+  const parts = buffer.split(/([.!?])\s+/)
+  let current = ''
+  for (let i = 0; i < parts.length - 1; i++) {
+    current += parts[i]
+    if (i % 2 === 1 && current.trim().length >= minLen) {
+      sentences.push(current.trim())
+      current = ''
+    }
+  }
+  return { sentences, remaining: current + (parts[parts.length - 1] ?? '') }
+}
+
+// Fetch + decode audio for a sentence without playing it (returns Promise<{audioBuffer,t5,t6}>)
+async function fetchAudioBuffer(text, language, country, gender) {
+  const t5 = Date.now()
+  const res = await fetch('/api/speak', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text: replaceNumbers(expandAbbreviations(text), language), language, country, gender }),
+  })
+  if (!res.ok) throw new Error('TTS failed')
+  const t6 = parseInt(res.headers.get('X-T6') || '0', 10) || Date.now()
+  const arrayBuffer = await res.arrayBuffer()
+  const audioBuffer = await getAudioContext().decodeAudioData(arrayBuffer)
+  return { audioBuffer, t5, t6 }
+}
+
+// Play a pre-decoded AudioBuffer; resolves when playback ends
+function playDecodedBuffer(audioBuffer, shouldCancel = () => false) {
+  if (shouldCancel()) return Promise.resolve()
+  return new Promise((resolve) => {
+    const ctx = getAudioContext()
+    const source = ctx.createBufferSource()
+    source.buffer = audioBuffer
+    source.connect(ctx.destination)
+    activeAudio = source
+    source.onended = () => { if (activeAudio === source) activeAudio = null; resolve() }
+    source.start(0)
+  })
+}
+
 export default function InterviewSession({ config, onEnd, onDashboard }) {
   const str = UI_STRINGS[config.language] || UI_STRINGS.English
   const { getToken } = useAuth()
@@ -630,7 +674,7 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
     startRecordingRef.current?.()
   }, [config.language, config.country, str.speaking, str.yourTurn])
 
-  // ── Ask Claude (main conversation) ────────────────────────
+  // ── Ask Claude blocking (opening, interrupt, closing, feedback) ───
   const askClaude = useCallback(async (updatedMessages) => {
     setIsProcessing(true)
     setStatusText(str.thinking[interviewerGender.current])
@@ -646,49 +690,125 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
     return data.text
   }, [config])
 
-  // ── Process candidate turn → get reply → play → maybe auto-end
+  // ── Ask Claude streaming (main conversation turns) ─────────
+  const askClaudeStream = useCallback(async (msgs, onSentence) => {
+    setIsProcessing(true)
+    setStatusText(str.thinking[interviewerGender.current])
+
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ system: SYSTEM_PROMPT({ ...config, gender: interviewerGender.current }), messages: msgs, stream: true }),
+    })
+    if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.error || 'Request failed') }
+
+    const reader = res.body.getReader()
+    const decoder = new TextDecoder()
+    let rawBuf = ''
+    let sentBuf = ''
+    let fullText = ''
+    let done = false
+
+    while (!done) {
+      const { done: streamDone, value } = await reader.read()
+      if (streamDone) break
+
+      rawBuf += decoder.decode(value, { stream: true })
+      const lines = rawBuf.split('\n')
+      rawBuf = lines.pop() ?? ''
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue
+        let evt
+        try { evt = JSON.parse(line.slice(6)) } catch { continue }
+
+        if (evt.type === 'ttft') {
+          timingsRef.current = { ...timingsRef.current, t3_ms: evt.t3, t4_ms: evt.t4 }
+          setIsProcessing(false)
+        } else if (evt.type === 'token') {
+          fullText += evt.text
+          sentBuf  += evt.text
+          const { sentences, remaining } = extractSentences(sentBuf)
+          for (const s of sentences) onSentence(s)
+          sentBuf = remaining
+        } else if (evt.type === 'done') {
+          if (sentBuf.trim()) { onSentence(sentBuf.trim()); sentBuf = '' }
+          done = true
+        } else if (evt.type === 'error') {
+          throw new Error(evt.error || 'Stream error')
+        }
+      }
+    }
+
+    setIsProcessing(false)
+    return fullText
+  }, [config, str.thinking])
+
+  // ── Process candidate turn (streaming pipeline) ────────────
   const processTurn = useCallback(async (candidateText, currentMessages) => {
     const updated = [...currentMessages, { role: 'user', content: candidateText }]
-    const raw = await askClaude(updated)
 
-    const isEnd = raw.includes('[END_INTERVIEW]')
-    const reply = raw.replace('[END_INTERVIEW]', '').trim()
+    let playChain = Promise.resolve()
+    let firstChunk = true
 
+    const onSentence = (sentence) => {
+      const audioP = fetchAudioBuffer(sentence, config.language, config.country, interviewerGender.current)
+      playChain = playChain.then(async () => {
+        if (sessionEndedRef.current) return
+        const { audioBuffer, t5, t6 } = await audioP
+        if (sessionEndedRef.current) return
+        if (firstChunk) {
+          firstChunk = false
+          setIsSpeaking(true)
+          setStatusText(str.speaking[interviewerGender.current])
+          const t7 = Date.now()
+          const t = timingsRef.current
+          if (t.t0_ms) {
+            const turn = ++turnNumberRef.current
+            fetch('/api/logs/latency', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                session_id: sessionIdRef.current, turn_number: turn,
+                t0_ms: t.t0_ms, t3_ms: t.t3_ms ?? null, t4_ms: t.t4_ms ?? null,
+                t5_ms: t5, t6_ms: t6, t7_ms: t7,
+                language: config.language, interview_type: config.interviewType,
+              }),
+            }).catch(() => {})
+            timingsRef.current = {}
+          }
+        }
+        await playDecodedBuffer(audioBuffer, () => sessionEndedRef.current)
+      })
+    }
+
+    const fullText = await askClaudeStream(updated, onSentence)
+
+    const isEnd = fullText.includes('[END_INTERVIEW]')
+    const reply = fullText.replace('[END_INTERVIEW]', '').trim()
     const final = [...updated, { role: 'assistant', content: reply }]
     setMessages(final)
     setPhase(getPhase(final.filter((m) => m.role === 'assistant').length))
 
-    await playAudio(reply, ({ t5, t6, t7 }) => {
-      const t = timingsRef.current
-      if (t.t0_ms) {
-        const turn = ++turnNumberRef.current
-        fetch('/api/logs/latency', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            session_id: sessionIdRef.current,
-            turn_number: turn,
-            t0_ms: t.t0_ms,
-            t3_ms: t.t3_ms ?? null,
-            t4_ms: t.t4_ms ?? null,
-            t5_ms: t5,
-            t6_ms: t6,
-            t7_ms: t7,
-            language: config.language,
-            interview_type: config.interviewType,
-          }),
-        }).catch(() => {})
-      }
-      timingsRef.current = {}
-    })
+    await playChain
+    setIsSpeaking(false)
+
+    if (sessionEndedRef.current) return
+    setError(null)
+    if (skipPendingRef.current) {
+      skipPendingRef.current = false
+      doClosingRef.current?.()
+      return
+    }
+    setStatusText(str.yourTurn)
+    startRecordingRef.current?.()
 
     if (isEnd) {
-      // Small pause so the closing message finishes before feedback screen appears
       await new Promise((r) => setTimeout(r, 600))
       endInterviewRef.current?.()
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [askClaude, playAudio, config.language, config.interviewType])
+  }, [askClaudeStream, config.language, config.country, config.interviewType, str.speaking, str.yourTurn])
 
   // Keep a stable ref to endInterview for use inside processTurn
   const endInterviewRef = useRef(null)
