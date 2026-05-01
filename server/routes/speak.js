@@ -85,10 +85,14 @@ export async function speakRoute(req, res) {
 
     const t6 = Date.now()
     const buffer = Buffer.from(await response.arrayBuffer())
+    const tts_chars = text.length
+    const tts_cost_usd = tts_chars * 0.00018 // $0.18 per 1000 chars — ElevenLabs Turbo v2.5
     res.set('Content-Type', 'audio/mpeg')
     res.set('X-T5', String(t5))
     res.set('X-T6', String(t6))
-    res.set('Access-Control-Expose-Headers', 'X-T5, X-T6')
+    res.set('X-Chars', String(tts_chars))
+    res.set('X-TTS-Cost', String(tts_cost_usd))
+    res.set('Access-Control-Expose-Headers', 'X-T5, X-T6, X-Chars, X-TTS-Cost')
     res.send(buffer)
   } catch (err) {
     console.error('Speak error:', err)
