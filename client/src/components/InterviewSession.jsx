@@ -717,6 +717,13 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
     interviewStarted.current = true
     async function startInterview() {
       try {
+        // Warm up ElevenLabs so the first real audio isn't cold-start degraded
+        fetch('/api/speak', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: '.', language: config.language, country: config.country, gender: interviewerGender.current }),
+        }).catch(() => {})
+
         const openingMessages = [{ role: 'user', content: '(The interview begins now.)' }]
         const [raw] = await Promise.all([
           askClaude(openingMessages),
