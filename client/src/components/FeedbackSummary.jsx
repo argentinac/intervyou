@@ -53,11 +53,22 @@ export default function FeedbackSummary({ feedback, onRestart, onDashboard }) {
     return (
       <div className="fb-page">
         <div className="fb-card">
-          <div className="fb-logo" />
-          <div className="fb-notice fb-notice--warn">
-            Ocurrió un problema al generar el feedback. Podés intentar una nueva entrevista.
+          <div className="fb-logo" onClick={onDashboard} style={onDashboard ? { cursor: 'pointer' } : undefined}>
+            <IntervyouIcon />
           </div>
-          <button className="fb-restart" onClick={onRestart}>Nueva entrevista</button>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, padding: '8px 0 4px' }}>
+            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+            </svg>
+            <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: '#111827', textAlign: 'center' }}>Problema al generar feedback</h2>
+            <p style={{ margin: 0, fontSize: 14, color: '#6b7280', textAlign: 'center', lineHeight: 1.6 }}>
+              Ocurrió un error al procesar tu entrevista.<br />
+              Podés intentar una nueva entrevista.
+            </p>
+          </div>
+          <div className="fb-actions">
+            <button className="fb-restart" onClick={onRestart}>Nueva entrevista →</button>
+          </div>
         </div>
       </div>
     )
@@ -67,12 +78,22 @@ export default function FeedbackSummary({ feedback, onRestart, onDashboard }) {
     return (
       <div className="fb-page">
         <div className="fb-card">
-          <div className="fb-logo" />
-          <div className="fb-notice fb-notice--info">
-            <p>La entrevista fue demasiado corta para generar feedback detallado.</p>
-            <p>Necesitamos al menos un par de respuestas tuyas para analizar cómo te expresás.</p>
+          <div className="fb-logo" onClick={onDashboard} style={onDashboard ? { cursor: 'pointer' } : undefined}>
+            <IntervyouIcon />
           </div>
-          <button className="fb-restart" onClick={onRestart}>Nueva entrevista</button>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, padding: '8px 0 4px' }}>
+            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: '#111827', textAlign: 'center' }}>Entrevista muy corta</h2>
+            <p style={{ margin: 0, fontSize: 14, color: '#6b7280', textAlign: 'center', lineHeight: 1.6 }}>
+              Necesitamos al menos un par de respuestas para analizar cómo te expresás.<br />
+              Intentá completar más preguntas la próxima vez.
+            </p>
+          </div>
+          <div className="fb-actions">
+            <button className="fb-restart" onClick={onRestart}>Nueva entrevista →</button>
+          </div>
         </div>
       </div>
     )

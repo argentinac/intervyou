@@ -178,7 +178,7 @@ function InterviewRow({ interview, onClick }) {
   )
 }
 
-function InterviewDetail({ id, onBack, onRepeat }) {
+function InterviewDetail({ id, onBack }) {
   const { getToken } = useAuth()
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -210,14 +210,6 @@ function InterviewDetail({ id, onBack, onRepeat }) {
           ← Volver a mis entrevistas
         </button>
         <div style={{ display:'flex', gap:8 }}>
-          {config && onRepeat && (
-            <button className="iv-repeat-btn" onClick={() => onRepeat(config)}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>
-              </svg>
-              Realizar nuevamente
-            </button>
-          )}
           {feedback && (
             <button className="iv-download-btn" onClick={() => downloadFeedback(data)}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -301,7 +293,7 @@ export default function MyInterviews({ onNewInterview, onRepeat, initialSelected
   }, [])
 
   if (selectedId) {
-    return <InterviewDetail id={selectedId} onBack={() => setSelectedId(null)} onRepeat={onRepeat} />
+    return <InterviewDetail id={selectedId} onBack={() => setSelectedId(null)} />
   }
 
   return (
