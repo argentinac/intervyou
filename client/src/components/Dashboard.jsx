@@ -443,6 +443,7 @@ export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRep
   const [subscription, setSubscription] = useState(null)
   const [demoIndex, setDemoIndex] = useState(null)
   const [paymentBannerDismissed, setPaymentBannerDismissed] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const isAdmin = import.meta.env.DEV || user?.email === 'matiasabas@gmail.com'
   const showPaymentBanner = isPro && planStatus === 'past_due' && !paymentBannerDismissed
 
@@ -470,13 +471,21 @@ export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRep
   ]
 
   const handleNav = (id) => {
+    setSidebarOpen(false)
     if (id === 'new') { onNewInterview(); return }
     setSection(id)
   }
 
   return (
     <div className="db-layout">
-      <aside className="db-sidebar">
+      <div className="db-mobile-topbar">
+        <button className="db-hamburger" onClick={() => setSidebarOpen(o => !o)} aria-label="Menú">
+          <span /><span /><span />
+        </button>
+        <img src="/logo.png" alt="intervyou" style={{ height: 28, width: 'auto', filter: 'brightness(0) invert(1)', opacity: 0.9 }} />
+      </div>
+      {sidebarOpen && <div className="db-overlay" onClick={() => setSidebarOpen(false)} />}
+      <aside className={`db-sidebar${sidebarOpen ? ' db-sidebar--open' : ''}`}>
         <div className="db-sidebar-logo" onClick={() => setSection('home')} style={{ cursor: 'pointer' }}>
           <img src="/logo.png" alt="intervyou" style={{ height: 32, width: 'auto', filter: 'brightness(0) invert(1)', opacity: 0.9 }} />
         </div>

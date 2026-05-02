@@ -3910,3 +3910,142 @@ html, body, #root, .app {
   text-underline-offset: 2px;
 }
 .db-plan-pastdue-link:hover { color: #fca5a5; }
+
+/* ══════════════════════════════════════════════════════════
+   MOBILE — responsive additions
+══════════════════════════════════════════════════════════ */
+
+/* ── Dashboard: mobile topbar & sidebar overlay ─── */
+.db-mobile-topbar {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 56px;
+  background: #0f172a;
+  z-index: 200;
+  align-items: center;
+  padding: 0 16px;
+  gap: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.db-hamburger {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+.db-hamburger:hover { background: rgba(255,255,255,0.08); }
+.db-hamburger span { display: block; width: 20px; height: 2px; background: #94a3b8; border-radius: 2px; }
+.db-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 99;
+}
+
+@media (max-width: 768px) {
+  /* Show mobile topbar, push content down */
+  .db-mobile-topbar { display: flex; }
+  .db-content { padding-top: 56px; }
+
+  /* Sidebar slide-in when open */
+  .db-sidebar--open { transform: translateX(0) !important; }
+
+  /* Home: hero banner stack vertically */
+  .home-hero-banner { flex-direction: column; align-items: flex-start; padding: 20px; gap: 12px; }
+  .home-hero-art { display: none; }
+  .home-hero-text h2 { font-size: 20px; }
+  .home-hero-text p { margin-bottom: 14px; }
+  .home-hero-btn { width: 100%; justify-content: center; }
+
+  /* Home: 3-col grid → 1 col */
+  .home-grid { grid-template-columns: 1fr; }
+
+  /* Journey: hide connectors on small layout */
+  .home-journey-connector { display: none; }
+
+  /* Welcome */
+  .db-welcome h1 { font-size: 20px; }
+
+  /* Page header */
+  .db-page-header h2 { font-size: 18px; }
+
+  /* Interview list: simplify right side */
+  .iv-row-right { gap: 6px; }
+  .iv-repeat-btn { padding: 6px 10px; font-size: 12px; }
+}
+
+/* ── Meet page: small phones ─── */
+@media (max-width: 600px) {
+  /* Topbar: show only logo + end button */
+  .meet-topbar { padding: 0 12px; gap: 8px; }
+  .phase-indicator { display: none; }
+  .session-difficulty { display: none; }
+  .btn-demo-feedback { display: none; }
+  .btn-skip-end { display: none; }
+  .btn-end-call { font-size: 12px; padding: 6px 12px; }
+
+  /* Tiles */
+  .meet-tile { height: 160px; }
+
+  /* Avatar */
+  .avatar-circle { width: 72px; height: 72px; }
+  .avatar-initials { font-size: 22px; }
+  .avatar-ring--1 { width: 84px; height: 84px; top: -6px; }
+  .avatar-ring--2 { width: 100px; height: 100px; top: -14px; }
+  .avatar-ring--3 { width: 118px; height: 118px; top: -23px; }
+
+  /* Footer */
+  .meet-footer { padding: 10px 16px 16px; gap: 6px; }
+  .meet-status { font-size: 12px; }
+  .mic-hint { font-size: 10px; }
+}
+
+/* ── Feedback page: mobile ─── */
+@media (max-width: 600px) {
+  .fb-page { padding: 24px 16px 40px; }
+  .fb-headline { padding: 18px 0 12px; }
+  .fb-headline-text { font-size: 26px; letter-spacing: -0.5px; }
+  .fb-card { gap: 20px; }
+  .fb-score svg { width: 120px !important; height: 120px !important; }
+}
+
+/* ── Setup form: mobile ─── */
+@media (max-width: 480px) {
+  .sf-header { padding: 14px 16px; }
+  .sf-logo-name { font-size: 15px; }
+  .sf-step-label { display: none; }
+  .sf-main { padding: 28px 16px 48px; }
+  .sf-heading h1 { font-size: 24px; }
+  .sf-cards-row { flex-direction: column; }
+  .rc { padding: 14px; }
+}
+
+/* ── Upgrade modal: mobile ─── */
+@media (max-width: 640px) {
+  .up-modal-inner { grid-template-columns: 1fr; }
+  .up-left { border-right: none; border-bottom: 1px solid #f1f5f9; padding: 28px 24px 20px; }
+  .up-right { padding: 20px 24px 28px; }
+  .up-headline { font-size: 22px; }
+  .up-features { grid-template-columns: 1fr; }
+}
+
+/* ── Pricing page: mobile ─── */
+@media (max-width: 640px) {
+  .pricing-page { padding: 40px 16px 40px; }
+  .pricing-inner { grid-template-columns: 1fr; gap: 32px; }
+  .pricing-headline { font-size: 30px; }
+}
+
+/* ── Payment success: mobile ─── */
+@media (max-width: 600px) {
+  .psp-features { grid-template-columns: repeat(2, 1fr); }
+  .psp-title { font-size: 26px; }
+  .psp-content { padding: 32px 16px; }
+}
