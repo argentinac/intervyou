@@ -485,6 +485,7 @@ async function speakElevenLabs(text, language, country, gender, shouldCancel = (
   const ctx = getAudioContext()
   const audioBuffer = await ctx.decodeAudioData(arrayBuffer)
   if (shouldCancel()) return
+  if (ctx.state === 'suspended') await ctx.resume()
   return new Promise((resolve) => {
     const source = ctx.createBufferSource()
     source.buffer = audioBuffer
@@ -717,17 +718,31 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
     interviewStarted.current = true
     async function startInterview() {
       try {
-        // Warm up ElevenLabs so the first real audio isn't cold-start degraded
-        fetch('/api/speak', {
+        // Warm up ElevenLabs AND the browser's MP3 decoder: decode and play silently,
+        // then wait for it to finish before fetching the real TTS
+        const warmupPromise = fetch('/api/speak', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ text: '.', language: config.language, country: config.country, gender: interviewerGender.current }),
+        }).then(async (res) => {
+          if (!res.ok) return
+          const buf = await res.arrayBuffer()
+          const ctx = getAudioContext()
+          const audioBuffer = await ctx.decodeAudioData(buf)
+          const src = ctx.createBufferSource()
+          src.buffer = audioBuffer
+          const gain = ctx.createGain()
+          gain.gain.value = 0
+          src.connect(gain)
+          gain.connect(ctx.destination)
+          await new Promise(resolve => { src.onended = resolve; src.start(0) })
         }).catch(() => {})
 
         const openingMessages = [{ role: 'user', content: '(The interview begins now.)' }]
         const [raw] = await Promise.all([
           askClaude(openingMessages),
           new Promise(resolve => setTimeout(resolve, 7000)),
+          warmupPromise,
         ])
         const isEnd = raw.includes('[END_INTERVIEW]')
         const reply = raw.replace('[END_INTERVIEW]', '').trim()
