@@ -6,9 +6,86 @@ import { useAuth } from '../contexts/AuthContext'
 import { supabase } from '../lib/supabase'
 import { INTERVIEW_TIPS } from '../data/tips'
 import { getAudioContext } from '../audioContext'
+import { calculateScore } from '../lib/scoring'
 
 const INACTIVITY_MS = 120000   // 2 minutos de inactividad → mostrar alerta
 const WARN_SECS     = 30       // 30 segundos de countdown antes de cerrar
+
+// ─── Scoring prompt builder ────────────────────────────────────────────────────
+// Asks Claude to evaluate raw axes (0-100 each, null if not measurable).
+// The final score is computed deterministically by scoring.js — Claude never
+// calculates it.
+function buildScoringPrompt(config, transcript) {
+  const isHR = String(config.interviewType || 'HR').toUpperCase() !== 'TECHNICAL'
+  const role = config.jobTitle || 'professional'
+  const atCompany = config.companyName ? ` at ${config.companyName}` : ''
+
+  const baseAxesDoc = `
+BASE AXES — evaluate these for any interview type (score 0-100 each, or null if not enough evidence):
+- clarity (0-100 | null): Is the answer easy to follow, without unnecessary detours? Evaluate themes and organization — never specific word choice (transcription may be imperfect).
+- structure (0-100 | null): Is the answer ordered? e.g. context → action → result.
+- roleRelevance (0-100 | null): Does the answer connect to the position, seniority, company or role context? Score low if the candidate shows no alignment.`
+
+  const hrContentAxesDoc = `
+CONTENT AXES for HR interview (score 0-100 each, or null if not enough evidence):
+- narrativeCoherence (0-100 | null): Does the story make sense, avoid contradictions, and present consistent motivation/culture fit/experience?
+- reflectionDepth (0-100 | null): Does the candidate show self-awareness, real learning or thoughtful criteria — not just generic phrases?
+- concreteEvidence (0-100 | null): Does the candidate use real examples, specific situations, decisions made, results or learnings?`
+
+  const techContentAxesDoc = `
+CONTENT AXES for Technical interview (score 0-100 each, or null if not enough evidence):
+- technicalCorrectness (0-100 | null): Is what they say technically correct?
+- depth (0-100 | null): Do they show real understanding, trade-offs, limits, alternatives or solid reasoning?
+- problemSolvingEvidence (0-100 | null): Do they apply knowledge to a concrete problem, give reasonable resolution steps, examples or implementation decisions?`
+
+  const contentAxesDoc = isHR ? hrContentAxesDoc : techContentAxesDoc
+  const axesKeys = isHR
+    ? '"narrativeCoherence": <0-100 or null>, "reflectionDepth": <0-100 or null>, "concreteEvidence": <0-100 or null>'
+    : '"technicalCorrectness": <0-100 or null>, "depth": <0-100 or null>, "problemSolvingEvidence": <0-100 or null>'
+
+  return `Role: ${role}${atCompany}${config.interviewType ? ` | Interview type: ${config.interviewType}` : ''}
+
+Interview transcript:
+
+${transcript}
+
+${baseAxesDoc}
+${contentAxesDoc}
+
+IMPORTANT:
+- This is a VOICE transcript — do NOT comment on specific word choices or grammar (transcription errors are expected).
+- If an axis cannot be reliably evaluated with the available evidence, return null for that axis.
+- Do not invent or guess axes you cannot support from the transcript.
+
+If the candidate gave fewer than 2 substantive responses, return {"notEnoughData": true} and nothing else.
+
+Otherwise respond with this exact JSON structure:
+{
+  "notEnoughData": false,
+  "axes": {
+    "clarity": <0-100 or null>,
+    "structure": <0-100 or null>,
+    "roleRelevance": <0-100 or null>,
+    ${axesKeys}
+  },
+  "headline": "2-5 word verdict (e.g. 'Perfil muy alineado al rol', 'Potencial claro, falta estructura')",
+  "wentWell": [
+    "**Key concept in bold**: concrete observation — do NOT quote specific words.",
+    "**Another concept**: another specific observation"
+  ],
+  "toImprove": [
+    "**Key concept in bold**: specific observation to improve — do NOT quote specific words.",
+    "**Another concept**: specific observation"
+  ],
+  "suggestions": [
+    "**Actionable verb**: specific, concrete action the candidate can practice immediately.",
+    "**Another action**: specific suggestion",
+    "**Another action**: specific suggestion"
+  ]
+}
+
+Use **bold** (double asterisks) around the most important 1-3 words in each item. Maximum 2-3 items in wentWell, 2-3 in toImprove, 3 suggestions.`
+}
 
 function IntroLoading() {
   const [tipIndex, setTipIndex] = useState(() => Math.floor(Math.random() * INTERVIEW_TIPS.length))
@@ -951,10 +1028,10 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           max_tokens: 4096,
-          system: `You are an expert interview coach analyzing a voice interview for a ${config.jobTitle || 'professional'} position${config.companyName ? ` at ${config.companyName}` : ''}. The candidate spoke their answers aloud — there was no text or writing involved. The transcript was generated by speech recognition software and may contain transcription errors: words may be missing, misheard, or substituted. Because of this, NEVER critique specific word choices, vocabulary, grammar, or phrasing — you cannot know if an odd word is what the candidate actually said or a transcription error. You will evaluate two dimensions: (1) CONTENT RELEVANCE — whether the candidate's experiences, knowledge, and examples are thematically pertinent to the role, inferred from topics and themes rather than specific words; (2) COMMUNICATION — structure, clarity, use of examples, confidence signals, verbal organization. Always respond with valid JSON only — no markdown, no explanation. Write your entire response in ${config.language}.`,
+          system: `You are an expert interview coach analyzing a voice interview for a ${config.jobTitle || 'professional'} position${config.companyName ? ` at ${config.companyName}` : ''}. The candidate spoke their answers aloud — there was no text or writing involved. The transcript was generated by speech recognition software and may contain transcription errors: words may be missing, misheard, or substituted. Because of this, NEVER critique specific word choices, vocabulary, grammar, or phrasing. Always respond with valid JSON only — no markdown, no explanation. Write your entire response in ${config.language}.`,
           messages: [{
             role: 'user',
-            content: `Role: ${config.jobTitle || 'professional'}${config.companyName ? ` at ${config.companyName}` : ''}${config.interviewType ? ` | Interview type: ${config.interviewType}` : ''}\n\nInterview transcript:\n\n${transcript}\n\nEvaluate the candidate on two dimensions. Do NOT critique specific word choices or phrasing — the transcript comes from speech recognition and individual words may not be accurate.\n\nDIMENSION 1 — CONTENT RELEVANCE (60% of score): Do the candidate's experiences, knowledge, and examples suggest a background aligned with the role? Are their answers thematically appropriate for a ${config.jobTitle || 'professional'} position? Does their experience level match the seniority implied? Score harshly if the candidate shows no relevant background for this specific role.\n\nDIMENSION 2 — COMMUNICATION (40% of score): Structure, clarity, conciseness, confidence in tone, use of examples, verbal organization.\n\nIf the candidate gave fewer than 2 substantive responses, return {"notEnoughData": true} and nothing else.\n\nOtherwise respond with this exact JSON structure:\n{\n  "notEnoughData": false,\n  "score": <integer 0-1000 combining both dimensions: 60% content relevance + 40% communication. 0-400 = needs significant work, 401-600 = developing, 601-800 = solid, 801-1000 = excellent>,\n  "headline": "2-5 word verdict on overall performance (e.g. 'Perfil muy alineado al rol', 'Buena comunicación, falta experiencia técnica', 'Potencial claro, falta estructura')",\n  "wentWell": [\n    "**Key concept in bold**: concrete observation about content relevance OR communication — e.g. relevant experience demonstrated, strong use of role-specific examples, clear structure. Do NOT quote specific words.",\n    "**Another concept**: another specific observation"\n  ],\n  "toImprove": [\n    "**Key concept in bold**: specific observation about content relevance OR communication to improve. Do NOT quote specific words.",\n    "**Another concept**: specific observation"\n  ],\n  "suggestions": [\n    "**Actionable verb**: specific, concrete action the candidate can practice immediately — with **bold** on the key idea.",\n    "**Another action**: specific suggestion",\n    "**Another action**: specific suggestion"\n  ]\n}\n\nUse **bold** (double asterisks) around the most important 1-3 words in each item. Maximum 2-3 items in wentWell, 2-3 items in toImprove, 3 suggestions.`,
+            content: buildScoringPrompt(config, transcript),
           }],
         }),
       })
@@ -963,7 +1040,20 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
       if (!data.text || typeof data.text !== 'string') throw new Error('Invalid response format from Claude')
       const clean = data.text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim()
       const parsed = JSON.parse(clean)
-      setFeedback(parsed)
+
+      // Compute deterministic score from axes returned by Claude
+      let enrichedFeedback = parsed
+      if (!parsed.notEnoughData && parsed.axes) {
+        const { clarity, structure, roleRelevance, ...contentAxes } = parsed.axes
+        const scoreResult = calculateScore(
+          config.interviewType || 'HR',
+          { clarity, structure, roleRelevance },
+          contentAxes
+        )
+        enrichedFeedback = { ...parsed, score: scoreResult.finalScore, scoreResult }
+      }
+
+      setFeedback(enrichedFeedback)
 
       // Save to DB (best-effort — never block the feedback screen)
       try {
@@ -980,7 +1070,7 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
             body: JSON.stringify({
               config,
               transcript: messagesRef.current,
-              feedback: parsed,
+              feedback: enrichedFeedback,
               durationSeconds: Math.round((Date.now() - startTimeRef.current) / 1000),
             }),
           })
