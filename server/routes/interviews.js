@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase.js'
 import { requireAuth } from '../middleware/auth.js'
+import { calculateScore } from '../lib/scoring.js'
 import express from 'express'
 
 export const interviewsRouter = express.Router()
@@ -35,16 +36,69 @@ interviewsRouter.post('/', requireAuth, async (req, res) => {
     }
 
     if (feedback && !feedback.notEnoughData && !feedback.parseError) {
+      // Re-compute score server-side from raw axes for authoritative storage
+      let scoreResult = feedback.scoreResult ?? null
+      if (feedback.axes && !scoreResult) {
+        const { clarity, structure, roleRelevance, ...contentAxes } = feedback.axes
+        scoreResult = calculateScore(
+          config.interviewType || 'HR',
+          { clarity, structure, roleRelevance },
+          contentAxes
+        )
+      }
+
+      const finalScore = scoreResult?.finalScore ?? feedback.score ?? null
+
       await supabase.from('interview_feedback').insert({
         interview_id: interview.id,
         user_id:      userId,
-        score:        feedback.score,
+        score:        finalScore,
         headline:     feedback.headline,
         went_well:    feedback.wentWell,
         to_improve:   feedback.toImprove,
         suggestions:  feedback.suggestions,
         raw_response: feedback,
       })
+
+      // Save full per-axis breakdown for auditability
+      if (scoreResult && feedback.axes) {
+        const { clarity, structure, roleRelevance, ...contentAxes } = feedback.axes
+        const type = scoreResult.interviewType  // 'HR' | 'TECHNICAL'
+        const isHR = type === 'HR'
+
+        await supabase.from('interview_scoring_detail').insert({
+          interview_id: interview.id,
+          user_id:      userId,
+          interview_type: type,
+
+          // Base axes
+          clarity:        clarity        ?? null,
+          structure:      structure      ?? null,
+          role_relevance: roleRelevance  ?? null,
+          base_score:     scoreResult.baseScore.score,
+          base_axes_measured: scoreResult.baseScore.measuredCount,
+
+          // Content axes HR
+          narrative_coherence: isHR ? (contentAxes.narrativeCoherence ?? null) : null,
+          reflection_depth:    isHR ? (contentAxes.reflectionDepth    ?? null) : null,
+          concrete_evidence:   isHR ? (contentAxes.concreteEvidence   ?? null) : null,
+
+          // Content axes TECHNICAL
+          technical_correctness:    !isHR ? (contentAxes.technicalCorrectness   ?? null) : null,
+          depth:                    !isHR ? (contentAxes.depth                  ?? null) : null,
+          problem_solving_evidence: !isHR ? (contentAxes.problemSolvingEvidence ?? null) : null,
+
+          content_score:         scoreResult.contentScore.score,
+          content_axes_measured: scoreResult.contentScore.measuredCount,
+
+          pre_penalty_score: scoreResult.prePenaltyScore,
+          final_score:       scoreResult.finalScore,
+          confidence:        scoreResult.confidence,
+          score_label:       scoreResult.scoreLabel,
+          penalties_applied: scoreResult.penaltiesApplied,
+          scoring_result:    scoreResult,
+        })
+      }
     }
 
     res.json({ id: interview.id })
