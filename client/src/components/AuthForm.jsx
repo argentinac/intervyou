@@ -153,6 +153,7 @@ export default function AuthForm({ onBack }) {
               className="auth-google-btn"
               onClick={handleGoogle}
               disabled={googleLoading}
+              data-track="auth_google_clicked"
             >
               <GoogleIcon />
               {googleLoading ? 'Redirigiendo…' : 'Continuar con Google'}
@@ -165,6 +166,7 @@ export default function AuthForm({ onBack }) {
             <button
               className="auth-email-btn"
               onClick={() => { setError(null); setStep('otp-email') }}
+              data-track="auth_email_clicked"
             >
               Continuar con email
             </button>
@@ -186,7 +188,7 @@ export default function AuthForm({ onBack }) {
 
               {error && <p className="auth-error">{error}</p>}
 
-              <button type="submit" className="auth-submit" disabled={loading}>
+              <button type="submit" className="auth-submit" disabled={loading} data-track="auth_otp_sent">
                 {loading ? 'Enviando…' : 'Enviar código →'}
               </button>
             </form>
@@ -222,7 +224,7 @@ export default function AuthForm({ onBack }) {
 
               {error && <p className="auth-error">{error}</p>}
 
-              <button type="submit" className="auth-submit" disabled={loading || otp.length < 6}>
+              <button type="submit" className="auth-submit" disabled={loading || otp.length < 6} data-track="auth_otp_verified">
                 {loading ? 'Verificando…' : 'Ingresar'}
               </button>
             </form>

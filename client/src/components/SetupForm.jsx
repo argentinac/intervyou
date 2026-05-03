@@ -259,6 +259,7 @@ export default function SetupForm({ onSubmit, onBack, initialConfig }) {
                       className="sf-ai-gen"
                       onClick={generateDescription}
                       disabled={!form.jobTitle || generatingDesc}
+                      data-track="setup_description_generated"
                     >
                       {generatingDesc
                         ? <><span className="sf-ai-spinner" /> Generando…</>
@@ -286,6 +287,7 @@ export default function SetupForm({ onSubmit, onBack, initialConfig }) {
                   type="button"
                   className="sf-autofill"
                   onClick={() => { setForm(TEST_DATA); setStep(1) }}
+                  data-track="setup_autofill_used"
                 >
                   <IconSparkle /> Autocompletar con ejemplo
                 </button>
@@ -294,6 +296,7 @@ export default function SetupForm({ onSubmit, onBack, initialConfig }) {
                   className="sf-next"
                   onClick={() => setStep(2)}
                   disabled={!step1Valid}
+                  data-track="setup_step1_continued"
                 >
                   Continuar →
                 </button>
@@ -347,7 +350,7 @@ export default function SetupForm({ onSubmit, onBack, initialConfig }) {
                 <button type="button" className="sf-back" onClick={() => setStep(1)}>
                   ← Volver
                 </button>
-                <button type="submit" className="sf-next">
+                <button type="submit" className="sf-next" data-track="interview_started">
                   Empezar entrevista →
                 </button>
               </div>

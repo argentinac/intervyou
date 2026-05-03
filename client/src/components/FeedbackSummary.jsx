@@ -153,8 +153,8 @@ export default function FeedbackSummary({ feedback, onRestart, onDashboard }) {
         </div>
 
         <div className="fb-actions">
-          <button className="fb-download" onClick={() => downloadFeedback(feedback)}>Descargar feedback</button>
-          <button className="fb-restart" onClick={onRestart}>Nueva entrevista →</button>
+          <button className="fb-download" onClick={() => downloadFeedback(feedback)} data-track="feedback_downloaded">Descargar feedback</button>
+          <button className="fb-restart" onClick={onRestart} data-track="restart_interview_clicked">Nueva entrevista →</button>
         </div>
       </div>
     </div>

@@ -3,6 +3,7 @@ import PhaseIndicator from './PhaseIndicator'
 import Avatar from './Avatar'
 import FeedbackSummary from './FeedbackSummary'
 import { useAuth } from '../contexts/AuthContext'
+import { track } from '../lib/analytics'
 import { supabase } from '../lib/supabase'
 import { INTERVIEW_TIPS } from '../data/tips'
 import { getAudioContext } from '../audioContext'
@@ -827,6 +828,7 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
         setMessages(fullMessages)
         setPhase(getPhase(0))
         setIntroLoading(false)
+        track('interview_session_started')
         await playAudio(reply)
         if (isEnd) endInterviewRef.current?.()
       } catch (err) {
@@ -1016,6 +1018,7 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
     stopActiveAudio()
     clearInterruptTimer()
     setSessionEnded(true)
+    track('interview_session_completed')
 
     const transcript = messagesRef.current
       .filter((m) => m.role !== 'user' || !m.content.startsWith('('))

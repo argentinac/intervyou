@@ -1,6 +1,7 @@
 import { useState, useEffect, Component } from 'react'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
-import { PlanProvider } from './contexts/PlanContext'
+import { PlanProvider, usePlan } from './contexts/PlanContext'
+import { identifyUser, resetAnalyticsUser, track } from './lib/analytics'
 import AuthForm from './components/AuthForm'
 import Landing from './components/Landing'
 import SetupForm from './components/SetupForm'
@@ -52,10 +53,35 @@ function getBlogSlugFromUrl() {
 
 function AppInner() {
   const { user } = useAuth()
+  const { plan, planStatus, isPro } = usePlan()
   const [view, setView] = useState(getInitialView) // 'landing' | 'auth' | 'dashboard' | 'interview' | 'blog' | 'pricing' | 'payment-success' | 'payment-error' | 'terms' | 'privacy' | 'faq'
   const [interviewConfig, setInterviewConfig] = useState(null)
   const [interviewReturn, setInterviewReturn] = useState('landing')
   const [blogSlug, setBlogSlug] = useState(getBlogSlugFromUrl)
+
+  // Auto-track every screen change
+  useEffect(() => {
+    track(`${view}_viewed`)
+  }, [view])
+
+  // Identify user on login/logout and when plan changes
+  useEffect(() => {
+    if (user) {
+      identifyUser(user, { plan, planStatus, isPro })
+    } else if (user === null) {
+      resetAnalyticsUser()
+    }
+  }, [user, plan, planStatus, isPro])
+
+  // Global click delegation: any element with data-track="event_name" fires automatically
+  useEffect(() => {
+    const handler = (e) => {
+      const el = e.target.closest('[data-track]')
+      if (el) track(el.dataset.track)
+    }
+    document.addEventListener('click', handler)
+    return () => document.removeEventListener('click', handler)
+  }, [])
 
   useEffect(() => {
     if (user && view !== 'interview' && view !== 'blog' && view !== 'terms' && view !== 'privacy' && view !== 'faq') setView('dashboard')

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { usePlan } from '../contexts/PlanContext'
+import { track } from '../lib/analytics'
 import { supabase } from '../lib/supabase'
 import MyInterviews from './MyInterviews'
 import MyProgress from './MyProgress'
@@ -217,7 +218,7 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews }) {
             <div className="home-hero-eyebrow">Empecemos tu camino</div>
             <h2>Tu primera entrevista te está esperando</h2>
             <p>Practicar es la mejor manera de prepararte y ganar confianza.</p>
-            <button className="home-hero-btn" onClick={onNewInterview}>
+            <button className="home-hero-btn" onClick={onNewInterview} data-track="new_interview_clicked">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/>
                 <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
@@ -414,7 +415,7 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews }) {
                 <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
               </svg>
               <p>Completá tu primera entrevista para ver tu progreso.</p>
-              <button className="db-btn-primary" onClick={onNewInterview}>Comenzar ahora</button>
+              <button className="db-btn-primary" onClick={onNewInterview} data-track="new_interview_clicked">Comenzar ahora</button>
             </div>
           )}
         </div>
@@ -472,6 +473,7 @@ export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRep
 
   const handleNav = (id) => {
     setSidebarOpen(false)
+    track(`dashboard_nav_${id}`)
     if (id === 'new') { onNewInterview(); return }
     setSection(id)
   }
@@ -553,12 +555,12 @@ export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRep
                 <div className="db-plan-row">
                   <span className="db-plan-name">Plan Free</span>
                 </div>
-                <button className="db-plan-upgrade" onClick={openUpgradeModal}>Upgrade a Premium →</button>
+                <button className="db-plan-upgrade" onClick={openUpgradeModal} data-track="upgrade_modal_opened">Upgrade a Premium →</button>
               </>
             )}
           </div>
 
-          <button className="db-signout" onClick={handleSignOut}>
+          <button className="db-signout" onClick={handleSignOut} data-track="signed_out">
             <IconLogout /> Cerrar sesión
           </button>
         </div>

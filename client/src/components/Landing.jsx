@@ -148,9 +148,9 @@ export default function Landing({ user, onLogin, onTryFree, onDashboard, onBlogP
           <div className="ld-nav-actions">
             {user
               ? <button className="ld-btn-ghost" onClick={onDashboard}>Mi cuenta</button>
-              : <button className="ld-btn-ghost" onClick={onLogin}>Iniciar sesión</button>
+              : <button className="ld-btn-ghost" onClick={onLogin} data-track="login_clicked">Iniciar sesión</button>
             }
-            <button className="ld-btn-primary" onClick={onTryFree}>Probar gratis</button>
+            <button className="ld-btn-primary" onClick={onTryFree} data-track="try_free_clicked">Probar gratis</button>
           </div>
           <button className="ld-hamburger" onClick={() => setMenuOpen(v => !v)}>
             <span /><span /><span />
@@ -173,7 +173,7 @@ export default function Landing({ user, onLogin, onTryFree, onDashboard, onBlogP
             Simulaciones realistas con IA que te ayudan a responder mejor, comunicarte con confianza y destacarte en tus entrevistas.
           </p>
           <div className="ld-hero-ctas">
-            <button className="ld-btn-primary ld-btn-lg" onClick={onTryFree}>
+            <button className="ld-btn-primary ld-btn-lg" onClick={onTryFree} data-track="try_free_clicked">
               Empezar gratis <IconArrow />
             </button>
             <button className="ld-btn-video">
@@ -356,7 +356,7 @@ export default function Landing({ user, onLogin, onTryFree, onDashboard, onBlogP
           <div className="ld-cta-card">
             <h3>Empieza gratis hoy</h3>
             <p className="ld-cta-card-sub">Accedé a 3 entrevistas de prueba.</p>
-            <button className="ld-btn-primary ld-btn-full" onClick={onTryFree}>Crear mi cuenta gratis</button>
+            <button className="ld-btn-primary ld-btn-full" onClick={onTryFree} data-track="signup_cta_clicked">Crear mi cuenta gratis</button>
             <div className="ld-cta-divider">o continuá con</div>
             <div className="ld-cta-oauth">
               <button className="ld-oauth-btn">
