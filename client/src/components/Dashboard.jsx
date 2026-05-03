@@ -59,6 +59,12 @@ const IconBook = () => (
     <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
   </svg>
 )
+const IconFlask = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9 3h6"/><path d="M10 3v5l-5.17 8.33A1 1 0 0 0 5.72 18h12.56a1 1 0 0 0 .89-1.67L14 8V3"/>
+    <line x1="9" y1="13" x2="15" y2="13"/>
+  </svg>
+)
 
 const DAILY_TIP = INTERVIEW_TIPS[Math.floor(Date.now() / 86400000) % INTERVIEW_TIPS.length]
 
@@ -435,6 +441,64 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews }) {
   )
 }
 
+function SimulacionesSection({
+  demoIndex, setDemoIndex, setSection,
+  setDemoPlan, setPaymentBannerDismissed,
+  openUpgradeModal, onPricing, onPaymentSuccess, onPaymentError, onNewInterview,
+}) {
+  const SimCard = ({ title, children }) => (
+    <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div style={{ fontSize: 12, fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{title}</div>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>{children}</div>
+    </div>
+  )
+  const Btn = ({ active, onClick, children }) => (
+    <button
+      onClick={onClick}
+      style={{
+        padding: '7px 14px', borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: 'pointer', border: '1.5px solid',
+        borderColor: active ? '#6366f1' : '#d1d5db',
+        background: active ? '#eef2ff' : '#fff',
+        color: active ? '#4f46e5' : '#374151',
+      }}
+    >{children}</button>
+  )
+
+  return (
+    <div style={{ padding: '32px 24px', maxWidth: 680, display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ marginBottom: 4 }}>
+        <h2 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: '#111827' }}>Simulaciones</h2>
+        <p style={{ margin: '4px 0 0', fontSize: 14, color: '#6b7280' }}>Simulá distintos estados de la app para demo o QA.</p>
+      </div>
+
+      <SimCard title="Historial de entrevistas">
+        {DEMO_STATES.map((s, i) => (
+          <Btn key={i} active={demoIndex === i} onClick={() => { setDemoIndex(demoIndex === i ? null : i); setSection('home') }}>
+            {s.label}
+          </Btn>
+        ))}
+        {demoIndex !== null && (
+          <Btn onClick={() => { setDemoIndex(null); setSection('home') }}>✕ Datos reales</Btn>
+        )}
+      </SimCard>
+
+      <SimCard title="Plan / suscripción">
+        <Btn onClick={() => { setDemoPlan({ plan: 'free', status: 'active' }); setPaymentBannerDismissed(false) }}>Free</Btn>
+        <Btn onClick={() => { setDemoPlan({ plan: 'pro', status: 'active', period: 'monthly' }); setPaymentBannerDismissed(false) }}>Pro activo</Btn>
+        <Btn onClick={() => { setDemoPlan({ plan: 'pro', status: 'past_due', period: 'monthly' }); setPaymentBannerDismissed(false) }}>Pro pago fallido</Btn>
+      </SimCard>
+
+      <SimCard title="Pantallas y modales">
+        <Btn onClick={openUpgradeModal}>Modal upgrade</Btn>
+        <Btn onClick={onPricing}>Pricing</Btn>
+        <Btn onClick={onPaymentSuccess}>Pago exitoso</Btn>
+        <Btn onClick={onPaymentError}>Error de pago</Btn>
+        <Btn onClick={onNewInterview}>Setup entrevista</Btn>
+      </SimCard>
+    </div>
+  )
+}
+
 export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRepeatInterview, onPricing, onPaymentSuccess, onPaymentError }) {
   const { user, signOut } = useAuth()
   const { isPro, planStatus, showUpgradeModal, openUpgradeModal, setDemoPlan } = usePlan()
@@ -462,14 +526,15 @@ export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRep
   }
 
   const navItems = [
-    { id: 'home',       label: 'Inicio',               icon: <IconHome /> },
-    { id: 'new',        label: 'Nueva entrevista',      icon: <IconPlus />, primary: true },
-    { id: 'interviews', label: 'Mis entrevistas',       icon: <IconList /> },
-    { id: 'progress',   label: 'Mi progreso',           icon: <IconTrend /> },
-    { id: 'recursos',   label: 'Recursos',              icon: <IconBook /> },
-    { id: 'profile',    label: 'Mi perfil profesional', icon: <IconUser /> },
-    { id: 'settings',   label: 'Configuración',         icon: <IconSettings /> },
-  ]
+    { id: 'home',          label: 'Inicio',               icon: <IconHome /> },
+    { id: 'new',           label: 'Nueva entrevista',      icon: <IconPlus />, primary: true },
+    { id: 'interviews',    label: 'Mis entrevistas',       icon: <IconList /> },
+    { id: 'progress',      label: 'Mi progreso',           icon: <IconTrend /> },
+    { id: 'recursos',      label: 'Recursos',              icon: <IconBook /> },
+    { id: 'profile',       label: 'Mi perfil profesional', icon: <IconUser /> },
+    { id: 'settings',      label: 'Configuración',         icon: <IconSettings /> },
+    { id: 'simulaciones',  label: 'Simulaciones',          icon: <IconFlask />, adminOnly: true },
+  ].filter(item => !item.adminOnly || isAdmin)
 
   const handleNav = (id) => {
     setSidebarOpen(false)
@@ -592,7 +657,7 @@ export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRep
           </div>
         )}
 
-        {section === 'home'       && (
+        {section === 'home'         && (
           <HomeSection
             onNewInterview={onNewInterview}
             user={user}
@@ -600,11 +665,25 @@ export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRep
             mockInterviews={demoIndex !== null ? DEMO_STATES[demoIndex].interviews : undefined}
           />
         )}
-        {section === 'interviews' && <MyInterviews onNewInterview={onNewInterview} onRepeat={onRepeatInterview} initialSelectedId={deepInterviewId} />}
-        {section === 'progress'   && <MyProgress onInterviewClick={(id) => { setDeepInterviewId(id); setSection('interviews') }} />}
-        {section === 'recursos'   && <BlogListPage onBlogPost={onBlogPost} />}
-        {section === 'profile'    && <MyProfile />}
-        {section === 'settings'   && <SettingsPage onSignOut={handleSignOut} />}
+        {section === 'interviews'  && <MyInterviews onNewInterview={onNewInterview} onRepeat={onRepeatInterview} initialSelectedId={deepInterviewId} />}
+        {section === 'progress'    && <MyProgress onInterviewClick={(id) => { setDeepInterviewId(id); setSection('interviews') }} />}
+        {section === 'recursos'    && <BlogListPage onBlogPost={onBlogPost} />}
+        {section === 'profile'     && <MyProfile />}
+        {section === 'settings'    && <SettingsPage onSignOut={handleSignOut} />}
+        {section === 'simulaciones' && (
+          <SimulacionesSection
+            demoIndex={demoIndex}
+            setDemoIndex={setDemoIndex}
+            setSection={setSection}
+            setDemoPlan={setDemoPlan}
+            setPaymentBannerDismissed={setPaymentBannerDismissed}
+            openUpgradeModal={openUpgradeModal}
+            onPricing={onPricing}
+            onPaymentSuccess={onPaymentSuccess}
+            onPaymentError={onPaymentError}
+            onNewInterview={onNewInterview}
+          />
+        )}
       </main>
 
       {showUpgradeModal && <UpgradeModal />}
