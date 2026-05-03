@@ -125,7 +125,7 @@ function FadeIn({ children, delay = 0, className = '' }) {
 
 // ── Component ───────────────────────────────────────────────
 
-export default function Landing({ user, onLogin, onTryFree, onDashboard, onBlogPost }) {
+export default function Landing({ user, onLogin, onTryFree, onDashboard, onBlogPost, onTerms, onPrivacy, onFaq }) {
   const [statsRef, statsVisible] = useInView()
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -383,11 +383,11 @@ export default function Landing({ user, onLogin, onTryFree, onDashboard, onBlogP
             <img src="/logo.png" alt="CoachToWork" style={{ height: 28, width: 'auto', filter: 'brightness(0) invert(1)', opacity: 0.7 }} />
           </div>
           <div className="ld-footer-links">
-            <a href="#">Producto</a>
-            <a href="#">Recursos</a>
-            <a href="#">Empresa</a>
-            <a href="#">Política de privacidad</a>
-            <a href="#">Términos</a>
+            <a href="#features">Cómo funciona</a>
+            <a href="#pricing">Precios</a>
+            {onFaq && <a onClick={onFaq} style={{ cursor: 'pointer' }}>FAQ</a>}
+            {onPrivacy && <a onClick={onPrivacy} style={{ cursor: 'pointer' }}>Política de privacidad</a>}
+            {onTerms && <a onClick={onTerms} style={{ cursor: 'pointer' }}>Términos y condiciones</a>}
           </div>
           <div className="ld-footer-social">
             <a href="#" aria-label="LinkedIn">

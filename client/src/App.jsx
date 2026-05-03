@@ -10,6 +10,9 @@ import BlogPost from './components/BlogPost'
 import PricingPage from './components/PricingPage'
 import PaymentSuccessPage from './components/PaymentSuccessPage'
 import PaymentErrorPage from './components/PaymentErrorPage'
+import TermsPage from './components/TermsPage'
+import PrivacyPage from './components/PrivacyPage'
+import FaqPage from './components/FaqPage'
 
 class ErrorBoundary extends Component {
   constructor(props) {
@@ -37,6 +40,9 @@ class ErrorBoundary extends Component {
 function getInitialView() {
   const path = window.location.pathname
   if (path.startsWith('/blog/')) return 'blog'
+  if (path === '/terminos') return 'terms'
+  if (path === '/privacidad') return 'privacy'
+  if (path === '/faq') return 'faq'
   return 'landing'
 }
 
@@ -46,19 +52,43 @@ function getBlogSlugFromUrl() {
 
 function AppInner() {
   const { user } = useAuth()
-  const [view, setView] = useState(getInitialView) // 'landing' | 'auth' | 'dashboard' | 'interview' | 'blog' | 'pricing' | 'payment-success' | 'payment-error'
+  const [view, setView] = useState(getInitialView) // 'landing' | 'auth' | 'dashboard' | 'interview' | 'blog' | 'pricing' | 'payment-success' | 'payment-error' | 'terms' | 'privacy' | 'faq'
   const [interviewConfig, setInterviewConfig] = useState(null)
   const [interviewReturn, setInterviewReturn] = useState('landing')
   const [blogSlug, setBlogSlug] = useState(getBlogSlugFromUrl)
 
   useEffect(() => {
-    if (user && view !== 'interview' && view !== 'blog') setView('dashboard')
+    if (user && view !== 'interview' && view !== 'blog' && view !== 'terms' && view !== 'privacy' && view !== 'faq') setView('dashboard')
   }, [user])
 
   const goToBlog = (slug) => {
     setBlogSlug(slug)
     setView('blog')
     window.history.pushState({}, '', `/blog/${slug}`)
+    window.scrollTo(0, 0)
+  }
+
+  const goToTerms = () => {
+    setView('terms')
+    window.history.pushState({}, '', '/terminos')
+    window.scrollTo(0, 0)
+  }
+
+  const goToPrivacy = () => {
+    setView('privacy')
+    window.history.pushState({}, '', '/privacidad')
+    window.scrollTo(0, 0)
+  }
+
+  const goToFaq = () => {
+    setView('faq')
+    window.history.pushState({}, '', '/faq')
+    window.scrollTo(0, 0)
+  }
+
+  const goToLanding = () => {
+    setView('landing')
+    window.history.pushState({}, '', '/')
     window.scrollTo(0, 0)
   }
 
@@ -69,9 +99,7 @@ function AppInner() {
   }
 
   const leaveBlog = () => {
-    setView('landing')
-    window.history.pushState({}, '', '/')
-    window.scrollTo(0, 0)
+    goToLanding()
   }
 
   if (user === undefined) {
@@ -92,6 +120,35 @@ function AppInner() {
     )
   }
 
+  if (view === 'terms') {
+    return (
+      <TermsPage
+        onBack={goToLanding}
+        onTryFree={() => { setInterviewReturn('landing'); setView('interview'); window.history.pushState({}, '', '/') }}
+      />
+    )
+  }
+
+  if (view === 'privacy') {
+    return (
+      <PrivacyPage
+        onBack={goToLanding}
+        onTryFree={() => { setInterviewReturn('landing'); setView('interview'); window.history.pushState({}, '', '/') }}
+      />
+    )
+  }
+
+  if (view === 'faq') {
+    return (
+      <FaqPage
+        onBack={goToLanding}
+        onTryFree={() => { setInterviewReturn('landing'); setView('interview'); window.history.pushState({}, '', '/') }}
+        onPrivacy={goToPrivacy}
+        onTerms={goToTerms}
+      />
+    )
+  }
+
   if (view === 'landing') {
     return (
       <Landing
@@ -100,6 +157,9 @@ function AppInner() {
         onTryFree={() => { setInterviewReturn('landing'); setView('interview') }}
         onDashboard={() => setView('dashboard')}
         onBlogPost={goToBlog}
+        onTerms={goToTerms}
+        onPrivacy={goToPrivacy}
+        onFaq={goToFaq}
       />
     )
   }
