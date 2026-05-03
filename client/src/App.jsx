@@ -1,7 +1,7 @@
 import { useState, useEffect, Component } from 'react'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { PlanProvider, usePlan } from './contexts/PlanContext'
-import { identifyUser, resetAnalyticsUser, track } from './lib/analytics'
+import { identifyUser, resetAnalyticsUser, track, deriveEventName } from './lib/analytics'
 import AuthForm from './components/AuthForm'
 import Landing from './components/Landing'
 import SetupForm from './components/SetupForm'
@@ -73,11 +73,14 @@ function AppInner() {
     }
   }, [user, plan, planStatus, isPro])
 
-  // Global click delegation: any element with data-track="event_name" fires automatically
+  // Global click delegation: auto-tracks any button/link click.
+  // Uses data-track as explicit override, otherwise derives name from text/aria-label.
   useEffect(() => {
     const handler = (e) => {
-      const el = e.target.closest('[data-track]')
-      if (el) track(el.dataset.track)
+      const el = e.target.closest('button, a, [role="button"]')
+      if (!el) return
+      const name = deriveEventName(el)
+      if (name) track(name)
     }
     document.addEventListener('click', handler)
     return () => document.removeEventListener('click', handler)
