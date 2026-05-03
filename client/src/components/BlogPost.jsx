@@ -31,7 +31,7 @@ export default function BlogPost({ slug, onBack, onTryFree }) {
             Volver al blog
           </button>
           <img src="/logo.png" alt="CoachToWork" className="bp-logo" />
-          <button className="bp-cta-nav" onClick={onTryFree}>Practicar ahora</button>
+          <button className="ld-btn-primary" onClick={onTryFree}>Probar gratis</button>
         </div>
       </header>
 

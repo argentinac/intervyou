@@ -10,7 +10,7 @@ export default function PrivacyPage({ onBack, onTryFree }) {
             Inicio
           </button>
           <img src="/logo.png" alt="CoachToWork" className="lp-logo" />
-          <button className="lp-cta-nav" onClick={onTryFree}>Practicar gratis</button>
+          <button className="ld-btn-primary" onClick={onTryFree}>Probar gratis</button>
         </div>
       </header>
 

@@ -2849,7 +2849,7 @@ html, body, #root, .app {
 }
 .bp-back:hover { color: #111827; }
 .bp-logo {
-  height: 24px;
+  height: 36px;
   width: auto;
   margin: 0 auto;
 }
@@ -4098,7 +4098,7 @@ html, body, #root, .app {
 }
 .lp-back:hover { color: #111827; }
 .lp-logo {
-  height: 24px;
+  height: 36px;
   width: auto;
   margin: 0 auto;
 }
