@@ -2160,7 +2160,7 @@ html, body, #root, .app {
 }
 .home-tip-text { flex: 1; align-self: flex-start; }
 .home-tip-quote {
-  font-size: 19px;
+  font-size: 15px;
   font-weight: 700;
   color: #10172A;
   margin: 0 0 10px;

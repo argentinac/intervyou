@@ -239,8 +239,7 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews }) {
         </div>
       )}
 
-      {/* Así es tu camino */}
-      <div className="home-section">
+      {false && <div className="home-section">
         <div className="home-section-title">Así es tu camino en CoachToWork</div>
         <div className="home-journey">
 
@@ -351,7 +350,7 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews }) {
           </div>
 
         </div>
-      </div>
+      </div>}
 
       {/* Grid inferior */}
       <div className="home-grid">
