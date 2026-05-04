@@ -20,15 +20,29 @@ function formatDate(date) {
   return date.toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' })
 }
 
-function getPercentile(score) {
-  if (score >= 900) return 97
-  if (score >= 800) return 90
-  if (score >= 700) return 78
-  if (score >= 600) return 62
-  if (score >= 500) return 45
-  if (score >= 400) return 30
-  if (score >= 300) return 18
-  return 8
+function erf(x) {
+  const sign = x >= 0 ? 1 : -1
+  x = Math.abs(x)
+  const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741
+  const a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911
+  const t = 1 / (1 + p * x)
+  const y = 1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x)
+  return sign * y
+}
+
+function normalCDF(z) {
+  return 0.5 * (1 + erf(z / Math.sqrt(2)))
+}
+
+function getPercentile(score, comparableScores = []) {
+  const clamp = (n, min, max) => Math.max(min, Math.min(max, n))
+  if (Array.isArray(comparableScores) && comparableScores.length >= 100) {
+    const lower = comparableScores.filter(s => s < score).length
+    const equal = comparableScores.filter(s => s === score).length
+    return clamp(Math.round(100 * (lower + 0.5 * equal) / comparableScores.length), 1, 99)
+  }
+  const z = (score - 600) / 180
+  return clamp(Math.round(100 * normalCDF(z)), 1, 99)
 }
 
 function getAxisValues(axes, interviewType) {
@@ -218,7 +232,7 @@ function RadarChart({ axisValues }) {
               </div>
             </div>
             <div className="rdr-label-name">{AXIS_LABELS[ax]}</div>
-            <div className="rdr-label-score" style={{ color: scoreColor }}>{v !== null ? v : '—'}</div>
+            <div className="rdr-label-score" style={{ color: scoreColor }}>{v !== null ? v * 10 : '—'}</div>
           </div>
         )
       })}
@@ -320,6 +334,7 @@ function NewFeedback({ feedback, config, onRestart, onDashboard }) {
   const scoreBarPct = score !== null ? Math.min(Math.max(score / 1000, 0), 1) * 100 : 0
 
   return (
+  <>
     <div className="rpt-page">
 
       {/* ── Header ── */}
@@ -363,57 +378,77 @@ function NewFeedback({ feedback, config, onRestart, onDashboard }) {
                 <div><div className="rpt-pill-label">Duración</div><div className="rpt-pill-value">{formatDuration(feedback.durationSeconds)}</div></div>
               </div>
             )}
+            {companyName && (
+              <div className="rpt-pill">
+                <div className="rpt-pill-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+                  </svg>
+                </div>
+                <div><div className="rpt-pill-label">Empresa</div><div className="rpt-pill-value">{companyName}</div></div>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* ── Score + Radar ── */}
-        <div className="rpt-top-grid">
+        {/* ── Main grid: left (score + exec) / right (radar) ── */}
+        <div className="rpt-main-grid">
+          <div className="rpt-left-col">
 
-          {/* Score card */}
-          <div className="rpt-score-card">
-            <p className="rpt-score-eyebrow">SCORE GENERAL</p>
-            <div className="rpt-score-main">
-              <span className="rpt-score-num">{score ?? '—'}</span>
-              <span className="rpt-score-denom">/1000</span>
-            </div>
-            {delta !== null && (
-              <div className={`rpt-delta ${delta >= 0 ? 'rpt-delta--up' : 'rpt-delta--down'}`}>
-                {delta >= 0 ? '↑' : '↓'} {Math.abs(delta)} puntos vs. tu última entrevista
+            {/* Score card */}
+            <div className="rpt-score-card">
+              <p className="rpt-score-eyebrow">SCORE GENERAL</p>
+              <div className="rpt-score-main">
+                <span className="rpt-score-num">{score ?? '—'}</span>
+                <span className="rpt-score-denom">/1000</span>
               </div>
-            )}
-            <div className="rpt-bar-wrap">
-              <div className="rpt-bar-track">
-                <div className="rpt-bar-fill" style={{ width: `${scoreBarPct}%` }} />
-                <div className="rpt-bar-dot" style={{ left: `${scoreBarPct}%` }} />
+              {delta !== null && (
+                <div className={`rpt-delta ${delta >= 0 ? 'rpt-delta--up' : 'rpt-delta--down'}`}>
+                  {delta >= 0 ? '↑' : '↓'} {Math.abs(delta)} puntos vs. tu última entrevista
+                </div>
+              )}
+              <div className="rpt-bar-wrap">
+                <div className="rpt-bar-track">
+                  <div className="rpt-bar-fill" style={{ width: `${scoreBarPct}%` }} />
+                  <div className="rpt-bar-dot" style={{ left: `${scoreBarPct}%` }} />
+                </div>
+                <div className="rpt-bar-ticks">
+                  <span>0</span><span>250</span><span>500</span><span>750</span><span>1000</span>
+                </div>
               </div>
-              <div className="rpt-bar-ticks">
-                <span>0</span><span>250</span><span>500</span><span>750</span><span>1000</span>
-              </div>
-            </div>
-            {(scoreLabel || percentile) && (
-              <div className="rpt-score-footer">
-                {scoreLabel && (
-                  <div className="rpt-score-footer-item">
-                    <span className="rpt-score-footer-label">NIVEL ACTUAL</span>
-                    <div className="rpt-score-footer-val-row">
-                      <span className="rpt-score-footer-val">{scoreLabel}</span>
-                      <div className="rpt-level-icon">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>
-                        </svg>
+              {(scoreLabel || percentile) && (
+                <div className="rpt-score-footer">
+                  {scoreLabel && (
+                    <div className="rpt-score-footer-item">
+                      <span className="rpt-score-footer-label">NIVEL ACTUAL</span>
+                      <div className="rpt-score-footer-val-row">
+                        <span className="rpt-score-footer-val">{scoreLabel}</span>
+                        <div className="rpt-level-icon">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>
+                          </svg>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
-                {percentile && (
-                  <div className="rpt-score-footer-item">
-                    <span className="rpt-score-footer-label">PERCENTIL</span>
-                    <div className="rpt-score-footer-val-row">
-                      <span className="rpt-score-footer-pct">{percentile}%</span>
+                  )}
+                  {percentile && (
+                    <div className="rpt-score-footer-item">
+                      <span className="rpt-score-footer-label">PERCENTIL</span>
+                      <div className="rpt-score-footer-val-row">
+                        <span className="rpt-score-footer-pct">{percentile}%</span>
+                      </div>
+                      <span className="rpt-score-footer-sub">de los usuarios</span>
                     </div>
-                    <span className="rpt-score-footer-sub">de los usuarios</span>
-                  </div>
-                )}
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Executive summary */}
+            {feedback.executiveSummary && (
+              <div className="rpt-card rpt-exec">
+                <p className="rpt-card-label">RESUMEN EJECUTIVO</p>
+                <p className="rpt-exec-text">{feedback.executiveSummary}</p>
               </div>
             )}
           </div>
@@ -424,14 +459,6 @@ function NewFeedback({ feedback, config, onRestart, onDashboard }) {
             <RadarChart axisValues={axisValues} />
           </div>
         </div>
-
-        {/* ── Executive summary ── */}
-        {feedback.executiveSummary && (
-          <div className="rpt-card rpt-exec">
-            <p className="rpt-card-label">RESUMEN EJECUTIVO</p>
-            <p className="rpt-exec-text">{feedback.executiveSummary}</p>
-          </div>
-        )}
 
         {/* ── Went well + To improve (single card, two columns) ── */}
         <div className="rpt-card rpt-feedback-grid">
@@ -535,60 +562,66 @@ function NewFeedback({ feedback, config, onRestart, onDashboard }) {
           </div>
         )}
 
-        {/* ── Next step + Resources ── */}
-        <div className="rpt-bottom-row">
-          {feedback.nextStep && (
-            <div className="rpt-card rpt-next-card">
-              <div className="rpt-next-icon-wrap">
-                <div className="rpt-next-icon">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none">
-                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                  </svg>
+        {/* ── Next step + Resources (single card) ── */}
+        {(feedback.nextStep || resources.length > 0) && (
+          <div className="rpt-card rpt-bottom-card">
+            {feedback.nextStep && (
+              <div className="rpt-bottom-col">
+                <div className="rpt-next-icon-wrap">
+                  <div className="rpt-next-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                    </svg>
+                  </div>
+                </div>
+                <div className="rpt-next-content">
+                  <p className="rpt-card-label">PRÓXIMO PASO SUGERIDO</p>
+                  <p className="rpt-next-text">{feedback.nextStep}</p>
                 </div>
               </div>
-              <div className="rpt-next-content">
-                <p className="rpt-card-label">PRÓXIMO PASO SUGERIDO</p>
-                <p className="rpt-next-text">{feedback.nextStep}</p>
+            )}
+            {feedback.nextStep && resources.length > 0 && (
+              <div className="rpt-bottom-divider" />
+            )}
+            {resources.length > 0 && (
+              <div className="rpt-bottom-col rpt-bottom-col--resources">
+                <p className="rpt-card-label">RECURSOS RECOMENDADOS</p>
+                <div className="rpt-resource-list">
+                  {resources.map(r => (
+                    <a key={r.slug} href={`/blog/${r.slug}`} target="_blank" rel="noopener noreferrer" className="rpt-resource-link">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                        <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+                      </svg>
+                      {r.title}
+                    </a>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
-          {resources.length > 0 && (
-            <div className="rpt-card rpt-resources-card">
-              <p className="rpt-card-label">RECURSOS RECOMENDADOS</p>
-              <div className="rpt-resource-list">
-                {resources.map(r => (
-                  <a key={r.slug} href={`/blog/${r.slug}`} target="_blank" rel="noopener noreferrer" className="rpt-resource-link">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-                      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
-                    </svg>
-                    {r.title}
-                  </a>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* ── Actions ── */}
-        <div className="rpt-actions">
-          <button className="rpt-btn-secondary" onClick={() => window.print()} data-track="feedback_downloaded">
-            Descargar reporte
-          </button>
-          <button className="rpt-btn-primary" onClick={onRestart} data-track="restart_interview_clicked">
-            Nueva entrevista →
-          </button>
-        </div>
+            )}
+          </div>
+        )}
 
       </div>
 
       {/* ── Footer ── */}
       <div className="rpt-footer">
-        <IntervyouIcon />
+        <img src="/logo.png" alt="CoachToWork" className="rpt-footer-logo" />
         <span>Tu camino hacia tu mejor versión profesional</span>
         <span>coachtowork.com</span>
       </div>
     </div>
+
+    {/* ── Actions (outside report) ── */}
+    <div className="rpt-actions-bar">
+      <button className="rpt-btn-secondary" onClick={() => window.print()} data-track="feedback_downloaded">
+        Descargar reporte
+      </button>
+      <button className="rpt-btn-primary" onClick={onRestart} data-track="restart_interview_clicked">
+        Nueva entrevista →
+      </button>
+    </div>
+  </>
   )
 }
 
