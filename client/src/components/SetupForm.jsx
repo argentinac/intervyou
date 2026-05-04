@@ -154,9 +154,14 @@ export default function SetupForm({ onSubmit, onBack, initialConfig }) {
 
   const step1Valid = form.country && form.jobTitle && form.jobDescription.trim()
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     unlockAudio()
+    try {
+      await navigator.mediaDevices.getUserMedia({ audio: true })
+    } catch {
+      // user denied — proceed anyway, SpeechRecognition will handle the error
+    }
     onSubmit(form)
   }
 

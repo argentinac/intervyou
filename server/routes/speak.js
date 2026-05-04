@@ -9,6 +9,10 @@ const LANGUAGE_VOICE = {
   Spanish: 'p18tR9wFA5Ng9WhfWI0o', // always female for Spanish
 }
 
+const COUNTRY_VOICE_OVERRIDE = {
+  Argentina: 'tRERXWzrPzFTtdfQUUbb',
+}
+
 // Country overrides for English speakers (premade voices)
 const COUNTRY_VOICE = {
   'United States':  (gender) => gender === 'male' ? 'TxGEqnHWrfWFTfGW9XjX' : 'XrExE9yKIg1WjnnlVkGX', // Josh / Matilda
@@ -48,9 +52,11 @@ export async function speakRoute(req, res) {
     if (!text || typeof text !== 'string' || !text.trim()) {
       return res.status(400).json({ error: 'Text is required' })
     }
-    const voiceId = COUNTRY_VOICE[country]
-      ? COUNTRY_VOICE[country](gender)
-      : (LANGUAGE_VOICE[language] || GENDER_VOICE[gender] || GENDER_VOICE.female)
+    const voiceId = COUNTRY_VOICE_OVERRIDE[country]
+      || (COUNTRY_VOICE[country] ? COUNTRY_VOICE[country](gender) : null)
+      || LANGUAGE_VOICE[language]
+      || GENDER_VOICE[gender]
+      || GENDER_VOICE.female
     const languageCode = COUNTRY_LANG_CODE[country] || LANG_CODE_FALLBACK[language] || 'en'
 
     const t5 = Date.now()
@@ -65,7 +71,7 @@ export async function speakRoute(req, res) {
         },
         body: JSON.stringify({
           text,
-          model_id: 'eleven_turbo_v2_5',
+          model_id: 'eleven_flash_v2_5',
           language_code: languageCode,
           voice_settings: {
             stability: 0.60,

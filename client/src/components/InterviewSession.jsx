@@ -324,12 +324,34 @@ function getInterviewerGender(country, language) {
   return COUNTRY_GENDER[country] || 'female'
 }
 
+const REGIONAL_PRONOUN_RULES = {
+  Argentina: 'Use "vos" and voseo conjugations (e.g. "¿cómo estás vos?", "contame", "decime") — never use "tú". This is standard professional speech in Argentina.',
+  Uruguay:   'Use "vos" and voseo conjugations — never use "tú". This is standard professional speech in Uruguay.',
+  Paraguay:  'Use "vos" and voseo conjugations — never use "tú".',
+  Chile:     'Use "tú" (tuteo). Avoid voseo.',
+  Spain:     'Use "tú" (tuteo). Never use "vos" or "usted" unless the context demands formal register.',
+  Mexico:    'Use "usted" in professional/formal contexts. Avoid voseo.',
+  Colombia:  'Use "usted" in professional/formal contexts, which is the norm even in casual Colombian speech. Avoid voseo.',
+  Peru:      'Use "usted" in professional/formal contexts. Avoid voseo.',
+  Venezuela: 'Use "usted" in professional/formal contexts. Avoid voseo.',
+  Bolivia:   'Use "usted" in professional/formal contexts.',
+  Ecuador:   'Use "usted" in professional/formal contexts.',
+  'Costa Rica': 'Use "usted" — it is the dominant pronoun even in informal speech in Costa Rica.',
+  Guatemala: 'Use "usted" in professional contexts.',
+  Honduras:  'Use "usted" in professional contexts.',
+  Nicaragua: 'Use "vos" — voseo is dominant in Nicaragua.',
+  Panama:    'Use "usted" in professional contexts.',
+  'El Salvador': 'Use "vos" — voseo is dominant in El Salvador.',
+  'Dominican Republic': 'Use "tú" (tuteo).',
+}
+
 const SYSTEM_PROMPT = ({ companyName, language, jobTitle, jobDescription, country, difficulty, interviewType, gender }) => `
 You are a senior ${interviewType === 'Technical' ? 'technical interviewer' : 'HR interviewer'} conducting a real job interview.
 You are ${gender}. Choose a realistic ${gender} first name typical of ${country} and use it as your name throughout — introduce yourself with it and refer to yourself by it if needed.
 ${companyName ? `You work at ${companyName}.` : ''}
 Language: ${language}. Conduct the ENTIRE interview in ${language}. Never switch languages.
 Location: ${country}. Adapt tone to the professional culture of this place.
+${REGIONAL_PRONOUN_RULES[country] ? `Regional speech (CRITICAL): ${REGIONAL_PRONOUN_RULES[country]}` : ''}
 
 Gender-neutral language (CRITICAL): When addressing or referring to the candidate, always use gender-neutral expressions. Never use gendered greetings or forms like "bienvenido/bienvenida", "el candidato/la candidata", "estimado/estimada". Instead use neutral alternatives: "gracias por tu tiempo", "es un placer", "la persona candidata", or rephrase to avoid the gendered form entirely. This applies in all languages.
 
