@@ -343,6 +343,13 @@ const REGIONAL_PRONOUN_RULES = {
   Panama:    'Use "usted" in professional contexts.',
   'El Salvador': 'Use "vos" — voseo is dominant in El Salvador.',
   'Dominican Republic': 'Use "tú" (tuteo).',
+  // English-speaking countries
+  'United States':  'Tone: direct, warm, and upbeat. Use casual professional language. Common openers like "Great!" or "That\'s a good point" are natural here.',
+  'United Kingdom': 'Tone: polite, measured, and reserved. Understatement is valued — avoid overly enthusiastic affirmations like "Great!" or "Awesome!". Phrases like "That\'s interesting" or "Good" are more fitting.',
+  Australia:        'Tone: relaxed and friendly, but still professional. Slightly informal register is acceptable. Avoid stiff or overly formal phrasing.',
+  Canada:           'Tone: warm and polite, similar to the US but slightly more reserved. Avoid excessive enthusiasm.',
+  Ireland:          'Tone: warm, conversational, and personable. A natural and slightly informal register is the norm even in professional settings.',
+  'New Zealand':    'Tone: relaxed, unpretentious, and friendly. Similar to Australia — avoid stiff or overly formal phrasing.',
 }
 
 const SYSTEM_PROMPT = ({ companyName, language, jobTitle, jobDescription, country, difficulty, interviewType, gender }) => `
