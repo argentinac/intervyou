@@ -4692,46 +4692,8 @@ html, body, #root, .app {
   margin: 0 0 8px;
 }
 
-/* Radar grid layout — labels in fixed cells, SVG in center */
-.rdr-grid {
-  display: grid;
-  grid-template-columns: 86px 1fr 86px;
-  grid-template-rows: auto 1fr auto;
-  gap: 8px 12px;
-  align-items: center;
-}
-.rdr-svg-cell {
-  grid-column: 2;
-  grid-row: 2;
-  aspect-ratio: 1;
-  width: 100%;
-}
-.rdr-svg { width: 100%; height: 100%; display: block; }
-
-.rdr-label-cell {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  padding: 4px 0;
-}
-.rdr-label-cell--center { align-items: center; text-align: center; }
-.rdr-label-cell--left   { align-items: flex-start; text-align: left; }
-.rdr-label-cell--right  { align-items: flex-end; text-align: right; }
-
-
-.rdr-icon {
-  width: 32px; height: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  border: 1.5px solid currentColor;
-  opacity: 0.9;
-}
-.rdr-icon svg { width: 14px; height: 14px; }
-.rdr-label-name { font-size: 9px; font-weight: 700; color: #475569; white-space: nowrap; }
-.rdr-label-score { font-size: 14px; font-weight: 800; line-height: 1; }
+/* Radar — pure SVG, fills the card width */
+.rdr-svg { width: 100%; height: auto; display: block; }
 
 /* ── Generic card ────────────────────────────────────── */
 .rpt-card {

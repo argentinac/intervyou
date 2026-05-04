@@ -211,24 +211,18 @@ const ItemIcons = {
 
 const RADAR_ORDER = ['claridad', 'consistencia', 'estructura', 'profundidad', 'evidencia', 'relevancia']
 
-// Fixed grid positions for the 6 axes (col 1-3, row 1-3; SVG is col2/row2)
-const RADAR_GRID = {
-  claridad:     { col: 2, row: 1, align: 'center' },
-  consistencia: { col: 3, row: 1, align: 'right'  },
-  estructura:   { col: 3, row: 3, align: 'right'  },
-  profundidad:  { col: 2, row: 3, align: 'center' },
-  evidencia:    { col: 1, row: 3, align: 'left'   },
-  relevancia:   { col: 1, row: 1, align: 'left'   },
-}
-
 function RadarChart({ axisValues }) {
-  const cx = 160, cy = 160, R = 110
+  // Larger viewBox with room for labels on all sides
+  const cx = 210, cy = 210, R = 110
   const n = RADAR_ORDER.length
+  const labelR = 155 // distance from center to label anchor
 
-  const pt = (i, v) => {
-    const angle = ((i * 360 / n) - 90) * Math.PI / 180
-    return { x: cx + (v / 100) * R * Math.cos(angle), y: cy + (v / 100) * R * Math.sin(angle) }
-  }
+  const angle = (i) => ((i * 360 / n) - 90) * Math.PI / 180
+
+  const pt = (i, v) => ({
+    x: cx + (v / 100) * R * Math.cos(angle(i)),
+    y: cy + (v / 100) * R * Math.sin(angle(i)),
+  })
 
   const gridPts = (pct) =>
     RADAR_ORDER.map((_, i) => { const p = pt(i, pct); return `${p.x},${p.y}` }).join(' ')
@@ -238,51 +232,72 @@ function RadarChart({ axisValues }) {
   }).join(' ')
 
   return (
-    <div className="rdr-grid">
-      {/* Labels in fixed grid cells */}
-      {RADAR_ORDER.map(ax => {
-        const { col, row, align } = RADAR_GRID[ax]
+    <svg viewBox="0 0 420 420" className="rdr-svg">
+      {/* Grid rings */}
+      {[25, 50, 75, 100].map(p => (
+        <polygon key={p} points={gridPts(p)} fill="none" stroke="#e5e7eb" strokeWidth={p === 100 ? 1.5 : 1} />
+      ))}
+      {/* Axis lines */}
+      {RADAR_ORDER.map((_, i) => {
+        const p = pt(i, 100)
+        return <line key={i} x1={cx} y1={cy} x2={p.x} y2={p.y} stroke="#e5e7eb" strokeWidth="1" />
+      })}
+      {/* Scale labels inside */}
+      {[200, 500, 1000].map((label, i) => {
+        const pct = [20, 50, 100][i]
+        const p = pt(2, pct)
+        return (
+          <text key={label} x={p.x + 4} y={p.y} fontSize="9" fill="#d1d5db" textAnchor="start" dominantBaseline="middle">
+            {label}
+          </text>
+        )
+      })}
+      {/* Data polygon */}
+      <polygon points={dataPts} fill="rgba(91,91,255,0.12)" stroke="#5b5bff" strokeWidth="2" />
+      {/* Data dots */}
+      {RADAR_ORDER.map((ax, i) => {
+        const p = pt(i, axisValues[ax] ?? 0)
+        return <circle key={ax} cx={p.x} cy={p.y} r="4.5" fill="#5b5bff" stroke="#fff" strokeWidth="1.5" />
+      })}
+      {/* Labels — anchored near each axis vertex */}
+      {RADAR_ORDER.map((ax, i) => {
+        const a = angle(i)
+        const sinA = Math.sin(a)
+        const cosA = Math.cos(a)
+        const lx = cx + labelR * cosA
+        const ly = cy + labelR * sinA
         const v = axisValues[ax] ?? null
         const scoreColor = v !== null ? (v >= 70 ? '#16a34a' : v >= 50 ? '#d97706' : '#dc2626') : '#9ca3af'
         const iconColor = AXIS_COLORS[ax]
+
+        // text-anchor based on horizontal position
+        const anchor = Math.abs(cosA) < 0.25 ? 'middle' : cosA > 0 ? 'start' : 'end'
+
+        // vertical stacking: name above score for top labels, below for bottom
+        const nameY = sinA < -0.1 ? ly - 10 : ly + 4
+        const scoreY = sinA < -0.1 ? ly + 8  : ly + 22
+
+        // icon circle center — between label anchor and axis vertex
+        const iconR = 10
+        const iconX = lx
+        const iconY = sinA < -0.1 ? ly - 24 : ly - 10
+
         return (
-          <div key={ax} className={`rdr-label-cell rdr-label-cell--${align}`}
-            style={{ gridColumn: col, gridRow: row, alignSelf: row === 1 ? 'end' : row === 3 ? 'start' : 'center' }}>
-            <div className="rdr-icon" style={{ background: `${iconColor}18`, color: iconColor }}>
-              {AxisIcons[ax]}
-            </div>
-            <div className="rdr-label-name">{AXIS_LABELS[ax]}</div>
-            <div className="rdr-label-score" style={{ color: scoreColor }}>{v !== null ? v * 10 : '—'}</div>
-          </div>
+          <g key={ax}>
+            {/* small tinted circle icon */}
+            <circle cx={iconX} cy={iconY} r={iconR} fill={`${iconColor}20`} stroke={iconColor} strokeWidth="1.2" />
+            <text x={lx} y={nameY} textAnchor={anchor} fontSize="10" fontWeight="700" fill="#475569"
+              fontFamily="Inter, system-ui, sans-serif">
+              {AXIS_LABELS[ax]}
+            </text>
+            <text x={lx} y={scoreY} textAnchor={anchor} fontSize="16" fontWeight="800" fill={scoreColor}
+              fontFamily="Inter, system-ui, sans-serif">
+              {v !== null ? v * 10 : '—'}
+            </text>
+          </g>
         )
       })}
-      {/* SVG in center cell */}
-      <div className="rdr-svg-cell">
-        <svg viewBox="0 0 320 320" className="rdr-svg">
-          {[25, 50, 75, 100].map(p => (
-            <polygon key={p} points={gridPts(p)} fill="none" stroke="#e5e7eb" strokeWidth={p === 100 ? 1.5 : 1} />
-          ))}
-          {RADAR_ORDER.map((_, i) => {
-            const p = pt(i, 100)
-            return <line key={i} x1={cx} y1={cy} x2={p.x} y2={p.y} stroke="#e5e7eb" strokeWidth="1" />
-          })}
-          {[200, 500, 1000].map((label, i) => {
-            const pct = [20, 50, 100][i]
-            const p = pt(2, pct)
-            return (
-              <text key={label} x={p.x + 4} y={p.y} fontSize="9" fill="#d1d5db" textAnchor="start" dominantBaseline="middle">
-                {label}
-              </text>
-            )
-          })}
-          <polygon points={dataPts} fill="rgba(91,91,255,0.12)" stroke="#5b5bff" strokeWidth="2" />
-          {RADAR_ORDER.map((ax, i) => {
-            const p = pt(i, axisValues[ax] ?? 0)
-            return <circle key={ax} cx={p.x} cy={p.y} r="4" fill="#5b5bff" stroke="#fff" strokeWidth="1.5" />
-          })}
-        </svg>
-      </div>
-    </div>
+    </svg>
   )
 }
 
