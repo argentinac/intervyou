@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 
 const KNOWN_DOMAINS = {
@@ -371,8 +371,36 @@ function LegacyFeedback({ feedback, onRestart, onDashboard }) {
 
 // ── New V2 report ───────────────────────────────────────────────────────────
 
+async function downloadReport(pageEl, fileName) {
+  const html2canvas = (await import('html2canvas')).default
+  const { jsPDF }   = await import('jspdf')
+
+  const canvas = await html2canvas(pageEl, {
+    scale: 2,
+    useCORS: true,
+    allowTaint: true,
+    backgroundColor: '#f5f7fb',
+    logging: false,
+  })
+
+  const imgData = canvas.toDataURL('image/png')
+  const imgW = canvas.width
+  const imgH = canvas.height
+
+  // Single page sized to fit the full content (no A4 splitting)
+  const pdf = new jsPDF({
+    orientation: imgW > imgH ? 'landscape' : 'portrait',
+    unit: 'px',
+    format: [imgW / 2, imgH / 2], // half of 2x scale = actual CSS pixels
+  })
+  pdf.addImage(imgData, 'PNG', 0, 0, imgW / 2, imgH / 2)
+  pdf.save(fileName)
+}
+
 function NewFeedback({ feedback, config, onRestart, onDashboard }) {
   const { user } = useAuth()
+  const pageRef  = useRef(null)
+  const [downloading, setDownloading] = useState(false)
   const userName   = formatName(user?.user_metadata?.full_name)
   const today      = formatDate(new Date())
   const interviewType  = feedback.interviewType || config?.interviewType || 'HR'
@@ -396,7 +424,7 @@ function NewFeedback({ feedback, config, onRestart, onDashboard }) {
 
   return (
   <>
-    <div className="rpt-page">
+    <div className="rpt-page" ref={pageRef}>
 
       {/* ── Header ── */}
       <div className="rpt-header">
@@ -680,8 +708,19 @@ function NewFeedback({ feedback, config, onRestart, onDashboard }) {
 
     {/* ── Actions (below footer) ── */}
     <div className="rpt-actions-bar">
-      <button className="rpt-btn-secondary" onClick={() => window.print()} data-track="feedback_downloaded">
-        Descargar reporte
+      <button
+        className="rpt-btn-secondary"
+        disabled={downloading}
+        data-track="feedback_downloaded"
+        onClick={async () => {
+          if (!pageRef.current) return
+          setDownloading(true)
+          const name = userName ? `Reporte-${userName.replace(/\s/g, '-')}` : 'Reporte-CoachToWork'
+          await downloadReport(pageRef.current, `${name}.pdf`)
+          setDownloading(false)
+        }}
+      >
+        {downloading ? 'Generando PDF…' : 'Descargar reporte'}
       </button>
       <button className="rpt-btn-primary" onClick={onRestart} data-track="restart_interview_clicked">
         Nueva entrevista →
