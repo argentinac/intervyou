@@ -282,10 +282,24 @@ function RadarChart({ axisValues }) {
         const iconX = lx
         const iconY = sinA < -0.1 ? ly - 24 : ly - 10
 
+        const iconPaths = {
+          claridad:     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>,
+          estructura:   <><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></>,
+          relevancia:   <><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></>,
+          consistencia: <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>,
+          profundidad:  <><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></>,
+          evidencia:    <><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><polyline points="16 17 21 22 16 27"/><line x1="3" y1="18" x2="21" y2="18"/></>,
+        }
+
         return (
           <g key={ax}>
             {/* small tinted circle icon */}
             <circle cx={iconX} cy={iconY} r={iconR} fill={`${iconColor}20`} stroke={iconColor} strokeWidth="1.2" />
+            <svg x={iconX - iconR + 2} y={iconY - iconR + 2} width={(iconR - 2) * 2} height={(iconR - 2) * 2}
+              viewBox="0 0 24 24" fill="none" stroke={iconColor} strokeWidth="2"
+              strokeLinecap="round" strokeLinejoin="round">
+              {iconPaths[ax]}
+            </svg>
             <text x={lx} y={nameY} textAnchor={anchor} fontSize="10" fontWeight="700" fill="#475569"
               fontFamily="Inter, system-ui, sans-serif">
               {AXIS_LABELS[ax]}
