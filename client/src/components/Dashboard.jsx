@@ -115,14 +115,14 @@ function MiniScoreChart({ interviews }) {
     <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} style={{ overflow: 'visible' }}>
       <defs>
         <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#6366f1" stopOpacity="0.25"/>
-          <stop offset="100%" stopColor="#6366f1" stopOpacity="0"/>
+          <stop offset="0%" stopColor="#5955F6" stopOpacity="0.2"/>
+          <stop offset="100%" stopColor="#5955F6" stopOpacity="0"/>
         </linearGradient>
       </defs>
       <path d={area} fill="url(#chartGrad)"/>
-      <polyline points={points} fill="none" stroke="#6366f1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <polyline points={points} fill="none" stroke="#5955F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
       {scores.map((s, i) => (
-        <circle key={i} cx={x(i)} cy={y(s)} r="3.5" fill="#fff" stroke="#6366f1" strokeWidth="2"/>
+        <circle key={i} cx={x(i)} cy={y(s)} r="3.5" fill="#fff" stroke="#5955F6" strokeWidth="2"/>
       ))}
     </svg>
   )
@@ -430,7 +430,7 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews }) {
       {/* Banner de feedback */}
       <div className="home-feedback-banner">
         <div className="home-feedback-icon" aria-hidden="true">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5955F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
           </svg>
         </div>
@@ -554,19 +554,19 @@ export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRep
         <button className="db-hamburger" onClick={() => setSidebarOpen(o => !o)} aria-label="Menú">
           <span /><span /><span />
         </button>
-        <img src="/logo.png" alt="intervyou" style={{ height: 28, width: 'auto', filter: 'brightness(0) invert(1)', opacity: 0.9 }} />
+        <img src="/logo.png" alt="CoachToWork" style={{ height: 28, width: 'auto' }} />
       </div>
       {sidebarOpen && <div className="db-overlay" onClick={() => setSidebarOpen(false)} />}
       <aside className={`db-sidebar${sidebarOpen ? ' db-sidebar--open' : ''}`}>
         <div className="db-sidebar-logo" onClick={() => setSection('home')} style={{ cursor: 'pointer' }}>
-          <img src="/logo.png" alt="intervyou" style={{ height: 32, width: 'auto', filter: 'brightness(0) invert(1)', opacity: 0.9 }} />
+          <img src="/logo.png" alt="CoachToWork" style={{ height: 32, width: 'auto' }} />
         </div>
 
         <nav className="db-nav">
           {navItems.map(item => (
             <button
               key={item.id}
-              className={`db-nav-item ${item.primary ? 'db-nav-item--primary' : ''} ${section === item.id ? 'db-nav-item--active' : ''}`}
+              className={`db-nav-item${section === item.id ? ' db-nav-item--active' : ''}`}
               onClick={() => handleNav(item.id)}
             >
               <span className="db-nav-icon">{item.icon}</span>
@@ -623,6 +623,7 @@ export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRep
             ) : (
               <>
                 <div className="db-plan-row">
+                  <div className="db-plan-crown-free"><IconCrown /></div>
                   <span className="db-plan-name">Plan Free</span>
                 </div>
                 <button className="db-plan-upgrade" onClick={openUpgradeModal} data-track="upgrade_modal_opened">Upgrade a Premium →</button>
@@ -630,8 +631,16 @@ export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRep
             )}
           </div>
 
-          <button className="db-signout" onClick={handleSignOut} data-track="signed_out">
-            <IconLogout /> Cerrar sesión
+          <div className="db-sidebar-divider" />
+          <button className="db-sidebar-profile" onClick={() => setSection('profile')}>
+            <div className="db-sidebar-profile-avatar">
+              {(profile?.full_name || user?.email || 'U')[0].toUpperCase()}
+            </div>
+            <div className="db-sidebar-profile-info">
+              <span className="db-sidebar-profile-name">{profile?.full_name?.split(' ')[0] || user?.email?.split('@')[0]}</span>
+              <span className="db-sidebar-profile-sub">Ver perfil</span>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: 'auto', flexShrink: 0, color: '#94a3b8' }}><polyline points="9 18 15 12 9 6"/></svg>
           </button>
         </div>
       </aside>
