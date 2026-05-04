@@ -54,9 +54,9 @@ interviewsRouter.post('/', requireAuth, async (req, res) => {
         user_id:      userId,
         score:        finalScore,
         headline:     feedback.headline,
-        went_well:    feedback.wentWell,
-        to_improve:   feedback.toImprove,
-        suggestions:  feedback.suggestions,
+        went_well:    feedback.wentWell   ?? null,
+        to_improve:   feedback.toImprove  ?? null,
+        suggestions:  feedback.actionPlan ?? feedback.suggestions ?? null,
         raw_response: feedback,
       })
 
