@@ -4504,29 +4504,23 @@ html, body, #root, .app {
 /* ── User row ────────────────────────────────────────── */
 .rpt-user-row {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 24px;
-  padding: 24px 0 24px 24px;
-  border-left: 4px solid #5b5bff;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 16px;
 }
 .rpt-user-name {
   font-size: 34px;
   font-weight: 800;
   color: #0f172a;
-  margin: 0 0 6px;
+  margin: 0;
   letter-spacing: -1px;
   line-height: 1.1;
 }
-.rpt-user-role { font-size: 15px; color: #64748b; margin: 0; }
 
 .rpt-user-pills {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   flex-wrap: wrap;
   align-items: flex-start;
-  padding-top: 2px;
 }
 .rpt-pill {
   display: flex;
@@ -4548,6 +4542,10 @@ html, body, #root, .app {
   justify-content: center;
   color: #5b5bff;
   flex-shrink: 0;
+}
+.rpt-pill-icon--logo {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
 }
 .rpt-pill-label { font-size: 10px; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
 .rpt-pill-value { font-size: 14px; font-weight: 700; color: #0f172a; }
@@ -4683,6 +4681,7 @@ html, body, #root, .app {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  overflow: hidden;
 }
 .rpt-radar-title {
   font-size: 13px;
@@ -4694,6 +4693,10 @@ html, body, #root, .app {
 }
 
 /* Radar layout */
+.rdr-outer {
+  position: relative;
+  padding: 44px 80px;
+}
 .rdr-wrap {
   position: relative;
   width: 100%;
@@ -4708,10 +4711,10 @@ html, body, #root, .app {
 }
 .rdr-icon-wrap {
   display: flex;
-  margin-bottom: 4px;
+  margin-bottom: 3px;
 }
 .rdr-icon {
-  width: 36px; height: 36px;
+  width: 30px; height: 30px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -4720,9 +4723,9 @@ html, body, #root, .app {
   border: 1.5px solid currentColor;
   opacity: 0.85;
 }
-.rdr-icon svg { width: 16px; height: 16px; }
-.rdr-label-name { font-size: 10px; font-weight: 700; color: #334155; white-space: nowrap; }
-.rdr-label-score { font-size: 15px; font-weight: 800; }
+.rdr-icon svg { width: 14px; height: 14px; }
+.rdr-label-name { font-size: 9px; font-weight: 700; color: #334155; white-space: nowrap; }
+.rdr-label-score { font-size: 13px; font-weight: 800; }
 
 /* ── Generic card ────────────────────────────────────── */
 .rpt-card {
@@ -4742,6 +4745,13 @@ html, body, #root, .app {
 
 /* Exec summary */
 .rpt-exec { flex: 1; }
+.rpt-exec-headline {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.35;
+  margin: 0 0 10px;
+}
 .rpt-exec-text { font-size: 14px; color: #334155; line-height: 1.75; margin: 0; }
 
 /* ── Feedback grid (went well + to improve) ──────────── */
@@ -4851,9 +4861,11 @@ html, body, #root, .app {
   align-items: center;
   flex: 1;
   min-width: 0;
+  align-self: stretch;
 }
 .rpt-action-item {
   flex: 1;
+  height: 100%;
   background: #fff;
   border: 1px solid #e2e8f0;
   border-radius: 10px;
@@ -4862,7 +4874,7 @@ html, body, #root, .app {
   flex-direction: column;
   gap: 8px;
   min-width: 0;
-  min-height: 180px;
+  box-sizing: border-box;
 }
 .rpt-action-num {
   width: 30px; height: 30px;
@@ -4941,12 +4953,12 @@ html, body, #root, .app {
 .rpt-resource-link:hover { color: #5b5bff; }
 .rpt-resource-link svg { color: #94a3b8; flex-shrink: 0; }
 
-/* ── Actions bar (outside report) ───────────────────── */
+/* ── Actions bar (above report) ─────────────────────── */
 .rpt-actions-bar {
   max-width: 1120px;
   width: 100%;
   margin: 0 auto;
-  padding: 20px 48px 40px;
+  padding: 20px 48px;
   display: flex;
   gap: 12px;
 }

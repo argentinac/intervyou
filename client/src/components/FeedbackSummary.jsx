@@ -1,4 +1,58 @@
+import { useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
+
+const KNOWN_DOMAINS = {
+  'tiendanube': 'tiendanube.com',
+  'tienda nube': 'tiendanube.com',
+  'mercadolibre': 'mercadolibre.com',
+  'mercado libre': 'mercadolibre.com',
+  'mercado pago': 'mercadopago.com',
+  'mercadopago': 'mercadopago.com',
+  'globant': 'globant.com',
+  'despegar': 'despegar.com',
+  'ualá': 'uala.ar',
+  'uala': 'uala.ar',
+  'naranja x': 'naranjax.com',
+  'naranjax': 'naranjax.com',
+  'google': 'google.com',
+  'meta': 'meta.com',
+  'microsoft': 'microsoft.com',
+  'amazon': 'amazon.com',
+  'accenture': 'accenture.com',
+  'deloitte': 'deloitte.com',
+  'santander': 'santander.com',
+  'hsbc': 'hsbc.com',
+  'galicia': 'galicia.com.ar',
+  'banco galicia': 'galicia.com.ar',
+  'rappi': 'rappi.com',
+  'pedidosya': 'pedidosya.com',
+  'pedidos ya': 'pedidosya.com',
+}
+
+function getCompanyDomain(name) {
+  if (!name) return null
+  return KNOWN_DOMAINS[name.toLowerCase().trim()] || null
+}
+
+function CompanyLogo({ name }) {
+  const [error, setError] = useState(false)
+  const domain = getCompanyDomain(name)
+  if (domain && !error) {
+    return (
+      <img
+        src={`https://logo.clearbit.com/${domain}`}
+        alt={name}
+        onError={() => setError(true)}
+        style={{ width: 20, height: 20, objectFit: 'contain', borderRadius: 3 }}
+      />
+    )
+  }
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+    </svg>
+  )
+}
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -158,7 +212,7 @@ const ItemIcons = {
 const RADAR_ORDER = ['claridad', 'consistencia', 'estructura', 'profundidad', 'evidencia', 'relevancia']
 
 function RadarChart({ axisValues }) {
-  const cx = 160, cy = 160, R = 110
+  const cx = 160, cy = 160, R = 95
   const n = RADAR_ORDER.length
 
   const pt = (i, v) => {
@@ -172,7 +226,7 @@ function RadarChart({ axisValues }) {
   const dataPts = RADAR_ORDER.map((ax, i) => { const p = pt(i, axisValues[ax] ?? 0); return `${p.x},${p.y}` }).join(' ')
 
   // label positions: outside hexagon
-  const labelR = 148
+  const labelR = 118
   const labels = RADAR_ORDER.map((ax, i) => {
     const angle = ((i * 360 / n) - 90) * Math.PI / 180
     const lx = cx + labelR * Math.cos(angle)
@@ -183,6 +237,7 @@ function RadarChart({ axisValues }) {
   })
 
   return (
+    <div className="rdr-outer">
     <div className="rdr-wrap">
       <svg viewBox="0 0 320 320" className="rdr-svg">
         {[25, 50, 75, 100].map(p => (
@@ -236,6 +291,7 @@ function RadarChart({ axisValues }) {
           </div>
         )
       })}
+    </div>
     </div>
   )
 }
@@ -335,6 +391,15 @@ function NewFeedback({ feedback, config, onRestart, onDashboard }) {
 
   return (
   <>
+    {/* ── Actions (above report) ── */}
+    <div className="rpt-actions-bar">
+      <button className="rpt-btn-secondary" onClick={() => window.print()} data-track="feedback_downloaded">
+        Descargar reporte
+      </button>
+      <button className="rpt-btn-primary" onClick={onRestart} data-track="restart_interview_clicked">
+        Nueva entrevista →
+      </button>
+    </div>
     <div className="rpt-page">
 
       {/* ── Header ── */}
@@ -352,14 +417,18 @@ function NewFeedback({ feedback, config, onRestart, onDashboard }) {
 
         {/* ── User row ── */}
         <div className="rpt-user-row">
-          <div className="rpt-user-left">
-            {userName && <h1 className="rpt-user-name">{userName}</h1>}
-            <p className="rpt-user-role">
-              {config?.jobTitle ? `Perfil: ${config.jobTitle}` : 'Perfil profesional'}
-              {companyName ? ` · ${companyName}` : ''}
-            </p>
-          </div>
+          {userName && <h1 className="rpt-user-name">{userName}</h1>}
           <div className="rpt-user-pills">
+            {config?.jobTitle && (
+              <div className="rpt-pill">
+                <div className="rpt-pill-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                  </svg>
+                </div>
+                <div><div className="rpt-pill-label">Perfil</div><div className="rpt-pill-value">{config.jobTitle}</div></div>
+              </div>
+            )}
             <div className="rpt-pill">
               <div className="rpt-pill-icon">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -380,10 +449,8 @@ function NewFeedback({ feedback, config, onRestart, onDashboard }) {
             )}
             {companyName && (
               <div className="rpt-pill">
-                <div className="rpt-pill-icon">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
-                  </svg>
+                <div className="rpt-pill-icon rpt-pill-icon--logo">
+                  <CompanyLogo name={companyName} />
                 </div>
                 <div><div className="rpt-pill-label">Empresa</div><div className="rpt-pill-value">{companyName}</div></div>
               </div>
@@ -448,7 +515,10 @@ function NewFeedback({ feedback, config, onRestart, onDashboard }) {
             {feedback.executiveSummary && (
               <div className="rpt-card rpt-exec">
                 <p className="rpt-card-label">RESUMEN EJECUTIVO</p>
-                <p className="rpt-exec-text">{feedback.executiveSummary}</p>
+                {feedback.headline && (
+                  <p className="rpt-exec-headline"><Bold text={feedback.headline} /></p>
+                )}
+                <p className="rpt-exec-text"><Bold text={feedback.executiveSummary} /></p>
               </div>
             )}
           </div>
@@ -546,7 +616,7 @@ function NewFeedback({ feedback, config, onRestart, onDashboard }) {
                   <div className="rpt-action-item">
                     <div className="rpt-action-num">{i + 1}</div>
                     <p className="rpt-action-item-title">{item.title}</p>
-                    <p className="rpt-action-item-desc">{item.description}</p>
+                    <p className="rpt-action-item-desc"><Bold text={item.description || ''} /></p>
                     <div className="rpt-priority">
                       <span className={`rpt-priority-badge rpt-priority-badge--${item.priority || 'media'}`}>
                         ↑ Prioridad {item.priority || 'media'}
@@ -576,7 +646,7 @@ function NewFeedback({ feedback, config, onRestart, onDashboard }) {
                 </div>
                 <div className="rpt-next-content">
                   <p className="rpt-card-label">PRÓXIMO PASO SUGERIDO</p>
-                  <p className="rpt-next-text">{feedback.nextStep}</p>
+                  <p className="rpt-next-text"><Bold text={feedback.nextStep} /></p>
                 </div>
               </div>
             )}
@@ -612,15 +682,6 @@ function NewFeedback({ feedback, config, onRestart, onDashboard }) {
       </div>
     </div>
 
-    {/* ── Actions (outside report) ── */}
-    <div className="rpt-actions-bar">
-      <button className="rpt-btn-secondary" onClick={() => window.print()} data-track="feedback_downloaded">
-        Descargar reporte
-      </button>
-      <button className="rpt-btn-primary" onClick={onRestart} data-track="restart_interview_clicked">
-        Nueva entrevista →
-      </button>
-    </div>
   </>
   )
 }
