@@ -2045,11 +2045,10 @@ html, body, #root, .app {
 }
 .home-journey-icon { margin-bottom: 10px; line-height: 0; }
 .home-journey-connector {
-  width: 32px;
+  width: 48px;
   flex-shrink: 0;
   height: 2px;
-  background: linear-gradient(90deg, #c7d2fe, #ddd6fe);
-  border-radius: 1px;
+  border-top: 2px dashed #c7d2fe;
   margin-top: 32px;
 }
 .home-journey-label { font-size: 13px; font-weight: 700; color: #0f172a; margin-bottom: 4px; }
@@ -2092,14 +2091,13 @@ html, body, #root, .app {
 }
 .home-tip-body {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  text-align: center;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
   flex: 1;
 }
-.home-tip-text { flex: 1; }
+.home-tip-text { flex: 1; align-self: flex-start; }
 .home-tip-quote {
   font-size: 15px;
   font-weight: 700;
@@ -2115,11 +2113,12 @@ html, body, #root, .app {
   line-height: 1.4;
 }
 .home-tip-img {
-  width: 88px;
+  width: 96px;
   height: auto;
   display: block;
   flex-shrink: 0;
   filter: drop-shadow(0 4px 10px rgba(0,0,0,0.1));
+  align-self: flex-end;
 }
 
 /* Practicar */
@@ -2173,6 +2172,16 @@ html, body, #root, .app {
   border: 1px solid #e2e8f0;
   border-radius: 14px;
   padding: 18px 24px;
+}
+.home-feedback-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: #eef2ff;
+  border-radius: 10px;
+  flex-shrink: 0;
 }
 .home-feedback-text {
   display: flex;
