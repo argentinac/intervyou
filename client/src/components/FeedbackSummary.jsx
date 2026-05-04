@@ -211,8 +211,18 @@ const ItemIcons = {
 
 const RADAR_ORDER = ['claridad', 'consistencia', 'estructura', 'profundidad', 'evidencia', 'relevancia']
 
+// Fixed grid positions for the 6 axes (col 1-3, row 1-3; SVG is col2/row2)
+const RADAR_GRID = {
+  claridad:     { col: 2, row: 1, align: 'center' },
+  consistencia: { col: 3, row: 1, align: 'right'  },
+  estructura:   { col: 3, row: 3, align: 'right'  },
+  profundidad:  { col: 2, row: 3, align: 'center' },
+  evidencia:    { col: 1, row: 3, align: 'left'   },
+  relevancia:   { col: 1, row: 1, align: 'left'   },
+}
+
 function RadarChart({ axisValues }) {
-  const cx = 160, cy = 160, R = 95
+  const cx = 160, cy = 160, R = 110
   const n = RADAR_ORDER.length
 
   const pt = (i, v) => {
@@ -223,75 +233,55 @@ function RadarChart({ axisValues }) {
   const gridPts = (pct) =>
     RADAR_ORDER.map((_, i) => { const p = pt(i, pct); return `${p.x},${p.y}` }).join(' ')
 
-  const dataPts = RADAR_ORDER.map((ax, i) => { const p = pt(i, axisValues[ax] ?? 0); return `${p.x},${p.y}` }).join(' ')
-
-  // label positions: outside hexagon
-  const labelR = 118
-  const labels = RADAR_ORDER.map((ax, i) => {
-    const angle = ((i * 360 / n) - 90) * Math.PI / 180
-    const lx = cx + labelR * Math.cos(angle)
-    const ly = cy + labelR * Math.sin(angle)
-    const cosA = Math.cos(angle)
-    const align = Math.abs(cosA) < 0.2 ? 'center' : cosA > 0 ? 'left' : 'right'
-    return { ax, lx, ly, align, v: axisValues[ax] }
-  })
+  const dataPts = RADAR_ORDER.map((ax, i) => {
+    const p = pt(i, axisValues[ax] ?? 0); return `${p.x},${p.y}`
+  }).join(' ')
 
   return (
-    <div className="rdr-outer">
-    <div className="rdr-wrap">
-      <svg viewBox="0 0 320 320" className="rdr-svg">
-        {[25, 50, 75, 100].map(p => (
-          <polygon key={p} points={gridPts(p)} fill="none" stroke="#e5e7eb" strokeWidth={p === 100 ? 1.5 : 1} />
-        ))}
-        {RADAR_ORDER.map((_, i) => {
-          const p = pt(i, 100)
-          return <line key={i} x1={cx} y1={cy} x2={p.x} y2={p.y} stroke="#e5e7eb" strokeWidth="1" />
-        })}
-        {/* scale labels inside */}
-        {[200, 500, 1000].map((label, i) => {
-          const pct = [20, 50, 100][i]
-          const p = pt(2, pct) // place label at bottom-right axis line
-          return (
-            <text key={label} x={p.x + 4} y={p.y} fontSize="8" fill="#d1d5db" textAnchor="start" dominantBaseline="middle">
-              {label}
-            </text>
-          )
-        })}
-        <polygon points={dataPts} fill="rgba(99,102,241,0.15)" stroke="#6366f1" strokeWidth="2" />
-        {RADAR_ORDER.map((ax, i) => {
-          const p = pt(i, axisValues[ax] ?? 0)
-          return <circle key={ax} cx={p.x} cy={p.y} r="4" fill="#6366f1" stroke="#fff" strokeWidth="1.5" />
-        })}
-      </svg>
-
-      {/* HTML labels positioned around the SVG */}
-      {labels.map(({ ax, lx, ly, align, v }) => {
+    <div className="rdr-grid">
+      {/* Labels in fixed grid cells */}
+      {RADAR_ORDER.map(ax => {
+        const { col, row, align } = RADAR_GRID[ax]
+        const v = axisValues[ax] ?? null
         const scoreColor = v !== null ? (v >= 70 ? '#16a34a' : v >= 50 ? '#d97706' : '#dc2626') : '#9ca3af'
         const iconColor = AXIS_COLORS[ax]
-        const pct = (lx / 320) * 100
-        const pctY = (ly / 320) * 100
         return (
-          <div
-            key={ax}
-            className="rdr-label"
-            style={{
-              left: `${pct}%`,
-              top: `${pctY}%`,
-              textAlign: align,
-              transform: align === 'center' ? 'translateX(-50%)' : align === 'right' ? 'translateX(-100%)' : 'none',
-            }}
-          >
-            <div className="rdr-icon-wrap" style={{ justifyContent: align === 'center' ? 'center' : align === 'right' ? 'flex-end' : 'flex-start' }}>
-              <div className="rdr-icon" style={{ background: `${iconColor}18`, color: iconColor }}>
-                {AxisIcons[ax]}
-              </div>
+          <div key={ax} className={`rdr-label-cell rdr-label-cell--${align}`}
+            style={{ gridColumn: col, gridRow: row, alignSelf: row === 1 ? 'end' : row === 3 ? 'start' : 'center' }}>
+            <div className="rdr-icon" style={{ background: `${iconColor}18`, color: iconColor }}>
+              {AxisIcons[ax]}
             </div>
             <div className="rdr-label-name">{AXIS_LABELS[ax]}</div>
             <div className="rdr-label-score" style={{ color: scoreColor }}>{v !== null ? v * 10 : '—'}</div>
           </div>
         )
       })}
-    </div>
+      {/* SVG in center cell */}
+      <div className="rdr-svg-cell">
+        <svg viewBox="0 0 320 320" className="rdr-svg">
+          {[25, 50, 75, 100].map(p => (
+            <polygon key={p} points={gridPts(p)} fill="none" stroke="#e5e7eb" strokeWidth={p === 100 ? 1.5 : 1} />
+          ))}
+          {RADAR_ORDER.map((_, i) => {
+            const p = pt(i, 100)
+            return <line key={i} x1={cx} y1={cy} x2={p.x} y2={p.y} stroke="#e5e7eb" strokeWidth="1" />
+          })}
+          {[200, 500, 1000].map((label, i) => {
+            const pct = [20, 50, 100][i]
+            const p = pt(2, pct)
+            return (
+              <text key={label} x={p.x + 4} y={p.y} fontSize="9" fill="#d1d5db" textAnchor="start" dominantBaseline="middle">
+                {label}
+              </text>
+            )
+          })}
+          <polygon points={dataPts} fill="rgba(91,91,255,0.12)" stroke="#5b5bff" strokeWidth="2" />
+          {RADAR_ORDER.map((ax, i) => {
+            const p = pt(i, axisValues[ax] ?? 0)
+            return <circle key={ax} cx={p.x} cy={p.y} r="4" fill="#5b5bff" stroke="#fff" strokeWidth="1.5" />
+          })}
+        </svg>
+      </div>
     </div>
   )
 }
@@ -391,15 +381,6 @@ function NewFeedback({ feedback, config, onRestart, onDashboard }) {
 
   return (
   <>
-    {/* ── Actions (above report) ── */}
-    <div className="rpt-actions-bar">
-      <button className="rpt-btn-secondary" onClick={() => window.print()} data-track="feedback_downloaded">
-        Descargar reporte
-      </button>
-      <button className="rpt-btn-primary" onClick={onRestart} data-track="restart_interview_clicked">
-        Nueva entrevista →
-      </button>
-    </div>
     <div className="rpt-page">
 
       {/* ── Header ── */}
@@ -616,7 +597,7 @@ function NewFeedback({ feedback, config, onRestart, onDashboard }) {
                   <div className="rpt-action-item">
                     <div className="rpt-action-num">{i + 1}</div>
                     <p className="rpt-action-item-title">{item.title}</p>
-                    <p className="rpt-action-item-desc"><Bold text={item.description || ''} /></p>
+                    <p className="rpt-action-item-desc">{item.description}</p>
                     <div className="rpt-priority">
                       <span className={`rpt-priority-badge rpt-priority-badge--${item.priority || 'media'}`}>
                         ↑ Prioridad {item.priority || 'media'}
@@ -646,7 +627,7 @@ function NewFeedback({ feedback, config, onRestart, onDashboard }) {
                 </div>
                 <div className="rpt-next-content">
                   <p className="rpt-card-label">PRÓXIMO PASO SUGERIDO</p>
-                  <p className="rpt-next-text"><Bold text={feedback.nextStep} /></p>
+                  <p className="rpt-next-text">{feedback.nextStep}</p>
                 </div>
               </div>
             )}
@@ -682,6 +663,15 @@ function NewFeedback({ feedback, config, onRestart, onDashboard }) {
       </div>
     </div>
 
+    {/* ── Actions (below footer) ── */}
+    <div className="rpt-actions-bar">
+      <button className="rpt-btn-secondary" onClick={() => window.print()} data-track="feedback_downloaded">
+        Descargar reporte
+      </button>
+      <button className="rpt-btn-primary" onClick={onRestart} data-track="restart_interview_clicked">
+        Nueva entrevista →
+      </button>
+    </div>
   </>
   )
 }
