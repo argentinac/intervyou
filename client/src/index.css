@@ -2348,10 +2348,7 @@ html, body, #root, .app {
 }
 
 .iv-detail--full {
-  position: fixed;
-  inset: 0;
-  overflow-y: auto;
-  z-index: 200;
+  width: 100%;
   background: #f5f7fb;
   padding: 0;
 }
