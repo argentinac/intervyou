@@ -4,7 +4,6 @@ import { usePlan } from '../contexts/PlanContext'
 import { track } from '../lib/analytics'
 import { supabase } from '../lib/supabase'
 import MyInterviews from './MyInterviews'
-import MyProgress from './MyProgress'
 import MyProfile from './MyProfile'
 import SettingsPage from './SettingsPage'
 import BlogListPage from './BlogListPage'
@@ -533,7 +532,6 @@ export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRep
     { id: 'home',          label: 'Inicio',               icon: <IconHome /> },
     { id: 'new',           label: 'Nueva entrevista',      icon: <IconPlus />, primary: true },
     { id: 'interviews',    label: 'Mis entrevistas',       icon: <IconList /> },
-    { id: 'progress',      label: 'Mi progreso',           icon: <IconTrend /> },
     { id: 'recursos',      label: 'Recursos',              icon: <IconBook /> },
     { id: 'profile',       label: 'Mi perfil profesional', icon: <IconUser /> },
     { id: 'settings',      label: 'Configuración',         icon: <IconSettings /> },
@@ -679,7 +677,6 @@ export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRep
           />
         )}
         {section === 'interviews'  && <MyInterviews onNewInterview={onNewInterview} onRepeat={onRepeatInterview} initialSelectedId={deepInterviewId} />}
-        {section === 'progress'    && <MyProgress onInterviewClick={(id) => { setDeepInterviewId(id); setSection('interviews') }} />}
         {section === 'recursos'    && <BlogListPage onBlogPost={onBlogPost} />}
         {section === 'profile'     && <MyProfile />}
         {section === 'settings'    && <SettingsPage onSignOut={handleSignOut} />}
