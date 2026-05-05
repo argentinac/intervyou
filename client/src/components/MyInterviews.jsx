@@ -350,10 +350,11 @@ function InterviewDetail({ id, onBack }) {
         }
         const json = await res.json()
         setData(json)
+        setLoading(false)
       } catch {
         setError('Error al cargar la entrevista.')
+        setLoading(false)
       }
-      setLoading(false)
     }
     load()
   }, [id])
