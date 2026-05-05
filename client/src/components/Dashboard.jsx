@@ -468,36 +468,29 @@ function SimulacionesSection({
   )
 
   return (
-    <div style={{ padding: '32px 24px', maxWidth: 680, display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <div style={{ marginBottom: 4 }}>
-        <h2 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: '#111827' }}>Simulaciones</h2>
-        <p style={{ margin: '4px 0 0', fontSize: 14, color: '#6b7280' }}>Simulá distintos estados de la app para demo o QA.</p>
+    <div className="iv-page blp-page">
+      <div className="db-page-header">
+        <h2>Simulaciones</h2>
+        <p style={{ fontSize: 14, color: '#6b7280', marginTop: 4 }}>
+          Tipos de entrevista disponibles
+        </p>
       </div>
 
-      <SimCard title="Historial de entrevistas">
-        {DEMO_STATES.map((s, i) => (
-          <Btn key={i} active={demoIndex === i} onClick={() => { setDemoIndex(demoIndex === i ? null : i); setSection('home') }}>
-            {s.label}
-          </Btn>
-        ))}
-        {demoIndex !== null && (
-          <Btn onClick={() => { setDemoIndex(null); setSection('home') }}>✕ Datos reales</Btn>
-        )}
-      </SimCard>
-
-      <SimCard title="Plan / suscripción">
-        <Btn onClick={() => { setDemoPlan({ plan: 'free', status: 'active' }); setPaymentBannerDismissed(false) }}>Free</Btn>
-        <Btn onClick={() => { setDemoPlan({ plan: 'pro', status: 'active', period: 'monthly' }); setPaymentBannerDismissed(false) }}>Pro activo</Btn>
-        <Btn onClick={() => { setDemoPlan({ plan: 'pro', status: 'past_due', period: 'monthly' }); setPaymentBannerDismissed(false) }}>Pro pago fallido</Btn>
-      </SimCard>
-
-      <SimCard title="Pantallas y modales">
-        <Btn onClick={openUpgradeModal}>Modal upgrade</Btn>
-        <Btn onClick={onPricing}>Pricing</Btn>
-        <Btn onClick={onPaymentSuccess}>Pago exitoso</Btn>
-        <Btn onClick={onPaymentError}>Error de pago</Btn>
-        <Btn onClick={onNewInterview}>Setup entrevista</Btn>
-      </SimCard>
+      <div className="blp-grid">
+        <article className="blp-card" style={{ cursor: 'default' }}>
+          <div className="blp-card-img-wrap">
+            <img
+              src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=400&h=220&fit=crop&auto=format"
+              alt="Simulación de Visa"
+              className="blp-card-img"
+            />
+          </div>
+          <div className="blp-card-body">
+            <h3 className="blp-card-title">Simulación de Visa</h3>
+            <p className="blp-card-excerpt">Practicá las preguntas más comunes de entrevistas consulares para obtener tu visa.</p>
+          </div>
+        </article>
+      </div>
     </div>
   )
 }
