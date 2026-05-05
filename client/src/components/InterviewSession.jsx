@@ -1118,9 +1118,8 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
         enrichedFeedback = { ...parsed, score: scoreResult.finalScore, scoreResult, previousScore, durationSeconds, interviewType: config.interviewType || 'HR' }
       }
 
-      setFeedback(enrichedFeedback)
-
-      // Save to DB (best-effort — never block the feedback screen)
+      // Save to DB and navigate to dashboard with the saved interview open
+      let navigated = false
       try {
         let token = await getToken()
         if (!token && supabase) {
@@ -1129,7 +1128,7 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
           token = anonData?.session?.access_token ?? null
         }
         if (token) {
-          await fetch('/api/interviews', {
+          const saveRes = await fetch('/api/interviews', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
             body: JSON.stringify({
@@ -1139,10 +1138,17 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
               durationSeconds,
             }),
           })
+          if (saveRes.ok && onDashboard) {
+            const { id } = await saveRes.json()
+            navigated = true
+            onDashboard(id)
+          }
         }
       } catch (saveErr) {
         console.warn('Could not save interview:', saveErr)
       }
+
+      if (!navigated) setFeedback(enrichedFeedback)
     } catch (err) {
       console.error('Feedback error:', err)
       setFeedback({ notEnoughData: false, parseError: true })

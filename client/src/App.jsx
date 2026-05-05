@@ -58,6 +58,7 @@ function AppInner() {
   const [interviewConfig, setInterviewConfig] = useState(null)
   const [interviewReturn, setInterviewReturn] = useState('landing')
   const [blogSlug, setBlogSlug] = useState(getBlogSlugFromUrl)
+  const [pendingInterviewId, setPendingInterviewId] = useState(null)
 
   // Auto-track every screen change
   useEffect(() => {
@@ -211,7 +212,7 @@ function AppInner() {
       <InterviewSession
         config={interviewConfig}
         onEnd={() => { setInterviewConfig(null); setView(interviewReturn) }}
-        onDashboard={user ? () => { setInterviewConfig(null); setView('dashboard') } : undefined}
+        onDashboard={user ? (id) => { setInterviewConfig(null); if (id) setPendingInterviewId(id); setView('dashboard') } : undefined}
       />
     )
   }
@@ -227,6 +228,8 @@ function AppInner() {
         onPricing={() => setView('pricing')}
         onPaymentSuccess={() => setView('payment-success')}
         onPaymentError={() => setView('payment-error')}
+        pendingInterviewId={pendingInterviewId}
+        onPendingInterviewIdConsumed={() => setPendingInterviewId(null)}
       />
     )
   }

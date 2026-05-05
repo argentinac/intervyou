@@ -422,14 +422,17 @@ function InterviewDetail({ id, onBack, onNewInterview }) {
   )
 }
 
-export default function MyInterviews({ onNewInterview, onRepeat, initialSelectedId }) {
+export default function MyInterviews({ onNewInterview, onRepeat, initialSelectedId, onDeepIdConsumed }) {
   const { getToken } = useAuth()
   const [interviews, setInterviews] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedId, setSelectedId] = useState(initialSelectedId || null)
 
   useEffect(() => {
-    if (initialSelectedId) setSelectedId(initialSelectedId)
+    if (initialSelectedId) {
+      setSelectedId(initialSelectedId)
+      onDeepIdConsumed?.()
+    }
   }, [initialSelectedId])
 
   useEffect(() => {

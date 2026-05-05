@@ -502,11 +502,19 @@ function SimulacionesSection({
   )
 }
 
-export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRepeatInterview, onPricing, onPaymentSuccess, onPaymentError }) {
+export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRepeatInterview, onPricing, onPaymentSuccess, onPaymentError, pendingInterviewId, onPendingInterviewIdConsumed }) {
   const { user, signOut } = useAuth()
   const { isPro, planStatus, showUpgradeModal, openUpgradeModal, setDemoPlan } = usePlan()
   const [section, setSection] = useState('home')
   const [deepInterviewId, setDeepInterviewId] = useState(null)
+
+  useEffect(() => {
+    if (pendingInterviewId) {
+      setDeepInterviewId(pendingInterviewId)
+      setSection('interviews')
+      onPendingInterviewIdConsumed?.()
+    }
+  }, [pendingInterviewId])
   const [profile, setProfile] = useState(null)
   const [subscription, setSubscription] = useState(null)
   const [demoIndex, setDemoIndex] = useState(null)
@@ -676,7 +684,7 @@ export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRep
             mockInterviews={demoIndex !== null ? DEMO_STATES[demoIndex].interviews : undefined}
           />
         )}
-        {section === 'interviews'  && <MyInterviews onNewInterview={onNewInterview} onRepeat={onRepeatInterview} initialSelectedId={deepInterviewId} />}
+        {section === 'interviews'  && <MyInterviews onNewInterview={onNewInterview} onRepeat={onRepeatInterview} initialSelectedId={deepInterviewId} onDeepIdConsumed={() => setDeepInterviewId(null)} />}
         {section === 'recursos'    && <BlogListPage onBlogPost={onBlogPost} />}
         {section === 'profile'     && <MyProfile />}
         {section === 'settings'    && <SettingsPage onSignOut={handleSignOut} />}
