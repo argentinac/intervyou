@@ -2348,13 +2348,21 @@ html, body, #root, .app {
 }
 
 .iv-detail--full {
-  max-width: none;
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
+  z-index: 200;
+  background: #f5f7fb;
   padding: 0;
 }
 
 .iv-detail--full .iv-detail-topbar {
-  padding: 16px 24px 0;
-  margin-bottom: 0;
+  padding: 16px 24px 4px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .iv-detail-no-feedback {
