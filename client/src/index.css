@@ -2343,6 +2343,21 @@ html, body, #root, .app {
 .db-cta-sub { font-size: 13px; color: #64748b; margin-top: 2px; }
 
 /* ── Interview list ──────────────────────────────────────── */
+.iv-progress-block {
+  margin-bottom: 24px;
+}
+
+.iv-detail-no-feedback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 32px 0;
+  color: #94a3b8;
+  font-size: 14px;
+  text-align: center;
+}
+
 .iv-list {
   display: flex;
   flex-direction: column;

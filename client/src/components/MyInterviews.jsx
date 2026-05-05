@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 
 const DIFFICULTY_LABEL = { Junior: 'Junior', Intermediate: 'Semi-Senior', Senior: 'Senior' }
@@ -27,10 +27,8 @@ const KNOWN_DOMAINS = {
 
 function companyDomain(name) {
   if (!name) return null
-  // Normalize: lowercase, trim, remove punctuation for matching
   const normalized = name.toLowerCase().trim().replace(/[^a-z0-9\s]/g, '').trim()
   if (KNOWN_DOMAINS[normalized]) return KNOWN_DOMAINS[normalized]
-  // Also try without spaces
   const noSpaces = normalized.replace(/\s+/g, '')
   if (KNOWN_DOMAINS[noSpaces]) return KNOWN_DOMAINS[noSpaces]
   return noSpaces + '.com'
@@ -68,6 +66,12 @@ function formatDate(iso) {
   const d = new Date(iso)
   return d.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' }) +
     ' · ' + d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
+}
+
+function formatDateShort(iso) {
+  if (!iso) return ''
+  const d = new Date(iso)
+  return d.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })
 }
 
 function ScoreBadge({ score }) {
@@ -136,6 +140,162 @@ function downloadFeedback(data) {
   setTimeout(() => { win.print() }, 300)
 }
 
+// ── Progress chart ────────────────────────────────────────────────────────────
+
+function ScoreLineChart({ points, onPointClick }) {
+  const [tooltip, setTooltip] = useState(null)
+  const svgRef = useRef(null)
+
+  if (points.length < 1) return null
+
+  const W = 600, H = 220
+  const pad = { top: 20, right: 24, bottom: 48, left: 44 }
+  const chartW = W - pad.left - pad.right
+  const chartH = H - pad.top - pad.bottom
+
+  const scores = points.map(p => p.score)
+  const minS = Math.max(0, Math.min(...scores) - 50)
+  const maxS = Math.min(1000, Math.max(...scores) + 50)
+
+  const xOf = (i) => pad.left + (points.length === 1 ? chartW / 2 : (i / (points.length - 1)) * chartW)
+  const yOf = (s) => pad.top + chartH - ((s - minS) / (maxS - minS)) * chartH
+
+  const polyline = points.map((p, i) => `${xOf(i)},${yOf(p.score)}`).join(' ')
+  const area = `${xOf(0)},${pad.top + chartH} ${polyline} ${xOf(points.length - 1)},${pad.top + chartH}`
+
+  const gridScores = [0, 250, 500, 750, 1000].filter(v => v >= minS && v <= maxS)
+
+  const handlePointEnter = (e, p, i) => {
+    const svgEl = svgRef.current
+    if (!svgEl) return
+    const rect = svgEl.getBoundingClientRect()
+    const svgW = rect.width
+    const scaleX = svgW / W
+    const scaleY = rect.height / H
+    const cx = xOf(i) * scaleX
+    const cy = yOf(p.score) * scaleY
+    setTooltip({ p, cx, cy })
+  }
+
+  const handlePointLeave = () => setTooltip(null)
+
+  return (
+    <div style={{ position: 'relative' }}>
+      <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', maxWidth: W, display: 'block' }}>
+        {gridScores.map(v => (
+          <g key={v}>
+            <line x1={pad.left} x2={W - pad.right} y1={yOf(v)} y2={yOf(v)} stroke="#e2e8f0" strokeWidth="1" />
+            <text x={pad.left - 8} y={yOf(v) + 4} textAnchor="end" fontSize="11" fill="#94a3b8">{v}</text>
+          </g>
+        ))}
+
+        <polygon points={area} fill="url(#scoreGrad)" opacity="0.15" />
+        <polyline points={polyline} fill="none" stroke="#6366f1" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
+
+        {points.map((p, i) => (
+          <g
+            key={i}
+            style={{ cursor: onPointClick ? 'pointer' : 'default' }}
+            onMouseEnter={(e) => handlePointEnter(e, p, i)}
+            onMouseLeave={handlePointLeave}
+            onClick={() => onPointClick && onPointClick(p.id)}
+          >
+            <circle cx={xOf(i)} cy={yOf(p.score)} r="14" fill="transparent" />
+            <circle cx={xOf(i)} cy={yOf(p.score)} r="5" fill="#fff" stroke="#6366f1" strokeWidth="2.5" />
+            <text x={xOf(i)} y={yOf(p.score) - 10} textAnchor="middle" fontSize="11" fontWeight="600" fill="#6366f1">{Math.round(p.score)}</text>
+          </g>
+        ))}
+
+        {points.map((p, i) => (
+          <text key={i} x={xOf(i)} y={H - 8} textAnchor="middle" fontSize="10" fill="#94a3b8">
+            {new Date(p.date).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' })}
+          </text>
+        ))}
+
+        <defs>
+          <linearGradient id="scoreGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#6366f1" />
+            <stop offset="100%" stopColor="#6366f1" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+      </svg>
+
+      {tooltip && (
+        <div
+          className="prog-tooltip"
+          style={{ left: tooltip.cx, top: tooltip.cy }}
+        >
+          <div className="prog-tooltip-title">
+            {[tooltip.p.jobTitle, tooltip.p.companyName].filter(Boolean).join(' para ') || 'Entrevista'}
+          </div>
+          <div className="prog-tooltip-meta">{formatDateShort(tooltip.p.date)}</div>
+          {tooltip.p.type && (
+            <div className="prog-tooltip-meta">
+              {TYPE_LABEL[tooltip.p.type] ?? tooltip.p.type}
+              {tooltip.p.difficulty ? ` · ${DIFFICULTY_LABEL[tooltip.p.difficulty] ?? tooltip.p.difficulty}` : ''}
+            </div>
+          )}
+          <div className="prog-tooltip-score">{Math.round(tooltip.p.score)}<span>/1000</span></div>
+          {onPointClick && <div className="prog-tooltip-hint">Click para ver detalle</div>}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function ProgressStats({ interviews, onPointClick }) {
+  const scored = interviews
+    .filter(iv => iv.interview_feedback?.[0]?.score != null)
+    .map(iv => ({
+      id: iv.id,
+      date: iv.completed_at,
+      score: iv.interview_feedback[0].score,
+      jobTitle: iv.config?.jobTitle,
+      companyName: iv.config?.companyName,
+      type: iv.config?.interviewType,
+      difficulty: iv.config?.difficulty,
+    }))
+    .reverse()
+
+  if (scored.length === 0) return null
+
+  const avg = Math.round(scored.reduce((s, p) => s + p.score, 0) / scored.length)
+  const best = Math.round(Math.max(...scored.map(p => p.score)))
+  const last = Math.round(scored[scored.length - 1].score)
+
+  return (
+    <div className="iv-progress-block">
+      <div className="prog-stats">
+        <div className="prog-stat-card">
+          <div className="prog-stat-label">Última puntuación</div>
+          <div className="prog-stat-value">{last}<span>/1000</span></div>
+        </div>
+        <div className="prog-stat-card">
+          <div className="prog-stat-label">Promedio general</div>
+          <div className="prog-stat-value">{avg}<span>/1000</span></div>
+        </div>
+        <div className="prog-stat-card">
+          <div className="prog-stat-label">Mejor puntuación</div>
+          <div className="prog-stat-value prog-stat-value--best">{best}<span>/1000</span></div>
+        </div>
+        <div className="prog-stat-card">
+          <div className="prog-stat-label">Entrevistas</div>
+          <div className="prog-stat-value">{scored.length}</div>
+        </div>
+      </div>
+
+      {scored.length >= 2 && (
+        <div className="prog-chart-card">
+          <div className="prog-chart-title">Evolución de puntuaciones</div>
+          <ScoreLineChart points={scored} onPointClick={onPointClick} />
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ── Interview row & detail ────────────────────────────────────────────────────
+
 function InterviewRow({ interview, onClick }) {
   const { config, completed_at, interview_feedback } = interview
   const feedback = interview_feedback?.[0]
@@ -145,10 +305,7 @@ function InterviewRow({ interview, onClick }) {
   const type = TYPE_LABEL[config?.interviewType] ?? config?.interviewType
 
   return (
-    <div
-      className={`iv-row ${hasFeedback ? 'iv-row--clickable' : 'iv-row--disabled'}`}
-      onClick={hasFeedback ? onClick : undefined}
-    >
+    <div className="iv-row iv-row--clickable" onClick={onClick}>
       {config?.companyName && (
         <div className="iv-row-logo">
           <CompanyLogo name={config.companyName} />
@@ -164,15 +321,10 @@ function InterviewRow({ interview, onClick }) {
         </div>
       </div>
       <div className="iv-row-right">
-        {hasFeedback
-          ? <ScoreBadge score={feedback.score} />
-          : null
-        }
-        {hasFeedback && (
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round">
-            <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
-          </svg>
-        )}
+        {hasFeedback && <ScoreBadge score={feedback.score} />}
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round">
+          <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+        </svg>
       </div>
     </div>
   )
@@ -182,25 +334,37 @@ function InterviewDetail({ id, onBack }) {
   const { getToken } = useAuth()
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     async function load() {
-      const token = await getToken()
-      const res = await fetch(`/api/interviews/${id}`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      })
-      const json = await res.json()
-      setData(json)
+      try {
+        const token = await getToken()
+        const res = await fetch(`/api/interviews/${id}`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        })
+        if (!res.ok) {
+          setError('No se pudo cargar la entrevista.')
+          setLoading(false)
+          return
+        }
+        const json = await res.json()
+        setData(json)
+      } catch {
+        setError('Error al cargar la entrevista.')
+      }
       setLoading(false)
     }
     load()
   }, [id])
 
   if (loading) return <div className="iv-loading"><div className="spinner" /></div>
+  if (error) return <div className="iv-empty">{error}</div>
   if (!data) return <div className="iv-empty">No se encontró la entrevista.</div>
 
   const { config, completed_at, interview_feedback } = data
   const feedback = interview_feedback?.[0]
+  const hasFeedback = !!feedback?.score
   const title = [config?.jobTitle, config?.companyName].filter(Boolean).join(' para ') || 'Entrevista'
 
   return (
@@ -210,7 +374,7 @@ function InterviewDetail({ id, onBack }) {
           ← Volver a mis entrevistas
         </button>
         <div style={{ display:'flex', gap:8 }}>
-          {feedback && (
+          {hasFeedback && (
             <button className="iv-download-btn" onClick={() => downloadFeedback(data)}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -232,8 +396,17 @@ function InterviewDetail({ id, onBack }) {
             {config?.difficulty && <span className="iv-badge iv-badge--diff">{DIFFICULTY_LABEL[config.difficulty] ?? config.difficulty}</span>}
           </div>
         </div>
-        {feedback?.score && <ScoreBadge score={feedback.score} />}
+        {hasFeedback && <ScoreBadge score={feedback.score} />}
       </div>
+
+      {!hasFeedback && (
+        <div className="iv-detail-no-feedback">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <p>Esta entrevista no tiene feedback disponible.</p>
+        </div>
+      )}
 
       {feedback?.headline && (
         <p className="iv-detail-headline">{feedback.headline}</p>
@@ -320,11 +493,14 @@ export default function MyInterviews({ onNewInterview, onRepeat, initialSelected
       )}
 
       {!loading && interviews.length > 0 && (
-        <div className="iv-list">
-          {interviews.map(iv => (
-            <InterviewRow key={iv.id} interview={iv} onClick={() => setSelectedId(iv.id)} />
-          ))}
-        </div>
+        <>
+          <ProgressStats interviews={interviews} onPointClick={(id) => setSelectedId(id)} />
+          <div className="iv-list">
+            {interviews.map(iv => (
+              <InterviewRow key={iv.id} interview={iv} onClick={() => setSelectedId(iv.id)} />
+            ))}
+          </div>
+        </>
       )}
     </div>
   )
