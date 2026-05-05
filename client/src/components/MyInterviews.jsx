@@ -34,7 +34,13 @@ function companyDomain(name) {
   return noSpaces + '.com'
 }
 
+function itemText(item) {
+  if (typeof item === 'string') return item
+  return item?.title ?? ''
+}
+
 function renderBold(text) {
+  if (!text) return null
   const parts = text.split(/\*\*(.*?)\*\*/g)
   return parts.map((part, i) => i % 2 === 1 ? <strong key={i}>{part}</strong> : part)
 }
@@ -417,7 +423,7 @@ function InterviewDetail({ id, onBack }) {
         <div className="iv-detail-section">
           <h3>Puntos fuertes</h3>
           <ul>
-            {feedback.went_well.map((item, i) => <li key={i}>{renderBold(item)}</li>)}
+            {feedback.went_well.map((item, i) => <li key={i}>{renderBold(itemText(item))}</li>)}
           </ul>
         </div>
       )}
@@ -426,7 +432,7 @@ function InterviewDetail({ id, onBack }) {
         <div className="iv-detail-section">
           <h3>Oportunidades de mejora</h3>
           <ul>
-            {feedback.to_improve.map((item, i) => <li key={i}>{renderBold(item)}</li>)}
+            {feedback.to_improve.map((item, i) => <li key={i}>{renderBold(itemText(item))}</li>)}
           </ul>
         </div>
       )}
@@ -435,7 +441,12 @@ function InterviewDetail({ id, onBack }) {
         <div className="iv-detail-section">
           <h3>Accionables concretos</h3>
           <ul className="iv-detail-suggestions">
-            {feedback.suggestions.map((item, i) => <li key={i}>{renderBold(item)}</li>)}
+            {feedback.suggestions.map((item, i) => (
+              <li key={i}>
+                {renderBold(itemText(item))}
+                {item?.description && <span style={{ display:'block', fontSize:13, color:'#64748b', marginTop:2 }}>{item.description}</span>}
+              </li>
+            ))}
           </ul>
         </div>
       )}
