@@ -669,7 +669,7 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
   const doClosingRef       = useRef(null)
 
   const locale = COUNTRY_LOCALE[config.country] || LANG_LOCALE[config.language] || 'en-US'
-  const canInterrupt = config.interviewType === 'HR'
+  const canInterrupt = false
 
   useEffect(() => { messagesRef.current = messages }, [messages])
   useEffect(() => { sessionEndedRef.current = sessionEnded }, [sessionEnded])
