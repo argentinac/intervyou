@@ -19,8 +19,8 @@
 ## Decisiones técnicas tomadas
 
 ### Audio / ElevenLabs
-- `stability: 0.60` — evita titubeos (era 0.30)
-- `style: 0.15` — mejora pronunciación de números (era 0.45)
+- `stability: 0.45` — más expresiva/emotiva (era 0.60)
+- `style: 0.35` — más estilo expresivo (era 0.15)
 - `speed: 1.05` — velocidad natural (máx permitido por ElevenLabs es 1.2)
 - `model_id: eleven_turbo_v2_5`
 - Voz española: `p18tR9wFA5Ng9WhfWI0o`
