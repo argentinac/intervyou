@@ -115,7 +115,7 @@ interviewsRouter.get('/:id', requireAuth, async (req, res) => {
     .select(`
       id, type, length, config, status, duration_seconds,
       started_at, completed_at,
-      interview_feedback ( score, headline, went_well, to_improve, suggestions )
+      interview_feedback ( score, headline, went_well, to_improve, suggestions, raw_response )
     `)
     .eq('id', req.params.id)
     .eq('user_id', req.user.id)

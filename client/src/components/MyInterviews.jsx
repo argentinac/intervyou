@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../contexts/AuthContext'
+import FeedbackSummary from './FeedbackSummary'
 
 const DIFFICULTY_LABEL = { Junior: 'Junior', Intermediate: 'Semi-Senior', Senior: 'Senior' }
 const TYPE_LABEL = { HR: 'RRHH', Technical: 'Técnica', 'Real Simulation': 'Simulación real', Coach: 'Coach' }
@@ -336,7 +337,7 @@ function InterviewRow({ interview, onClick }) {
   )
 }
 
-function InterviewDetail({ id, onBack }) {
+function InterviewDetail({ id, onBack, onNewInterview }) {
   const { getToken } = useAuth()
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -369,175 +370,56 @@ function InterviewDetail({ id, onBack }) {
   if (error) return <div className="iv-empty">{error}</div>
   if (!data) return <div className="iv-empty">No se encontró la entrevista.</div>
 
-  const { config, completed_at, interview_feedback } = data
-  const feedback = interview_feedback?.[0]
-  const hasFeedback = !!feedback?.score
-  const title = [config?.jobTitle, config?.companyName].filter(Boolean).join(' para ') || 'Entrevista'
+  const { config, completed_at, duration_seconds, interview_feedback } = data
+  const fbRow = interview_feedback?.[0]
+  const hasFeedback = !!fbRow?.score
 
-  return (
-    <div className="iv-detail">
-      <div className="iv-detail-topbar">
-        <button className="iv-back-btn" onClick={onBack}>
-          ← Volver a mis entrevistas
-        </button>
-        <div style={{ display:'flex', gap:8 }}>
-          {hasFeedback && (
-            <button className="iv-download-btn" onClick={() => downloadFeedback(data)}>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="7 10 12 15 17 10"/>
-                <line x1="12" y1="15" x2="12" y2="3"/>
-              </svg>
-              Descargar
-            </button>
-          )}
+  if (!hasFeedback) {
+    return (
+      <div className="iv-detail">
+        <div className="iv-detail-topbar">
+          <button className="iv-back-btn" onClick={onBack}>← Volver a mis entrevistas</button>
         </div>
-      </div>
-
-      <div className="iv-detail-header">
-        <div>
-          <h2>{title}</h2>
-          <div className="iv-row-meta" style={{ marginTop: 6 }}>
-            {formatDate(completed_at)}
-            {config?.interviewType && <span className="iv-badge iv-badge--type">{TYPE_LABEL[config.interviewType] ?? config.interviewType}</span>}
-            {config?.difficulty && <span className="iv-badge iv-badge--diff">{DIFFICULTY_LABEL[config.difficulty] ?? config.difficulty}</span>}
-          </div>
-        </div>
-        {hasFeedback && <ScoreBadge score={feedback.score} />}
-      </div>
-
-      {!hasFeedback && (
         <div className="iv-detail-no-feedback">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
           </svg>
           <p>Esta entrevista no tiene feedback disponible.</p>
         </div>
-      )}
+      </div>
+    )
+  }
 
-      {feedback?.headline && (
-        <p className="iv-detail-headline">{feedback.headline}</p>
-      )}
+  // Build feedback object expected by FeedbackSummary.
+  // Prefer raw_response (full payload with axes, executiveSummary, nextStep, actionPlan, etc.).
+  // Fall back to columnar data for legacy interviews.
+  const feedback = fbRow.raw_response
+    ? {
+        ...fbRow.raw_response,
+        score: fbRow.score,
+        headline: fbRow.raw_response.headline ?? fbRow.headline,
+        durationSeconds: duration_seconds ?? fbRow.raw_response.durationSeconds,
+      }
+    : {
+        score:    fbRow.score,
+        headline: fbRow.headline,
+        wentWell: fbRow.went_well   ?? [],
+        toImprove: fbRow.to_improve ?? [],
+        suggestions: fbRow.suggestions ?? [],
+        durationSeconds: duration_seconds,
+      }
 
-      {/* Went well + To improve — dos columnas para formato nuevo, lista simple para viejo */}
-      {(feedback?.went_well?.length > 0 || feedback?.to_improve?.length > 0) && (
-        <div className="rpt-card rpt-feedback-grid" style={{ marginBottom: 16 }}>
-          {feedback?.went_well?.length > 0 && (
-            <div className="rpt-feedback-col">
-              <div className="rpt-feedback-header rpt-feedback-header--good">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
-                </svg>
-                ¿QUÉ HICISTE BIEN?
-              </div>
-              <div className="rpt-items">
-                {feedback.went_well.map((item, i) => (
-                  typeof item === 'string' ? (
-                    <div key={i} className="rpt-item">
-                      <div className="rpt-item-body">
-                        <span className="rpt-item-title">{renderBold(item)}</span>
-                      </div>
-                    </div>
-                  ) : (
-                    <div key={i} className="rpt-item">
-                      <div className="rpt-item-icon" style={{ background: '#16a34a18', color: '#16a34a' }}>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                      </div>
-                      <div className="rpt-item-body">
-                        <span className="rpt-item-title">{item.title}</span>
-                        {item.description && <p className="rpt-item-desc">{item.description}</p>}
-                      </div>
-                    </div>
-                  )
-                ))}
-              </div>
-            </div>
-          )}
-
-          {feedback?.went_well?.length > 0 && feedback?.to_improve?.length > 0 && (
-            <div className="rpt-feedback-divider" />
-          )}
-
-          {feedback?.to_improve?.length > 0 && (
-            <div className="rpt-feedback-col">
-              <div className="rpt-feedback-header rpt-feedback-header--improve">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-                </svg>
-                OPORTUNIDADES DE MEJORA
-              </div>
-              <div className="rpt-items">
-                {feedback.to_improve.map((item, i) => (
-                  typeof item === 'string' ? (
-                    <div key={i} className="rpt-item">
-                      <div className="rpt-item-body">
-                        <span className="rpt-item-title">{renderBold(item)}</span>
-                      </div>
-                    </div>
-                  ) : (
-                    <div key={i} className="rpt-item">
-                      <div className="rpt-item-icon rpt-item-icon--improve">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-                        </svg>
-                      </div>
-                      <div className="rpt-item-body">
-                        <span className="rpt-item-title">{item.title}</span>
-                        {item.description && <p className="rpt-item-desc">{item.description}</p>}
-                      </div>
-                    </div>
-                  )
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {feedback?.suggestions?.length > 0 && (
-        <div className="rpt-card rpt-action-card" style={{ marginBottom: 16 }}>
-          <div className="rpt-action-top">
-            <div className="rpt-action-icon-wrap">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
-              </svg>
-            </div>
-            <div>
-              <p className="rpt-action-title">PLAN DE ACCIÓN RECOMENDADO</p>
-              <p className="rpt-action-sub">Acciones concretas para seguir mejorando</p>
-            </div>
-          </div>
-          <div className="rpt-action-items">
-            {feedback.suggestions.map((item, i) => (
-              typeof item === 'string' ? (
-                <div key={i} className="rpt-action-item-wrap">
-                  <div className="rpt-action-item">
-                    <div className="rpt-action-num">{i + 1}</div>
-                    <p className="rpt-action-item-title">{renderBold(item)}</p>
-                  </div>
-                  {i < feedback.suggestions.length - 1 && <div className="rpt-action-arrow">→</div>}
-                </div>
-              ) : (
-                <div key={i} className="rpt-action-item-wrap">
-                  <div className="rpt-action-item">
-                    <div className="rpt-action-num">{i + 1}</div>
-                    <p className="rpt-action-item-title">{item.title}</p>
-                    {item.description && <p className="rpt-action-item-desc">{item.description}</p>}
-                    {item.priority && (
-                      <div className="rpt-priority">
-                        <span className={`rpt-priority-badge rpt-priority-badge--${item.priority}`}>
-                          ↑ Prioridad {item.priority}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  {i < feedback.suggestions.length - 1 && <div className="rpt-action-arrow">→</div>}
-                </div>
-              )
-            ))}
-          </div>
-        </div>
-      )}
+  return (
+    <div className="iv-detail iv-detail--full">
+      <div className="iv-detail-topbar">
+        <button className="iv-back-btn" onClick={onBack}>← Volver a mis entrevistas</button>
+      </div>
+      <FeedbackSummary
+        feedback={feedback}
+        config={config}
+        onRestart={onNewInterview}
+        onDashboard={onBack}
+      />
     </div>
   )
 }
@@ -566,7 +448,7 @@ export default function MyInterviews({ onNewInterview, onRepeat, initialSelected
   }, [])
 
   if (selectedId) {
-    return <InterviewDetail id={selectedId} onBack={() => setSelectedId(null)} />
+    return <InterviewDetail id={selectedId} onBack={() => setSelectedId(null)} onNewInterview={onNewInterview} />
   }
 
   return (

@@ -2347,6 +2347,16 @@ html, body, #root, .app {
   margin-bottom: 24px;
 }
 
+.iv-detail--full {
+  max-width: none;
+  padding: 0;
+}
+
+.iv-detail--full .iv-detail-topbar {
+  padding: 16px 24px 0;
+  margin-bottom: 0;
+}
+
 .iv-detail-no-feedback {
   display: flex;
   flex-direction: column;
