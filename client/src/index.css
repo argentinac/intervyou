@@ -2356,14 +2356,18 @@ html, body, #root, .app {
   padding: 0;
 }
 
-.iv-detail--full .iv-detail-topbar {
-  padding: 16px 24px 4px;
-  border-bottom: 1px solid #e5e7eb;
-  background: #fff;
-  position: sticky;
-  top: 0;
-  z-index: 10;
+.rpt-back-btn {
+  background: none;
+  border: none;
+  color: #6366f1;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 4px 0;
+  white-space: nowrap;
+  font-family: var(--font);
 }
+.rpt-back-btn:hover { color: #4f46e5; }
 
 .iv-detail-no-feedback {
   display: flex;

@@ -411,7 +411,7 @@ async function downloadReport(pageEl, fileName) {
   pdf.save(fileName)
 }
 
-function NewFeedback({ feedback, config, onRestart, onDashboard }) {
+function NewFeedback({ feedback, config, onRestart, onDashboard, onBack }) {
   const { user } = useAuth()
   const pageRef  = useRef(null)
   const [downloading, setDownloading] = useState(false)
@@ -442,8 +442,15 @@ function NewFeedback({ feedback, config, onRestart, onDashboard }) {
 
       {/* ── Header ── */}
       <div className="rpt-header">
-        <div className="rpt-header-logo" onClick={onDashboard} style={onDashboard ? { cursor: 'pointer' } : undefined}>
-          <IntervyouIcon />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          {onBack && (
+            <button onClick={onBack} className="rpt-back-btn">
+              ← Volver
+            </button>
+          )}
+          <div className="rpt-header-logo" onClick={onDashboard} style={onDashboard ? { cursor: 'pointer' } : undefined}>
+            <IntervyouIcon />
+          </div>
         </div>
         <div className="rpt-header-right">
           <span className="rpt-header-label">REPORTE DE ENTREVISTA</span>
@@ -746,7 +753,7 @@ function NewFeedback({ feedback, config, onRestart, onDashboard }) {
 
 // ── Main export ──────────────────────────────────────────────────────────────
 
-export default function FeedbackSummary({ feedback, config, onRestart, onDashboard }) {
+export default function FeedbackSummary({ feedback, config, onRestart, onDashboard, onBack }) {
   if (!feedback) {
     return (
       <div className="fb-loading">
@@ -793,7 +800,7 @@ export default function FeedbackSummary({ feedback, config, onRestart, onDashboa
   }
 
   if (Array.isArray(feedback.actionPlan)) {
-    return <NewFeedback feedback={feedback} config={config} onRestart={onRestart} onDashboard={onDashboard} />
+    return <NewFeedback feedback={feedback} config={config} onRestart={onRestart} onDashboard={onDashboard} onBack={onBack} />
   }
 
   return <LegacyFeedback feedback={feedback} onRestart={onRestart} onDashboard={onDashboard} />

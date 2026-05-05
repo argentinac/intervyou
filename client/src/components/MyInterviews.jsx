@@ -410,15 +410,13 @@ function InterviewDetail({ id, onBack, onNewInterview }) {
       }
 
   return (
-    <div className="iv-detail iv-detail--full">
-      <div className="iv-detail-topbar">
-        <button className="iv-back-btn" onClick={onBack}>← Volver a mis entrevistas</button>
-      </div>
+    <div className="iv-detail--full">
       <FeedbackSummary
         feedback={feedback}
         config={config}
         onRestart={onNewInterview}
         onDashboard={onBack}
+        onBack={onBack}
       />
     </div>
   )
