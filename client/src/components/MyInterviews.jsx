@@ -312,7 +312,7 @@ function InterviewRow({ interview, onClick }) {
   const type = TYPE_LABEL[config?.interviewType] ?? config?.interviewType
 
   return (
-    <div className="iv-row iv-row--clickable" onClick={onClick}>
+    <div className={`iv-row ${hasFeedback ? 'iv-row--clickable' : 'iv-row--disabled'}`} onClick={hasFeedback ? onClick : undefined}>
       {config?.companyName && (
         <div className="iv-row-logo">
           <CompanyLogo name={config.companyName} />
