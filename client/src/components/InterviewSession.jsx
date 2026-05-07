@@ -388,7 +388,7 @@ Hard rules:
 const INTERRUPT_SYSTEM = (language) =>
   `You are deciding whether a job interviewer should interrupt a candidate mid-answer. The interview is in ${language}. Reply ONLY with the word INTERRUPT or the word CONTINUE — nothing else.`
 
-const INTERRUPT_AFTER_MS = 60000
+const INTERRUPT_AFTER_MS = 180000
 
 // ── Icons (SVG, no emojis) ────────────────────────────────
 const IconMicOn  = () => (
