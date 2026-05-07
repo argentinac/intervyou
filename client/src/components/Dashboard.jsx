@@ -9,6 +9,7 @@ import SettingsPage from './SettingsPage'
 import BlogListPage from './BlogListPage'
 import UpgradeModal from './UpgradeModal'
 import { INTERVIEW_TIPS } from '../data/tips'
+import { blogPosts } from '../data/blogPosts'
 import targetImg from '../assets/Target.png'
 import mountainImg from '../assets/Montaña.png'
 
@@ -174,7 +175,20 @@ const DEMO_STATES = [
   },
 ]
 
-function HomeSection({ onNewInterview, user, fullName, mockInterviews }) {
+const RECURSO_PREVIEW_COUNT = 3
+
+function shuffled(arr) {
+  const a = [...arr]
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
+}
+
+const RANDOM_RECURSOS = shuffled(blogPosts).slice(0, RECURSO_PREVIEW_COUNT)
+
+function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRecursos, onBlogPost }) {
   const firstName = fullName
     ? fullName.split(' ')[0]
     : (user?.email?.split('@')[0] ?? 'ahí')
@@ -425,6 +439,37 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews }) {
         </div>
       </div>
 
+      {/* Recursos preview */}
+      <div className="home-recursos">
+        <div className="home-recursos-header">
+          <div className="home-card-title" style={{ margin: 0 }}>Recursos</div>
+        </div>
+        <div className="home-recursos-grid">
+          {RANDOM_RECURSOS.map((post) => (
+            <button
+              key={post.slug}
+              className="home-recurso-tile"
+              onClick={() => onBlogPost(post.slug)}
+            >
+              <div className="home-recurso-img-wrap">
+                <img src={post.image} alt={post.imageAlt} className="home-recurso-img" />
+              </div>
+              <div className="home-recurso-body">
+                <div className="home-recurso-title">{post.title}</div>
+                <div className="home-recurso-excerpt">{post.excerpt}</div>
+              </div>
+            </button>
+          ))}
+          <button className="home-recurso-tile home-recurso-tile--ver-todos" onClick={onGoToRecursos}>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5955F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            </svg>
+            <span className="home-recurso-vertodos-label">Ver todos los recursos</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5955F6" strokeWidth="2" strokeLinecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+      </div>
+
       {/* Banner de feedback */}
       <div className="home-feedback-banner">
         <div className="home-feedback-icon" aria-hidden="true">
@@ -536,7 +581,6 @@ export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRep
     { id: 'interviews',    label: 'Mis entrevistas',       icon: <IconList /> },
     { id: 'recursos',      label: 'Recursos',              icon: <IconBook /> },
     { id: 'profile',       label: 'Mi perfil profesional', icon: <IconUser /> },
-    { id: 'settings',      label: 'Configuración',         icon: <IconSettings /> },
     { id: 'simulaciones',  label: 'Simulaciones',          icon: <IconFlask />, adminOnly: true },
   ].filter(item => !item.adminOnly || isAdmin)
 
@@ -635,7 +679,7 @@ export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRep
           </div>
 
           <div className="db-sidebar-divider" />
-          <button className="db-sidebar-profile" onClick={() => setSection('profile')}>
+          <button className="db-sidebar-profile" onClick={() => setSection('settings')}>
             <div className="db-sidebar-profile-avatar">
               {(profile?.full_name || user?.email || 'U')[0].toUpperCase()}
             </div>
@@ -680,6 +724,8 @@ export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRep
             user={user}
             fullName={profile?.full_name}
             mockInterviews={demoIndex !== null ? DEMO_STATES[demoIndex].interviews : undefined}
+            onGoToRecursos={() => setSection('recursos')}
+            onBlogPost={onBlogPost}
           />
         )}
         {section === 'interviews'  && <MyInterviews onNewInterview={onNewInterview} onRepeat={onRepeatInterview} initialSelectedId={deepInterviewId} onDeepIdConsumed={() => setDeepInterviewId(null)} />}

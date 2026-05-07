@@ -2236,6 +2236,102 @@ html, body, #root, .app {
 }
 .home-stats-empty p { font-size: 13px; color: #94a3b8; margin: 0; }
 
+/* Recursos preview */
+.home-recursos {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.home-recursos-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.home-recursos-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 0.5fr;
+  gap: 16px;
+  align-items: stretch;
+}
+.home-recurso-tile {
+  background: #fff;
+  border: 1px solid #E6EAF2;
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  padding: 0;
+  transition: box-shadow 0.15s, border-color 0.15s, transform 0.15s;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+}
+.home-recurso-tile:hover {
+  border-color: #c7c4fd;
+  box-shadow: 0 8px 24px rgba(89, 85, 246, 0.1);
+  transform: translateY(-2px);
+}
+.home-recurso-img-wrap {
+  width: 100%;
+  height: 110px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.home-recurso-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.home-recurso-body {
+  padding: 14px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+.home-recurso-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #10172A;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.home-recurso-excerpt {
+  font-size: 12px;
+  color: #667594;
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.home-recurso-tile--ver-todos {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: #F4F3FF;
+  border-color: #c7c4fd;
+  padding: 24px 16px;
+  overflow: visible;
+}
+.home-recurso-tile--ver-todos:hover {
+  background: #eeecff;
+}
+.home-recurso-vertodos-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #5955F6;
+  text-align: center;
+  line-height: 1.3;
+}
+
 /* Feedback banner */
 .home-feedback-banner {
   display: flex;
@@ -4134,6 +4230,8 @@ html, body, #root, .app {
 
   /* Home: 3-col grid → 1 col */
   .home-grid { grid-template-columns: 1fr; }
+  .home-recursos-grid { grid-template-columns: 1fr 1fr; }
+  .home-recurso-tile--ver-todos { grid-column: span 2; flex-direction: row; padding: 16px 20px; }
 
   /* Journey: hide connectors on small layout */
   .home-journey-connector { display: none; }
