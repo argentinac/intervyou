@@ -436,7 +436,7 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews }) {
           <span>¿Tenés sugerencias para mejorar CoachToWork?</span>
           <span className="home-feedback-sub">Tu opinión nos ayuda a crecer.</span>
         </div>
-        <a href="mailto:matiasabas@gmail.com?subject=Feedback CoachToWork" className="home-feedback-btn">
+        <a href="https://forms.gle/WQF6jseUj8ME9nJ6A" target="_blank" rel="noopener noreferrer" className="home-feedback-btn">
           Danos feedback →
         </a>
       </div>

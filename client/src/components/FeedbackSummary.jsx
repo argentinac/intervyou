@@ -734,7 +734,7 @@ function NewFeedback({ feedback, config, onRestart, onDashboard, onBack }) {
       <div className="rpt-footer">
         <img src="/logo.png" alt="CoachToWork" className="rpt-footer-logo" />
         <span>Tu camino hacia tu mejor versión profesional</span>
-        <span>coachtowork.com</span>
+        <span>coachtowork.io</span>
       </div>
     </div>
 
