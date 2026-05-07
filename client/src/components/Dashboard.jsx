@@ -492,7 +492,7 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRec
 function SimulacionesSection({
   demoIndex, setDemoIndex, setSection,
   setDemoPlan, setPaymentBannerDismissed,
-  openUpgradeModal, onPricing, onPaymentSuccess, onPaymentError, onNewInterview,
+  openUpgradeModal, onPricing, onPaymentSuccess, onPaymentError, onNewInterview, onVisaInterview,
 }) {
   const SimCard = ({ title, children }) => (
     <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -522,7 +522,7 @@ function SimulacionesSection({
       </div>
 
       <div className="blp-grid">
-        <article className="blp-card" style={{ cursor: 'default' }}>
+        <article className="blp-card" style={{ cursor: 'pointer' }} onClick={onVisaInterview} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && onVisaInterview()}>
           <div className="blp-card-img-wrap">
             <img
               src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=400&h=220&fit=crop&auto=format"
@@ -533,6 +533,7 @@ function SimulacionesSection({
           <div className="blp-card-body">
             <h3 className="blp-card-title">Simulación de Visa</h3>
             <p className="blp-card-excerpt">Practicá las preguntas más comunes de entrevistas consulares para obtener tu visa.</p>
+            <span style={{ display: 'inline-block', marginTop: 8, fontSize: 13, fontWeight: 600, color: '#4f46e5' }}>Comenzar simulación →</span>
           </div>
         </article>
       </div>
@@ -540,7 +541,7 @@ function SimulacionesSection({
   )
 }
 
-export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRepeatInterview, onPricing, onPaymentSuccess, onPaymentError, pendingInterviewId, onPendingInterviewIdConsumed }) {
+export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRepeatInterview, onPricing, onPaymentSuccess, onPaymentError, pendingInterviewId, onPendingInterviewIdConsumed, onVisaInterview }) {
   const { user, signOut } = useAuth()
   const { isPro, planStatus, showUpgradeModal, openUpgradeModal, setDemoPlan } = usePlan()
   const [section, setSection] = useState('home')
@@ -744,6 +745,7 @@ export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRep
             onPaymentSuccess={onPaymentSuccess}
             onPaymentError={onPaymentError}
             onNewInterview={onNewInterview}
+            onVisaInterview={onVisaInterview}
           />
         )}
       </main>
