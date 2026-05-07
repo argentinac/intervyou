@@ -212,24 +212,22 @@ const ItemIcons = {
 const RADAR_ORDER = ['claridad', 'consistencia', 'estructura', 'profundidad', 'evidencia', 'relevancia']
 
 function RadarChart({ axisValues }) {
-  const cx = 200, cy = 200, R = 100
+  const cx = 210, cy = 215, R = 105
   const n = RADAR_ORDER.length
+  const labelDist = 152
+  const iconR = 10
 
   const angle = (i) => ((i * 360 / n) - 90) * Math.PI / 180
-
   const pt = (i, v) => ({
     x: cx + (v / 100) * R * Math.cos(angle(i)),
     y: cy + (v / 100) * R * Math.sin(angle(i)),
   })
-
   const gridPts = (pct) =>
     RADAR_ORDER.map((_, i) => { const p = pt(i, pct); return `${p.x},${p.y}` }).join(' ')
-
   const dataPts = RADAR_ORDER.map((ax, i) => {
     const p = pt(i, axisValues[ax] ?? 0); return `${p.x},${p.y}`
   }).join(' ')
 
-  // 2 lowest axes for highlight
   const weakSet = new Set(getWeakAxes(axisValues, 2))
 
   const iconPaths = {
@@ -242,7 +240,7 @@ function RadarChart({ axisValues }) {
   }
 
   return (
-    <svg viewBox="0 0 400 400" className="rdr-svg">
+    <svg viewBox="0 0 420 430" className="rdr-svg">
       {/* Grid rings */}
       {[25, 50, 75, 100].map(p => (
         <polygon key={p} points={gridPts(p)} fill="none" stroke="#e5e7eb" strokeWidth={p === 100 ? 1.5 : 1} />
@@ -252,7 +250,7 @@ function RadarChart({ axisValues }) {
         const p = pt(i, 100)
         return <line key={i} x1={cx} y1={cy} x2={p.x} y2={p.y} stroke="#e5e7eb" strokeWidth="1" />
       })}
-      {/* Scale labels inside */}
+      {/* Scale labels */}
       {[200, 500, 1000].map((label, idx) => {
         const pct = [20, 50, 100][idx]
         const p = pt(2, pct)
@@ -275,55 +273,48 @@ function RadarChart({ axisValues }) {
           </g>
         )
       })}
-      {/* Labels — each axis gets: icon circle → name → score, stacked away from center */}
+      {/* Labels: tight groups using g translate so offsets are relative to anchor point */}
       {RADAR_ORDER.map((ax, i) => {
         const a = angle(i)
         const sinA = Math.sin(a)
         const cosA = Math.cos(a)
         const isWeak = weakSet.has(ax)
         const v = axisValues[ax] ?? null
+        const isTop = sinA < 0
 
-        // Push label far enough from center
-        const labelDist = 148
         const lx = cx + labelDist * cosA
         const ly = cy + labelDist * sinA
-
-        // text-anchor based on horizontal position
         const anchor = Math.abs(cosA) < 0.3 ? 'middle' : cosA > 0 ? 'start' : 'end'
 
-        // Is this label on the top half or bottom half?
-        const isTop = sinA < -0.1
+        // Tight stacking relative to anchor (lx,ly):
+        // top-half axes: icon(outermost up) → name → score(closest to polygon, down)
+        //   iconCY=-26, nameTY=-9 (middle), scoreTY=+7 (hanging)
+        // bottom-half axes: score(closest to polygon, up) → name → icon(outermost down)
+        //   scoreTY=-8 (auto), nameTY=+4 (middle), iconCY=+21
+        const iconCY  = isTop ? -26 :  21
+        const nameTY  = isTop ?  -9 :   4
+        const scoreTY = isTop ?   7 :  -8
 
-        // Stack order (moving away from center):
-        // top labels: score → name → icon (icon is outermost / highest)
-        // bottom labels: icon → name → score (icon is outermost / lowest)
-        const iconR = 11
-        // icon outermost (away from center), score closest to polygon (toward center)
-        // Top axes: away from center = up (smaller y); bottom axes: away = down (larger y)
-        const iconY  = isTop ? ly - 34 : ly + 34
-        const nameY  = isTop ? ly - 14 : ly + 14
-        const scoreY = isTop ? ly + 4  : ly - 4
-
-        const iconColor = isWeak ? '#ef4444' : AXIS_COLORS[ax]
+        const iconColor  = isWeak ? '#ef4444' : AXIS_COLORS[ax]
+        const nameColor  = isWeak ? '#ef4444' : '#475569'
         const scoreColor = isWeak ? '#ef4444' : (v !== null ? (v >= 70 ? '#16a34a' : v >= 50 ? '#d97706' : '#dc2626') : '#9ca3af')
 
         return (
-          <g key={ax}>
-            {/* icon circle */}
-            <circle cx={lx} cy={iconY} r={iconR} fill={`${iconColor}20`} stroke={iconColor} strokeWidth={isWeak ? 1.8 : 1.2} />
-            <svg x={lx - iconR + 2.5} y={iconY - iconR + 2.5} width={(iconR - 2.5) * 2} height={(iconR - 2.5) * 2}
+          <g key={ax} transform={`translate(${lx},${ly})`}>
+            <circle cx={0} cy={iconCY} r={iconR}
+              fill={`${iconColor}20`} stroke={iconColor} strokeWidth={isWeak ? 1.8 : 1.2} />
+            <svg x={-iconR + 2} y={iconCY - iconR + 2} width={(iconR - 2) * 2} height={(iconR - 2) * 2}
               viewBox="0 0 24 24" fill="none" stroke={iconColor} strokeWidth="2"
               strokeLinecap="round" strokeLinejoin="round">
               {iconPaths[ax]}
             </svg>
-            {/* axis name */}
-            <text x={lx} y={nameY} textAnchor={anchor} fontSize="10" fontWeight="700"
-              fill={isWeak ? '#ef4444' : '#475569'} fontFamily="Inter, system-ui, sans-serif">
+            <text x={0} y={nameTY} textAnchor={anchor} dominantBaseline="middle"
+              fontSize="9.5" fontWeight="700" fill={nameColor} fontFamily="Inter, system-ui, sans-serif">
               {AXIS_LABELS[ax]}
             </text>
-            {/* score */}
-            <text x={lx} y={scoreY} textAnchor={anchor} fontSize="15" fontWeight="800" fill={scoreColor}
-              fontFamily="Inter, system-ui, sans-serif">
+            <text x={0} y={scoreTY} textAnchor={anchor}
+              dominantBaseline={isTop ? 'hanging' : 'auto'}
+              fontSize="15" fontWeight="800" fill={scoreColor} fontFamily="Inter, system-ui, sans-serif">
               {v !== null ? v * 10 : '—'}
             </text>
           </g>
@@ -681,7 +672,7 @@ function NewFeedback({ feedback, config, onRestart, onDashboard, onBack }) {
                   <div className="rpt-action-item">
                     <div className="rpt-action-num">{i + 1}</div>
                     <p className="rpt-action-item-title">{item.title}</p>
-                    <p className="rpt-action-item-desc">{item.description}</p>
+                    <p className="rpt-action-item-desc"><Bold text={item.description || ''} /></p>
                     <div className="rpt-priority">
                       <span className={`rpt-priority-badge rpt-priority-badge--${item.priority || 'media'}`}>
                         ↑ Prioridad {item.priority || 'media'}
@@ -711,7 +702,7 @@ function NewFeedback({ feedback, config, onRestart, onDashboard, onBack }) {
                 </div>
                 <div className="rpt-next-content">
                   <p className="rpt-card-label">PRÓXIMO PASO SUGERIDO</p>
-                  <p className="rpt-next-text">{feedback.nextStep}</p>
+                  <p className="rpt-next-text"><Bold text={feedback.nextStep || ''} /></p>
                 </div>
               </div>
             )}

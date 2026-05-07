@@ -82,22 +82,22 @@ Otherwise respond with this exact JSON structure:
     ${axesKeys}
   },
   "headline": "Short 3-6 word verdict (e.g. 'Perfil muy alineado al rol')",
-  "executiveSummary": "2-3 sentences describing the candidate's overall performance. Be specific and constructive. Do NOT quote specific words.",
+  "executiveSummary": "2-3 sentences describing the candidate's overall performance. Be specific and constructive. Do NOT quote specific words. Use **bold** around 1-2 key concepts per sentence.",
   "wentWell": [
-    {"title": "Short title (3-5 words)", "description": "1-2 sentence specific observation. Do NOT quote specific words.", "axis": "one of: claridad|estructura|relevancia|consistencia|profundidad|evidencia"},
-    {"title": "Another strength", "description": "Specific observation.", "axis": "axis-name"}
+    {"title": "Short title (3-5 words)", "description": "1-2 sentence specific observation. Do NOT quote specific words. Use **bold** around the most important concept.", "axis": "one of: claridad|estructura|relevancia|consistencia|profundidad|evidencia"},
+    {"title": "Another strength", "description": "Specific observation. Use **bold** for key concepts.", "axis": "axis-name"}
   ],
   "toImprove": [
-    {"title": "Short improvement title", "description": "1-2 sentence specific observation on what to improve. Do NOT quote specific words.", "axis": "one of: claridad|estructura|relevancia|consistencia|profundidad|evidencia"},
-    {"title": "Another area", "description": "Specific observation.", "axis": "axis-name"}
+    {"title": "Short improvement title", "description": "1-2 sentence specific observation on what to improve. Do NOT quote specific words. Use **bold** around the most important concept.", "axis": "one of: claridad|estructura|relevancia|consistencia|profundidad|evidencia"},
+    {"title": "Another area", "description": "Specific observation. Use **bold** for key concepts.", "axis": "axis-name"}
   ],
   "actionPlan": [
-    {"title": "Actionable short title (verb + noun)", "description": "Specific concrete action to practice.", "priority": "alta"},
-    {"title": "Second action", "description": "Specific suggestion.", "priority": "alta"},
-    {"title": "Third action", "description": "Specific suggestion.", "priority": "media"},
-    {"title": "Fourth action", "description": "Specific suggestion.", "priority": "media"}
+    {"title": "Actionable short title (verb + noun)", "description": "Specific concrete action to practice. Use **bold** for the key action or concept.", "priority": "alta"},
+    {"title": "Second action", "description": "Specific suggestion. Use **bold** for key concepts.", "priority": "alta"},
+    {"title": "Third action", "description": "Specific suggestion. Use **bold** for key concepts.", "priority": "media"},
+    {"title": "Fourth action", "description": "Specific suggestion. Use **bold** for key concepts.", "priority": "media"}
   ],
-  "nextStep": "One sentence: the single most important thing the candidate should practice before their next interview."
+  "nextStep": "One sentence: the single most important thing the candidate should practice before their next interview. Use **bold** for the key concept."
 }
 
 Rules: 2-3 items in wentWell, 2-3 items in toImprove, exactly 4 items in actionPlan (2 alta + 2 media priority).`
@@ -1180,29 +1180,29 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
       interviewType: config.interviewType || 'HR',
       scoreResult: { scoreLabel: 'Intermedio Alto' },
       headline: 'Comunicación sólida, con margen de mejora',
-      executiveSummary: 'Mostraste sólidos conocimientos y buena capacidad para estructurar tus respuestas. Trabajá en dar más contexto a tus experiencias y en comunicar el impacto concreto de tus decisiones.',
+      executiveSummary: 'Mostraste **sólidos conocimientos técnicos** y buena capacidad para estructurar tus respuestas. Trabajá en dar más contexto a tus experiencias y en comunicar el **impacto concreto** de tus decisiones.',
       axes: {
         clarity: 78, structure: 68, roleRelevance: 80,
         narrativeCoherence: 82, reflectionDepth: 65, concreteEvidence: 76,
         technicalCorrectness: 82, depth: 76, problemSolvingEvidence: 70,
       },
       wentWell: [
-        { title: 'Conocimientos técnicos sólidos', description: 'Respondiste correctamente preguntas complejas y demostraste dominio del área.', axis: 'consistencia' },
-        { title: 'Buena claridad en las respuestas', description: 'Tus explicaciones fueron comprensibles y fáciles de seguir la mayor parte del tiempo.', axis: 'claridad' },
-        { title: 'Buen razonamiento ante desafíos', description: 'Mostraste un enfoque lógico y analizaste bien los casos planteados.', axis: 'profundidad' },
+        { title: 'Conocimientos técnicos sólidos', description: 'Respondiste correctamente preguntas complejas y demostraste **dominio del área**. Tu vocabulario técnico fue apropiado y preciso.', axis: 'consistencia' },
+        { title: 'Buena claridad en las respuestas', description: 'Tus explicaciones fueron **comprensibles y fáciles de seguir** la mayor parte del tiempo. Lograste transmitir ideas complejas sin perder al entrevistador.', axis: 'claridad' },
+        { title: 'Buen razonamiento ante desafíos', description: 'Mostraste un **enfoque lógico y estructurado** al analizar los casos planteados. Identificaste bien las variables clave antes de proponer soluciones.', axis: 'profundidad' },
       ],
       toImprove: [
-        { title: 'Falta profundizar el contexto', description: 'En varias respuestas fuiste directo a la solución pero faltó explicar el problema y el contexto previo.', axis: 'estructura' },
-        { title: 'Comunicar más el impacto', description: 'Podés mejorar al cuantificar resultados o explicar mejor cómo tus decisiones generaron valor.', axis: 'evidencia' },
-        { title: 'Manejar mejor los tiempos', description: 'En algunas respuestas te extendiste demasiado en detalles menos relevantes para la pregunta.', axis: 'relevancia' },
+        { title: 'Falta profundizar el contexto', description: 'En varias respuestas fuiste directo a la solución pero faltó explicar el **problema y el contexto previo**. Esto reduce el impacto de tus respuestas.', axis: 'estructura' },
+        { title: 'Comunicar más el impacto', description: 'Podés mejorar al **cuantificar resultados** o explicar mejor cómo tus decisiones generaron valor concreto para el negocio.', axis: 'evidencia' },
+        { title: 'Manejar mejor los tiempos', description: 'En algunas respuestas te extendiste demasiado en **detalles poco relevantes**. Priorizar la información clave hace tu discurso más efectivo.', axis: 'relevancia' },
       ],
       actionPlan: [
-        { title: 'Estructurá con el método STAR', description: 'Usá Situación, Tarea, Acción y Resultado para dar contexto e impacto a tus experiencias.', priority: 'alta' },
-        { title: 'Practicá comunicar impacto con números', description: 'Cuantificá resultados siempre que puedas: tiempos, usuarios, porcentajes, mejoras.', priority: 'alta' },
-        { title: 'Resumí al final de cada respuesta', description: 'Cerrá tus respuestas con una frase que resuma el resultado o aprendizaje clave.', priority: 'media' },
-        { title: 'Gestioná mejor el tiempo', description: 'Practicá respuestas más concretas (1-2 min máx.) en preguntas no prioritarias.', priority: 'media' },
+        { title: 'Estructurá con el método STAR', description: 'Usá **Situación, Tarea, Acción y Resultado** para dar contexto e impacto a tus experiencias en cada respuesta.', priority: 'alta' },
+        { title: 'Practicá comunicar impacto con números', description: 'Cuantificá resultados siempre que puedas: **tiempos, usuarios, porcentajes, mejoras**. Los números hacen tu respuesta memorable.', priority: 'alta' },
+        { title: 'Resumí al final de cada respuesta', description: 'Cerrá tus respuestas con una frase que resuma el **resultado o aprendizaje clave**. Esto ancla tu mensaje en la mente del entrevistador.', priority: 'media' },
+        { title: 'Gestioná mejor el tiempo', description: 'Practicá respuestas más concretas (**1-2 min máx.**) en preguntas no prioritarias para reservar energía en las que más importan.', priority: 'media' },
       ],
-      nextStep: 'Practicá entrevistas enfocándote en storytelling e impacto. Te recomendamos hacer 2 entrevistas esta semana.',
+      nextStep: 'Practicá entrevistas enfocándote en **storytelling e impacto cuantificable**. Te recomendamos hacer 2 entrevistas esta semana.',
     })
   }, [clearInterruptTimer])
 
