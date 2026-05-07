@@ -622,8 +622,12 @@ export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRep
             ) : (
               <>
                 <div className="db-plan-row">
-                  <div className="db-plan-crown-free"><IconCrown /></div>
-                  <span className="db-plan-name">Plan Free</span>
+                  <div className="db-plan-icon-free">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+                    </svg>
+                  </div>
+                  <span className="db-plan-name db-plan-name--free">Plan Free</span>
                 </div>
                 <button className="db-plan-upgrade" onClick={openUpgradeModal} data-track="upgrade_modal_opened">Upgrade a Premium →</button>
               </>

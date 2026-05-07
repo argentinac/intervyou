@@ -1880,7 +1880,19 @@ html, body, #root, .app {
   color: #514BFF;
   flex-shrink: 0;
 }
+.db-plan-icon-free {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: #F1F5F9;
+  border-radius: 8px;
+  color: #64748B;
+  flex-shrink: 0;
+}
 .db-plan-name { color: #111827; font-size: 14px; font-weight: 700; }
+.db-plan-name--free { color: #374151; font-weight: 600; }
 .db-plan-sub { color: #64748b; font-size: 12px; margin-top: 4px; }
 .db-plan-upgrade {
   background: none;
