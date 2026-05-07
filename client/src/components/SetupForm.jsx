@@ -101,7 +101,7 @@ export default function SetupForm({ onSubmit, onBack, initialConfig }) {
   const [form, setForm] = useState({
     country: initialConfig?.country ?? '',
     language: initialConfig?.language ?? 'Spanish',
-    interviewType: initialConfig?.interviewType ?? 'HR',
+    interviewType: initialConfig?.interviewType ?? 'Mixed',
     difficulty: initialConfig?.difficulty ?? 'Intermediate',
     jobTitle: initialConfig?.jobTitle ?? '',
     jobDescription: initialConfig?.jobDescription ?? '',

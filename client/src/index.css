@@ -4790,8 +4790,8 @@ html, body, #root, .app {
   border: 2.5px solid #625bff;
 }
 .rpt-bar-ticks {
-  display: flex;
-  justify-content: space-between;
+  position: relative;
+  height: 16px;
   font-size: 11px;
   color: #94a3b8;
 }
