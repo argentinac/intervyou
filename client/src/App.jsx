@@ -5,6 +5,7 @@ import { identifyUser, resetAnalyticsUser, track, deriveEventName } from './lib/
 import AuthForm from './components/AuthForm'
 import Landing from './components/Landing'
 import SetupForm from './components/SetupForm'
+import VisaSetupForm from './components/VisaSetupForm'
 import InterviewSession from './components/InterviewSession'
 import Dashboard from './components/Dashboard'
 import BlogPost from './components/BlogPost'
@@ -54,9 +55,10 @@ function getBlogSlugFromUrl() {
 function AppInner() {
   const { user } = useAuth()
   const { plan, planStatus, isPro, startCheckout } = usePlan()
-  const [view, setView] = useState(getInitialView) // 'landing' | 'auth' | 'dashboard' | 'interview' | 'blog' | 'pricing' | 'payment-success' | 'payment-error' | 'terms' | 'privacy' | 'faq'
+  const [view, setView] = useState(getInitialView) // 'landing' | 'auth' | 'dashboard' | 'interview' | 'visa-interview' | 'blog' | 'pricing' | 'payment-success' | 'payment-error' | 'terms' | 'privacy' | 'faq'
   const [interviewConfig, setInterviewConfig] = useState(null)
   const [interviewReturn, setInterviewReturn] = useState('landing')
+  const [visaConfig, setVisaConfig] = useState(null)
   const [blogSlug, setBlogSlug] = useState(getBlogSlugFromUrl)
   const [pendingInterviewId, setPendingInterviewId] = useState(null)
 
@@ -88,7 +90,7 @@ function AppInner() {
   }, [])
 
   useEffect(() => {
-    if (user && view !== 'interview' && view !== 'blog' && view !== 'terms' && view !== 'privacy' && view !== 'faq') setView('dashboard')
+    if (user && view !== 'interview' && view !== 'visa-interview' && view !== 'blog' && view !== 'terms' && view !== 'privacy' && view !== 'faq') setView('dashboard')
   }, [user])
 
   const goToBlog = (slug) => {
@@ -217,6 +219,24 @@ function AppInner() {
     )
   }
 
+  if (view === 'visa-interview') {
+    if (!visaConfig) {
+      return (
+        <VisaSetupForm
+          onSubmit={(cfg) => setVisaConfig(cfg)}
+          onBack={() => { setVisaConfig(null); setView('dashboard') }}
+        />
+      )
+    }
+    return (
+      <InterviewSession
+        config={visaConfig}
+        onEnd={() => { setVisaConfig(null); setView('dashboard') }}
+        onDashboard={user ? (id) => { setVisaConfig(null); if (id) setPendingInterviewId(id); setView('dashboard') } : undefined}
+      />
+    )
+  }
+
   if (view === 'dashboard') {
     if (!user) { setView('auth'); return null }
     return (
@@ -230,6 +250,7 @@ function AppInner() {
         onPaymentError={() => setView('payment-error')}
         pendingInterviewId={pendingInterviewId}
         onPendingInterviewIdConsumed={() => setPendingInterviewId(null)}
+        onVisaInterview={() => { setVisaConfig(null); setView('visa-interview') }}
       />
     )
   }
