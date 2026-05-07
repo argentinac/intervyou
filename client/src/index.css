@@ -3531,6 +3531,16 @@ html, body, #root, .app {
 }
 .up-feature-item svg { flex-shrink: 0; }
 
+.up-checkout-error {
+  color: #dc2626;
+  font-size: 13px;
+  text-align: center;
+  padding: 8px 12px;
+  background: #fef2f2;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
 /* ── Trust line ──────────────────────────────────────────── */
 .up-trust-line {
   display: flex;

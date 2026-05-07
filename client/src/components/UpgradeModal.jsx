@@ -49,7 +49,7 @@ const FEATURES = [
   'Y mucho más',
 ]
 
-export function PlanCards({ onSelectPlan }) {
+export function PlanCards({ onSelectPlan, loading }) {
   return (
     <div className="up-plans">
       {/* 3 meses — dominante */}
@@ -64,8 +64,8 @@ export function PlanCards({ onSelectPlan }) {
           <span className="up-savings-badge">50% DE AHORRO</span>
           <span className="up-savings-note">Equivale a USD 5,00/mes</span>
         </div>
-        <button className="up-plan-btn up-plan-btn--filled" onClick={() => onSelectPlan?.('quarterly')}>
-          Elegir plan de 3 meses
+        <button className="up-plan-btn up-plan-btn--filled" disabled={loading} onClick={() => onSelectPlan?.('quarterly')}>
+          {loading ? 'Procesando...' : 'Elegir plan de 3 meses'}
         </button>
       </div>
 
@@ -76,8 +76,8 @@ export function PlanCards({ onSelectPlan }) {
           <span className="up-price-amount up-price-amount--muted">USD 9,99</span>
           <span className="up-price-label">/mes</span>
         </div>
-        <button className="up-plan-btn up-plan-btn--ghost" onClick={() => onSelectPlan?.('monthly')}>
-          Elegir mensual
+        <button className="up-plan-btn up-plan-btn--ghost" disabled={loading} onClick={() => onSelectPlan?.('monthly')}>
+          {loading ? 'Procesando...' : 'Elegir mensual'}
         </button>
       </div>
     </div>
@@ -98,7 +98,7 @@ export function ProFeatureList() {
 }
 
 export default function UpgradeModal() {
-  const { closeUpgradeModal } = usePlan()
+  const { closeUpgradeModal, startCheckout, checkoutLoading, checkoutError } = usePlan()
 
   return (
     <div className="up-overlay" onClick={closeUpgradeModal}>
@@ -140,7 +140,11 @@ export default function UpgradeModal() {
 
           {/* Derecha */}
           <div className="up-right">
-            <PlanCards onSelectPlan={() => {}} />
+            <PlanCards onSelectPlan={startCheckout} loading={checkoutLoading} />
+
+            {checkoutError && (
+              <div className="up-checkout-error">{checkoutError}</div>
+            )}
 
             <div className="up-features-section">
               <div className="up-features-title">Incluye todo esto:</div>
@@ -148,7 +152,7 @@ export default function UpgradeModal() {
             </div>
 
             <div className="up-trust-line">
-              <IconLock /> Pago seguro con Mercado Pago y Stripe
+              <IconLock /> Pago seguro con Mercado Pago y Lemon Squeezy
             </div>
           </div>
         </div>

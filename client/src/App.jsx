@@ -53,7 +53,7 @@ function getBlogSlugFromUrl() {
 
 function AppInner() {
   const { user } = useAuth()
-  const { plan, planStatus, isPro } = usePlan()
+  const { plan, planStatus, isPro, startCheckout } = usePlan()
   const [view, setView] = useState(getInitialView) // 'landing' | 'auth' | 'dashboard' | 'interview' | 'blog' | 'pricing' | 'payment-success' | 'payment-error' | 'terms' | 'privacy' | 'faq'
   const [interviewConfig, setInterviewConfig] = useState(null)
   const [interviewReturn, setInterviewReturn] = useState('landing')
@@ -237,10 +237,7 @@ function AppInner() {
   if (view === 'pricing') {
     return (
       <PricingPage
-        onSelectPlan={(period) => {
-          // TODO: integrar con Stripe/MP — por ahora simula éxito
-          setView('payment-success')
-        }}
+        onSelectPlan={startCheckout}
         onBack={() => setView(user ? 'dashboard' : 'landing')}
       />
     )
