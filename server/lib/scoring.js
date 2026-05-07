@@ -37,7 +37,10 @@
 // ─── normalise type ────────────────────────────────────────────────────────────
 
 function normaliseType(t) {
-  return String(t).toUpperCase() === 'HR' ? 'HR' : 'TECHNICAL'
+  const u = String(t).toUpperCase()
+  if (u === 'HR') return 'HR'
+  if (u === 'MIXED') return 'MIXED'
+  return 'TECHNICAL'
 }
 
 // ─── weighted average with null redistribution ────────────────────────────────
@@ -60,9 +63,11 @@ function weightedBlock(valuesObj, weightsObj) {
 
 // ─── confidence ───────────────────────────────────────────────────────────────
 
-function computeConfidence(baseMeasured, contentMeasured) {
-  if (baseMeasured === 3 && contentMeasured === 3) return 'HIGH'
-  if (baseMeasured >= 2 && contentMeasured >= 2) return 'MEDIUM'
+function computeConfidence(baseMeasured, contentMeasured, isMixed) {
+  const contentHigh = isMixed ? 5 : 3
+  const contentMed  = isMixed ? 3 : 2
+  if (baseMeasured === 3 && contentMeasured >= contentHigh) return 'HIGH'
+  if (baseMeasured >= 2 && contentMeasured >= contentMed)  return 'MEDIUM'
   return 'LOW'
 }
 
@@ -108,6 +113,22 @@ export function calculateScore(interviewType, baseAxes, contentAxes) {
       },
       w
     )
+  } else if (type === 'MIXED') {
+    const w = {
+      narrativeCoherence: 0.15, reflectionDepth: 0.12, concreteEvidence: 0.12,
+      technicalCorrectness: 0.25, depth: 0.20, problemSolvingEvidence: 0.16,
+    }
+    contentBlock = weightedBlock(
+      {
+        narrativeCoherence:     contentAxes.narrativeCoherence     ?? null,
+        reflectionDepth:        contentAxes.reflectionDepth        ?? null,
+        concreteEvidence:       contentAxes.concreteEvidence       ?? null,
+        technicalCorrectness:   contentAxes.technicalCorrectness   ?? null,
+        depth:                  contentAxes.depth                  ?? null,
+        problemSolvingEvidence: contentAxes.problemSolvingEvidence ?? null,
+      },
+      w
+    )
   } else {
     const w = { technicalCorrectness: 0.50, depth: 0.30, problemSolvingEvidence: 0.20 }
     contentBlock = weightedBlock(
@@ -135,11 +156,11 @@ export function calculateScore(interviewType, baseAxes, contentAxes) {
   }
 
   // ── Final score (pre-penalty) ──────────────────────────────────────────────
-  const weights = type === 'HR' ? { base: 6.5, content: 3.5 } : { base: 4, content: 6 }
+  const weights = type === 'HR' ? { base: 6.5, content: 3.5 } : type === 'MIXED' ? { base: 5, content: 5 } : { base: 4, content: 6 }
   const prePenaltyScore = baseBlock.score * weights.base + contentBlock.score * weights.content
 
   // ── Penalties ──────────────────────────────────────────────────────────────
-  const contentThreshold = type === 'HR' ? 40 : 50
+  const contentThreshold = type === 'HR' ? 40 : 45
   const penalties = []
   let finalScore = prePenaltyScore
 
@@ -163,7 +184,7 @@ export function calculateScore(interviewType, baseAxes, contentAxes) {
 
   finalScore = Math.max(0, Math.min(1000, Math.round(finalScore)))
 
-  const confidence = computeConfidence(baseBlock.measuredCount, contentBlock.measuredCount)
+  const confidence = computeConfidence(baseBlock.measuredCount, contentBlock.measuredCount, type === 'MIXED')
 
   return {
     interviewType: type,

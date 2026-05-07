@@ -39,8 +39,11 @@ CONTENT AXES for Technical interview (score 0-100 each, or null if not enough ev
 - depth (0-100 | null): Do they show real understanding, trade-offs, limits, alternatives or solid reasoning?
 - problemSolvingEvidence (0-100 | null): Do they apply knowledge to a concrete problem, give reasonable resolution steps, examples or implementation decisions?`
 
-  const contentAxesDoc = isHR ? hrContentAxesDoc : techContentAxesDoc
-  const axesKeys = isHR
+  const isMixed = String(config.interviewType).toUpperCase() === 'MIXED'
+  const contentAxesDoc = isMixed ? hrContentAxesDoc + '\n' + techContentAxesDoc : isHR ? hrContentAxesDoc : techContentAxesDoc
+  const axesKeys = isMixed
+    ? '"narrativeCoherence": <0-100 or null>, "reflectionDepth": <0-100 or null>, "concreteEvidence": <0-100 or null>, "technicalCorrectness": <0-100 or null>, "depth": <0-100 or null>, "problemSolvingEvidence": <0-100 or null>'
+    : isHR
     ? '"narrativeCoherence": <0-100 or null>, "reflectionDepth": <0-100 or null>, "concreteEvidence": <0-100 or null>'
     : '"technicalCorrectness": <0-100 or null>, "depth": <0-100 or null>, "problemSolvingEvidence": <0-100 or null>'
 
@@ -312,6 +315,11 @@ Progression: welcome → career background → motivation → behavioral STAR qu
   Technical: `Interview focus: Technical / Functional depth.
 Assess technical knowledge, problem-solving approach, and role-specific expertise.
 Progression: welcome → technical background → past projects → technical questions → hypothetical scenario → candidate questions → close.`,
+  Mixed: `Interview focus: Comprehensive / Full-round interview.
+This is a realistic end-to-end interview round that covers both people and technical dimensions.
+Assess motivation and cultural fit alongside technical knowledge and problem-solving ability.
+Progression: welcome → career background and motivation → 1-2 behavioral STAR questions → technical or role-specific questions → a practical scenario or case → candidate questions → close.
+Balance the two dimensions naturally — do not announce the shift from one to the other.`,
 }
 
 const COUNTRY_GENDER = {
@@ -353,7 +361,7 @@ const REGIONAL_PRONOUN_RULES = {
 }
 
 const SYSTEM_PROMPT = ({ companyName, language, jobTitle, jobDescription, country, difficulty, interviewType, gender }) => `
-You are a senior ${interviewType === 'Technical' ? 'technical interviewer' : 'HR interviewer'} conducting a real job interview.
+You are a senior ${interviewType === 'Technical' ? 'technical interviewer' : interviewType === 'Mixed' ? 'interviewer' : 'HR interviewer'} conducting a real job interview.
 You are ${gender}. Choose a realistic ${gender} first name typical of ${country} and use it as your name throughout — introduce yourself with it and refer to yourself by it if needed.
 ${companyName ? `You work at ${companyName}.` : ''}
 Language: ${language}. Conduct the ENTIRE interview in ${language}. Never switch languages.
@@ -643,7 +651,7 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
   const [error, setError] = useState(null)
   const [introLoading, setIntroLoading] = useState(true)
 
-  const interviewerLabel = config.interviewType === 'Technical' ? 'Tech Interviewer' : 'HR Interviewer'
+  const interviewerLabel = config.interviewType === 'Technical' ? 'Tech Interviewer' : config.interviewType === 'Mixed' ? 'Interviewer' : 'HR Interviewer'
   const interviewerName = config.companyName ? `${config.companyName} — ${interviewerLabel}` : interviewerLabel
 
   const [cameraOn, setCameraOn] = useState(false)

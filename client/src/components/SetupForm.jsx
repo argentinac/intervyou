@@ -39,6 +39,7 @@ const COUNTRIES = [
 const INTERVIEW_TYPES = [
   { value: 'HR',        label: 'RRHH',    desc: 'Cultura, motivación y habilidades blandas.' },
   { value: 'Technical', label: 'Técnica', desc: 'Conocimiento técnico y resolución de problemas.' },
+  { value: 'Mixed',     label: 'Integral', desc: 'Combina preguntas de RRHH y técnicas, como en una entrevista real.' },
 ]
 
 const TEST_DATA = {
