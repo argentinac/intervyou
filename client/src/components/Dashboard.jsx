@@ -511,6 +511,7 @@ export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRep
   const [profile, setProfile] = useState(null)
   const [subscription, setSubscription] = useState(null)
   const [demoIndex, setDemoIndex] = useState(null)
+  const [demoOpen, setDemoOpen] = useState(false)
   const [paymentBannerDismissed, setPaymentBannerDismissed] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const isAdmin = import.meta.env.DEV || user?.email === 'matiasabas@gmail.com'
@@ -701,32 +702,45 @@ export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRep
 
       {isAdmin && (
         <div className="demo-bar">
-          <span className="demo-bar-label">🛠 Demo</span>
-          <span className="demo-bar-sep">|</span>
-          <span className="demo-bar-label">Entrevistas:</span>
-          {DEMO_STATES.map((s, i) => (
-            <button
-              key={i}
-              className={`demo-bar-btn ${demoIndex === i ? 'demo-bar-btn--active' : ''}`}
-              onClick={() => { setDemoIndex(demoIndex === i ? null : i); setSection('home') }}
-            >
-              {s.label}
-            </button>
-          ))}
-          {demoIndex !== null && (
-            <button className="demo-bar-btn demo-bar-btn--reset" onClick={() => setDemoIndex(null)}>
-              ✕ Real
-            </button>
+          <button className="demo-bar-toggle" onClick={() => setDemoOpen(o => !o)}>
+            🛠 Demo {demoIndex !== null ? `· ${DEMO_STATES[demoIndex].label}` : ''} {demoOpen ? '▲' : '▼'}
+          </button>
+          {demoOpen && (
+            <div className="demo-bar-panel">
+              <div className="demo-bar-group">
+                <span className="demo-bar-label">Entrevistas</span>
+                {DEMO_STATES.map((s, i) => (
+                  <button
+                    key={i}
+                    className={`demo-bar-btn ${demoIndex === i ? 'demo-bar-btn--active' : ''}`}
+                    onClick={() => { setDemoIndex(demoIndex === i ? null : i); setSection('home') }}
+                  >
+                    {s.label}
+                  </button>
+                ))}
+                {demoIndex !== null && (
+                  <button className="demo-bar-btn demo-bar-btn--reset" onClick={() => setDemoIndex(null)}>
+                    ✕ Real
+                  </button>
+                )}
+              </div>
+              <div className="demo-bar-divider" />
+              <div className="demo-bar-group">
+                <span className="demo-bar-label">Plan</span>
+                <button className="demo-bar-btn" onClick={() => { setDemoPlan({ plan: 'free', status: 'active' }); setPaymentBannerDismissed(false) }}>Free</button>
+                <button className="demo-bar-btn" onClick={() => { setDemoPlan({ plan: 'pro', status: 'active', period: 'monthly' }); setPaymentBannerDismissed(false) }}>Pro Activo</button>
+                <button className="demo-bar-btn" onClick={() => { setDemoPlan({ plan: 'pro', status: 'past_due', period: 'monthly' }); setPaymentBannerDismissed(false) }}>Pro Pago fallido</button>
+              </div>
+              <div className="demo-bar-divider" />
+              <div className="demo-bar-group">
+                <span className="demo-bar-label">Vistas</span>
+                <button className="demo-bar-btn" onClick={openUpgradeModal}>Modal upgrade</button>
+                <button className="demo-bar-btn" onClick={onPricing}>Pricing</button>
+                <button className="demo-bar-btn" onClick={onPaymentSuccess}>Pago exitoso</button>
+                <button className="demo-bar-btn" onClick={onPaymentError}>Error de pago</button>
+              </div>
+            </div>
           )}
-          <span className="demo-bar-sep">|</span>
-          <span className="demo-bar-label">Plan:</span>
-          <button className="demo-bar-btn" onClick={() => { setDemoPlan({ plan: 'free', status: 'active' }); setPaymentBannerDismissed(false) }}>Free</button>
-          <button className="demo-bar-btn" onClick={() => { setDemoPlan({ plan: 'pro', status: 'active', period: 'monthly' }); setPaymentBannerDismissed(false) }}>Pro Activo</button>
-          <button className="demo-bar-btn" onClick={() => { setDemoPlan({ plan: 'pro', status: 'past_due', period: 'monthly' }); setPaymentBannerDismissed(false) }}>Pro Pago fallido</button>
-          <button className="demo-bar-btn" onClick={openUpgradeModal}>Ver modal upgrade</button>
-          <button className="demo-bar-btn" onClick={onPricing}>Ver pricing page</button>
-          <button className="demo-bar-btn" onClick={onPaymentSuccess}>Ver pago exitoso</button>
-          <button className="demo-bar-btn" onClick={onPaymentError}>Ver error de pago</button>
         </div>
       )}
     </div>
