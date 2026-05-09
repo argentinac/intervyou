@@ -995,20 +995,20 @@ html, body, #root, .app {
   margin-bottom: 3.5vh;
 }
 .auth-logo img {
-  height: 52px;
+  height: 40px;
   width: auto;
 }
 
 .auth-title {
-  font-size: 44px;
+  font-size: 32px;
   font-weight: 800;
   color: #0F172A;
-  letter-spacing: -1px;
+  letter-spacing: -0.7px;
   line-height: 1.1;
   margin: 0 0 1.5vh 0;
 }
 .auth-subtitle {
-  font-size: 20px;
+  font-size: 16px;
   color: #64748B;
   line-height: 1.4;
   margin: 0 0 3vh 0;
@@ -1023,21 +1023,21 @@ html, body, #root, .app {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
+  gap: 12px;
   width: 100%;
-  height: 72px;
+  height: 54px;
   padding: 0 24px;
   background: #fff;
   border: 1.5px solid #D1D5DB;
   border-radius: 12px;
   font-family: var(--font);
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 600;
   color: #0F172A;
   cursor: pointer;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
-.auth-google-btn svg { width: 26px; height: 26px; }
+.auth-google-btn svg { width: 22px; height: 22px; }
 .auth-google-btn:hover { border-color: #94a3b8; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
 .auth-google-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
@@ -1061,21 +1061,21 @@ html, body, #root, .app {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
+  gap: 12px;
   width: 100%;
-  height: 72px;
+  height: 54px;
   padding: 0 24px;
   background: #fff;
   border: 1.5px solid #6366F1;
   border-radius: 12px;
   font-family: var(--font);
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 600;
   color: #0F172A;
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s;
 }
-.auth-email-btn svg { width: 24px; height: 24px; }
+.auth-email-btn svg { width: 20px; height: 20px; }
 .auth-email-btn svg rect, .auth-email-btn svg path { stroke: #0F172A; }
 .auth-email-btn:hover { background: #f8f7ff; }
 
@@ -1090,15 +1090,15 @@ html, body, #root, .app {
 
 /* ── Steps: email & otp ── */
 .auth-steps-title {
-  font-size: 44px;
+  font-size: 32px;
   font-weight: 800;
   color: #0F172A;
-  letter-spacing: -1px;
+  letter-spacing: -0.7px;
   line-height: 1.1;
   margin: 0 0 1.5vh 0;
 }
 .auth-steps-subtitle {
-  font-size: 20px;
+  font-size: 16px;
   color: #64748B;
   line-height: 1.4;
   margin: 0 0 3vh 0;
