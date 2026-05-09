@@ -56,7 +56,7 @@ function getBlogSlugFromUrl() {
 
 function AppInner() {
   const { user } = useAuth()
-  const { plan, planStatus, isPro, startCheckout } = usePlan()
+  const { plan, planStatus, isPro, startCheckout, refreshSubscription } = usePlan()
   const [view, setView] = useState(getInitialView) // 'landing' | 'auth' | 'dashboard' | 'interview' | 'visa-interview' | 'blog' | 'pricing' | 'payment-success' | 'payment-error' | 'terms' | 'privacy' | 'faq'
   const [interviewConfig, setInterviewConfig] = useState(null)
   const [interviewReturn, setInterviewReturn] = useState('landing')
@@ -269,8 +269,8 @@ function AppInner() {
   if (view === 'payment-success') {
     return (
       <PaymentSuccessPage
-        onStart={() => { setInterviewReturn('dashboard'); setView('interview') }}
-        onHome={() => setView('dashboard')}
+        onStart={() => { refreshSubscription(); setInterviewReturn('dashboard'); setView('interview') }}
+        onHome={() => { refreshSubscription(); setView('dashboard') }}
       />
     )
   }
