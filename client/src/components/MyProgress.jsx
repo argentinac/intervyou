@@ -33,15 +33,14 @@ function ScoreLineChart({ points, onPointClick }) {
 
   const gridScores = [0, 250, 500, 750, 1000].filter(v => v >= minS && v <= maxS)
 
-  const handlePointEnter = (e, p, i) => {
-    const svgEl = svgRef.current
-    if (!svgEl) return
-    const rect = svgEl.getBoundingClientRect()
-    const svgW = rect.width
-    const scaleX = svgW / W
-    const scaleY = rect.height / H
-    const cx = xOf(i) * scaleX
-    const cy = yOf(p.score) * scaleY
+  const containerRef = useRef(null)
+
+  const handlePointEnter = (e, p) => {
+    const container = containerRef.current
+    if (!container) return
+    const rect = container.getBoundingClientRect()
+    const cx = e.clientX - rect.left
+    const cy = e.clientY - rect.top
     setTooltip({ p, cx, cy })
   }
 
@@ -52,7 +51,7 @@ function ScoreLineChart({ points, onPointClick }) {
   }
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div ref={containerRef} style={{ position: 'relative' }}>
       <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', maxWidth: W, display: 'block' }}>
         {/* Grid */}
         {gridScores.map(v => (
@@ -73,7 +72,7 @@ function ScoreLineChart({ points, onPointClick }) {
           <g
             key={i}
             style={{ cursor: onPointClick ? 'pointer' : 'default' }}
-            onMouseEnter={(e) => handlePointEnter(e, p, i)}
+            onMouseEnter={(e) => handlePointEnter(e, p)}
             onMouseLeave={handlePointLeave}
             onClick={() => handlePointClick(p)}
           >
