@@ -41,8 +41,8 @@ async function usdToARS(usd) {
   return Math.ceil(raw / 100) * 100
 }
 
-// IDs de planes MP en memoria (se crean una vez y se reusan)
-const mpPlanIds = { monthly: null, quarterly: null }
+// Cache de planes MP: { id, init_point, price }
+const mpPlanCache = { monthly: null, quarterly: null }
 
 function getMPClient() {
   return new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN })
@@ -64,23 +64,25 @@ function getClientIP(req) {
   return req.headers['x-forwarded-for'] || req.socket.remoteAddress || ''
 }
 
-// Crea el plan de suscripción en MP con el precio en ARS actualizado
-// MP no permite editar planes, así que creamos uno nuevo cuando el precio cambia
-const mpPlanPrices = { monthly: null, quarterly: null }
+// Devuelve el init_point del plan MP (URL donde el usuario se suscribe).
+// Crea un plan nuevo si no hay uno cacheado o si el precio cambió.
+async function getMPPlanInitPoint(period, priceARS) {
+  const cached = mpPlanCache[period]
+  if (cached && cached.price === priceARS) return cached.init_point
 
-async function getOrCreateMPPlan(period, priceARS) {
-  // Si el precio cambió, invalidar el plan cacheado para crear uno nuevo
-  if (mpPlanIds[period] && mpPlanPrices[period] !== priceARS) {
-    mpPlanIds[period] = null
+  // Si hay ID guardado en env (plan pre-existente), obtenerlo de la API
+  const envId = period === 'monthly' ? process.env.MP_PLAN_MONTHLY_ID : process.env.MP_PLAN_QUARTERLY_ID
+  if (envId && (!cached || cached.price !== priceARS)) {
+    const client = getMPClient()
+    const planApi = new PreApprovalPlan(client)
+    try {
+      const plan = await planApi.get({ preApprovalPlanId: envId })
+      if (plan?.init_point) {
+        mpPlanCache[period] = { id: envId, init_point: plan.init_point, price: priceARS }
+        return plan.init_point
+      }
+    } catch { /* plan no existe o expiró, crear uno nuevo */ }
   }
-
-  // Chequear env vars al arrancar
-  if (!mpPlanIds[period]) {
-    mpPlanIds.monthly   = process.env.MP_PLAN_MONTHLY_ID   || null
-    mpPlanIds.quarterly = process.env.MP_PLAN_QUARTERLY_ID || null
-    mpPlanPrices[period] = priceARS
-  }
-  if (mpPlanIds[period]) return mpPlanIds[period]
 
   const client = getMPClient()
   const planApi = new PreApprovalPlan(client)
@@ -92,10 +94,9 @@ async function getOrCreateMPPlan(period, priceARS) {
   }
 
   const result = await planApi.create({ body: { ...configs[period], back_url: `${appUrl}/payment-success` } })
-  mpPlanIds[period] = result.id
-  mpPlanPrices[period] = priceARS
-  console.log(`MP plan creado [${period}] a $${priceARS} ARS: ${result.id}`)
-  return result.id
+  mpPlanCache[period] = { id: result.id, init_point: result.init_point, price: priceARS }
+  console.log(`MP plan creado [${period}] a $${priceARS} ARS: ${result.id} → ${result.init_point}`)
+  return result.init_point
 }
 
 // GET /api/payments/country
@@ -139,21 +140,13 @@ paymentsRouter.post('/checkout', requireAuth, async (req, res) => {
     if (!process.env.MP_ACCESS_TOKEN) return res.status(503).json({ error: 'Mercado Pago no configurado' })
 
     try {
-      const planId = await getOrCreateMPPlan(period, await usdToARS(PRICES_USD[period]))
-      const client = getMPClient()
-      const preApproval = new PreApproval(client)
-
-      const result = await preApproval.create({
-        body: {
-          preapproval_plan_id: planId,
-          payer_email: userEmail,
-          external_reference: `${userId}:${period}`,
-          back_url: `${appUrl}/payment-success`,
-          notification_url: `${serverUrl}/api/payments/webhooks/mercadopago`,
-        },
-      })
-
-      return res.json({ url: result.init_point, processor: 'mercadopago' })
+      const priceARS = await usdToARS(PRICES_USD[period])
+      const planInitPoint = await getMPPlanInitPoint(period, priceARS)
+      // Agregar external_reference y payer_email al init_point del plan para identificar al usuario en el webhook
+      const url = new URL(planInitPoint)
+      url.searchParams.set('external_reference', `${userId}:${period}`)
+      if (userEmail) url.searchParams.set('payer_email', userEmail)
+      return res.json({ url: url.toString(), processor: 'mercadopago' })
     } catch (err) {
       console.error('MP checkout error:', err)
       return res.status(500).json({ error: 'Error al crear suscripción en Mercado Pago' })
@@ -230,7 +223,14 @@ paymentsRouter.post('/webhooks/mercadopago', express.raw({ type: 'application/js
       const paymentData = await payment.get({ id: body.data.id })
       if (paymentData.status !== 'approved') return
 
-      const [userId, period] = (paymentData.external_reference || '').split(':')
+      let [userId, period] = (paymentData.external_reference || '').split(':')
+
+      // Fallback: buscar por email del pagador si no hay external_reference
+      if (!userId && paymentData.payer?.email) {
+        const { data: authUser } = await supabase.auth.admin.listUsers()
+        const match = authUser?.users?.find(u => u.email === paymentData.payer.email)
+        userId = match?.id
+      }
       if (!userId) return
 
       await supabase.from('profiles').update({
@@ -249,7 +249,13 @@ paymentsRouter.post('/webhooks/mercadopago', express.raw({ type: 'application/js
       const client = getMPClient()
       const preApproval = new PreApproval(client)
       const sub = await preApproval.get({ id: body.data.id })
-      const [userId] = (sub.external_reference || '').split(':')
+      let [userId] = (sub.external_reference || '').split(':')
+
+      if (!userId && sub.payer_email) {
+        const { data: authUser } = await supabase.auth.admin.listUsers()
+        const match = authUser?.users?.find(u => u.email === sub.payer_email)
+        userId = match?.id
+      }
       if (!userId) return
 
       if (sub.status === 'cancelled' || sub.status === 'paused') {
