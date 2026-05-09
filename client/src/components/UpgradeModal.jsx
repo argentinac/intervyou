@@ -46,75 +46,104 @@ const VALID_COUPONS = {
   'LAUNCH30':    { pct: 30, label: '30% OFF' },
 }
 
-// Logos de empresas top por país
+// URLs directas (Wikipedia Wikimedia — muy estables)
+const W = 'https://upload.wikimedia.org/wikipedia/commons/thumb'
+const LOGOS = {
+  mercadolibre: `${W}/f/f3/Mercado_Libre_Logo.svg/200px-Mercado_Libre_Logo.svg.png`,
+  amazon:        `${W}/a/a9/Amazon_logo.svg/200px-Amazon_logo.svg.png`,
+  google:        `${W}/2/2f/Google_2015_logo.svg/272px-Google_2015_logo.svg.png`,
+  microsoft:     `${W}/4/44/Microsoft_logo.svg/200px-Microsoft_logo.svg.png`,
+  apple:         `${W}/f/fa/Apple_logo_black.svg/100px-Apple_logo_black.svg.png`,
+  meta:          `${W}/7/7b/Meta_Platforms_Inc._logo.svg/200px-Meta_Platforms_Inc._logo.svg.png`,
+  nubank:        `${W}/1/17/Nubank_logo_2021.svg/200px-Nubank_logo_2021.svg.png`,
+  latam:         `${W}/6/62/LATAM_Airlines_logo_2015.svg/200px-LATAM_Airlines_logo_2015.svg.png`,
+  santander:     `${W}/b/b8/Banco_Santander_Logotipo.svg/200px-Banco_Santander_Logotipo.svg.png`,
+  bbva:          `${W}/a/ae/BBVA_2019.svg/200px-BBVA_2019.svg.png`,
+  rappi:         `${W}/c/c9/Rappi_logo.svg/200px-Rappi_logo.svg.png`,
+  falabella:     `${W}/2/25/Falabella.svg/200px-Falabella.svg.png`,
+  pedidosya:     `${W}/6/67/PedidosYa_logo.svg/200px-PedidosYa_logo.svg.png`,
+  despegar:      `${W}/3/3e/Despegar_logo.svg/200px-Despegar_logo.svg.png`,
+  uala:          `${W}/4/43/Ual%C3%A1_logo.svg/200px-Ual%C3%A1_logo.svg.png`,
+  galicia:       `${W}/4/4e/Logo_Banco_Galicia.svg/200px-Logo_Banco_Galicia.svg.png`,
+  vodafone:      `${W}/a/a6/Vodafone_icon.svg/100px-Vodafone_icon.svg.png`,
+  bancolombia:   `${W}/6/6e/Bancolombia_logo.svg/200px-Bancolombia_logo.svg.png`,
+  itau:          `${W}/8/8b/Banco_Ita%C3%BA_logo.svg/200px-Banco_Ita%C3%BA_logo.svg.png`,
+  ifood:         `${W}/9/9e/IFood_logo.svg/200px-IFood_logo.svg.png`,
+  bimbo:         `${W}/5/56/Bimbo-logo.svg/200px-Bimbo-logo.svg.png`,
+  cemex:         `${W}/7/72/Cemex-logo-new.svg/200px-Cemex-logo-new.svg.png`,
+  telefonica:    `${W}/8/87/Telef%C3%B3nica_logo.svg/200px-Telef%C3%B3nica_logo.svg.png`,
+  inditex:       `${W}/b/b7/Inditex_logo.svg/200px-Inditex_logo.svg.png`,
+  hsbc:          `${W}/a/aa/HSBC_logo_%282018%29.svg/200px-HSBC_logo_%282018%29.svg.png`,
+}
+
 const COUNTRY_LOGOS = {
   AR: [
-    { name: 'Mercado Libre', domain: 'mercadolibre.com'   },
-    { name: 'Amazon',        domain: 'amazon.com'         },
-    { name: 'Galicia',       domain: 'bancogalicia.com'   },
-    { name: 'Ualá',          domain: 'uala.com.ar'        },
-    { name: 'Despegar',      domain: 'despegar.com'       },
+    { name: 'Mercado Libre', src: LOGOS.mercadolibre },
+    { name: 'Amazon',        src: LOGOS.amazon       },
+    { name: 'Galicia',       src: LOGOS.galicia      },
+    { name: 'Ualá',          src: LOGOS.uala         },
+    { name: 'Despegar',      src: LOGOS.despegar     },
   ],
   BR: [
-    { name: 'Nubank',   domain: 'nubank.com.br'       },
-    { name: 'iFood',    domain: 'ifood.com.br'         },
-    { name: 'Itaú',     domain: 'itau.com.br'          },
-    { name: 'Totvs',    domain: 'totvs.com'            },
+    { name: 'Nubank',  src: LOGOS.nubank  },
+    { name: 'iFood',   src: LOGOS.ifood   },
+    { name: 'Itaú',    src: LOGOS.itau    },
+    { name: 'Amazon',  src: LOGOS.amazon  },
   ],
   MX: [
-    { name: 'Bimbo',    domain: 'grupobimbo.com'  },
-    { name: 'Cemex',    domain: 'cemex.com'        },
-    { name: 'OXXO',     domain: 'oxxo.com'         },
-    { name: 'Clip',     domain: 'clip.mx'          },
+    { name: 'Bimbo',     src: LOGOS.bimbo     },
+    { name: 'Cemex',     src: LOGOS.cemex     },
+    { name: 'Amazon',    src: LOGOS.amazon    },
+    { name: 'Microsoft', src: LOGOS.microsoft },
   ],
   CO: [
-    { name: 'Bancolombia', domain: 'bancolombia.com' },
-    { name: 'Rappi',       domain: 'rappi.com'        },
-    { name: 'Ecopetrol',   domain: 'ecopetrol.com.co' },
-    { name: 'Falabella',   domain: 'falabella.com.co' },
+    { name: 'Bancolombia', src: LOGOS.bancolombia },
+    { name: 'Rappi',       src: LOGOS.rappi       },
+    { name: 'Falabella',   src: LOGOS.falabella   },
+    { name: 'Amazon',      src: LOGOS.amazon      },
   ],
   CL: [
-    { name: 'Falabella',  domain: 'falabella.com'  },
-    { name: 'Ripley',     domain: 'ripley.com'     },
-    { name: 'LATAM',      domain: 'latam.com'      },
-    { name: 'Entel',      domain: 'entel.cl'       },
+    { name: 'Falabella', src: LOGOS.falabella },
+    { name: 'LATAM',     src: LOGOS.latam     },
+    { name: 'Rappi',     src: LOGOS.rappi     },
+    { name: 'Amazon',    src: LOGOS.amazon    },
   ],
   PE: [
-    { name: 'BCP',       domain: 'viabcp.com'      },
-    { name: 'Interbank', domain: 'interbank.com.pe' },
-    { name: 'Yape',      domain: 'yape.com.pe'     },
-    { name: 'LATAM',     domain: 'latam.com'       },
+    { name: 'LATAM',     src: LOGOS.latam     },
+    { name: 'Falabella', src: LOGOS.falabella },
+    { name: 'Rappi',     src: LOGOS.rappi     },
+    { name: 'Amazon',    src: LOGOS.amazon    },
   ],
   UY: [
-    { name: 'Antel',    domain: 'antel.com.uy'  },
-    { name: 'Mercado Libre', domain: 'mercadolibre.com' },
-    { name: 'LATAM',    domain: 'latam.com'      },
-    { name: 'Pedidos Ya', domain: 'pedidosya.com' },
+    { name: 'Mercado Libre', src: LOGOS.mercadolibre },
+    { name: 'LATAM',         src: LOGOS.latam        },
+    { name: 'Pedidos Ya',    src: LOGOS.pedidosya    },
+    { name: 'Amazon',        src: LOGOS.amazon       },
   ],
   ES: [
-    { name: 'Santander', domain: 'santander.com'  },
-    { name: 'BBVA',      domain: 'bbva.com'       },
-    { name: 'Telefónica',domain: 'telefonica.com' },
-    { name: 'Inditex',   domain: 'inditex.com'   },
+    { name: 'Santander',  src: LOGOS.santander  },
+    { name: 'BBVA',       src: LOGOS.bbva       },
+    { name: 'Telefónica', src: LOGOS.telefonica },
+    { name: 'Inditex',    src: LOGOS.inditex    },
   ],
   US: [
-    { name: 'Google',    domain: 'google.com'    },
-    { name: 'Amazon',    domain: 'amazon.com'    },
-    { name: 'Microsoft', domain: 'microsoft.com' },
-    { name: 'Apple',     domain: 'apple.com'     },
-    { name: 'Meta',      domain: 'meta.com'      },
+    { name: 'Google',    src: LOGOS.google    },
+    { name: 'Amazon',    src: LOGOS.amazon    },
+    { name: 'Microsoft', src: LOGOS.microsoft },
+    { name: 'Apple',     src: LOGOS.apple     },
+    { name: 'Meta',      src: LOGOS.meta      },
   ],
   GB: [
-    { name: 'HSBC',     domain: 'hsbc.com'     },
-    { name: 'Unilever', domain: 'unilever.com' },
-    { name: 'Vodafone', domain: 'vodafone.com' },
-    { name: 'BP',       domain: 'bp.com'       },
+    { name: 'HSBC',      src: LOGOS.hsbc      },
+    { name: 'Vodafone',  src: LOGOS.vodafone  },
+    { name: 'Amazon',    src: LOGOS.amazon    },
+    { name: 'Microsoft', src: LOGOS.microsoft },
   ],
   DEFAULT: [
-    { name: 'Google',    domain: 'google.com'    },
-    { name: 'Amazon',    domain: 'amazon.com'    },
-    { name: 'Microsoft', domain: 'microsoft.com' },
-    { name: 'Apple',     domain: 'apple.com'     },
+    { name: 'Google',    src: LOGOS.google    },
+    { name: 'Amazon',    src: LOGOS.amazon    },
+    { name: 'Microsoft', src: LOGOS.microsoft },
+    { name: 'Meta',      src: LOGOS.meta      },
   ],
 }
 
@@ -215,9 +244,9 @@ export function PlanCards({ onSelectPlan, loadingPeriod, processor, coupon }) {
   )
 }
 
-function LogoImg({ name, domain }) {
+function LogoImg({ name, src }) {
   const [failed, setFailed] = useState(false)
-  if (failed) {
+  if (failed || !src) {
     return (
       <div className="up-logo-pill">
         <span className="up-logo-pill-letter">{name[0]}</span>
@@ -227,7 +256,7 @@ function LogoImg({ name, domain }) {
   }
   return (
     <img
-      src={`https://logo.clearbit.com/${domain}`}
+      src={src}
       alt={name}
       className="up-logo-img"
       onError={() => setFailed(true)}
@@ -242,8 +271,8 @@ function CompanyLogos({ country }) {
       <div className="up-logos-title">Preparación para empresas líderes</div>
       <div className="up-logos-grid">
         {logos.map(l => (
-          <div key={l.domain} className="up-logo-item">
-            <LogoImg name={l.name} domain={l.domain} />
+          <div key={l.name} className="up-logo-item">
+            <LogoImg name={l.name} src={l.src} />
           </div>
         ))}
       </div>
