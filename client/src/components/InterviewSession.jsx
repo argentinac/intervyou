@@ -1066,6 +1066,8 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
     window.speechSynthesis.cancel()
     stopActiveAudio()
     clearInterruptTimer()
+    recognitionRef.current?.stop()
+    recognitionRef.current = null
     setSessionEnded(true)
     track('interview_session_completed')
 
@@ -1171,6 +1173,8 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
     window.speechSynthesis.cancel()
     stopActiveAudio()
     clearInterruptTimer()
+    recognitionRef.current?.stop()
+    recognitionRef.current = null
     setSessionEnded(true)
     setFeedback({
       notEnoughData: false,
