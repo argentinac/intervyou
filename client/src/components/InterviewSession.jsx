@@ -633,7 +633,11 @@ function stopActiveAudio() {
 }
 
 export default function InterviewSession({ config, onEnd, onDashboard }) {
-  const str = UI_STRINGS[config.language] || UI_STRINGS.English
+  const isVisa = config.interviewType === 'Visa'
+  const baseStr = UI_STRINGS[config.language] || UI_STRINGS.English
+  const str = isVisa
+    ? { ...baseStr, phases: ['Bienvenida', 'Propósito', 'Vínculos', 'Documentación', 'Cierre'] }
+    : baseStr
   const { getToken } = useAuth()
   const startTimeRef = useRef(Date.now())
   const sessionIdRef  = useRef(crypto.randomUUID())
@@ -651,8 +655,8 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
   const [error, setError] = useState(null)
   const [introLoading, setIntroLoading] = useState(true)
 
-  const interviewerLabel = config.interviewType === 'Technical' ? 'Tech Interviewer' : config.interviewType === 'Mixed' ? 'Interviewer' : 'HR Interviewer'
-  const interviewerName = config.companyName ? `${config.companyName} — ${interviewerLabel}` : interviewerLabel
+  const interviewerLabel = isVisa ? 'Oficial Consular' : config.interviewType === 'Technical' ? 'Tech Interviewer' : config.interviewType === 'Mixed' ? 'Interviewer' : 'HR Interviewer'
+  const interviewerName = isVisa ? 'Embajada de EE.UU.' : config.companyName ? `${config.companyName} — ${interviewerLabel}` : interviewerLabel
 
   const [cameraOn, setCameraOn] = useState(false)
   const [inactivityWarning, setInactivityWarning] = useState(false)
