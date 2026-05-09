@@ -46,104 +46,78 @@ const VALID_COUPONS = {
   'LAUNCH30':    { pct: 30, label: '30% OFF' },
 }
 
-// URLs directas (Wikipedia Wikimedia — muy estables)
-const W = 'https://upload.wikimedia.org/wikipedia/commons/thumb'
-const LOGOS = {
-  mercadolibre: `${W}/f/f3/Mercado_Libre_Logo.svg/200px-Mercado_Libre_Logo.svg.png`,
-  amazon:        `${W}/a/a9/Amazon_logo.svg/200px-Amazon_logo.svg.png`,
-  google:        `${W}/2/2f/Google_2015_logo.svg/272px-Google_2015_logo.svg.png`,
-  microsoft:     `${W}/4/44/Microsoft_logo.svg/200px-Microsoft_logo.svg.png`,
-  apple:         `${W}/f/fa/Apple_logo_black.svg/100px-Apple_logo_black.svg.png`,
-  meta:          `${W}/7/7b/Meta_Platforms_Inc._logo.svg/200px-Meta_Platforms_Inc._logo.svg.png`,
-  nubank:        `${W}/1/17/Nubank_logo_2021.svg/200px-Nubank_logo_2021.svg.png`,
-  latam:         `${W}/6/62/LATAM_Airlines_logo_2015.svg/200px-LATAM_Airlines_logo_2015.svg.png`,
-  santander:     `${W}/b/b8/Banco_Santander_Logotipo.svg/200px-Banco_Santander_Logotipo.svg.png`,
-  bbva:          `${W}/a/ae/BBVA_2019.svg/200px-BBVA_2019.svg.png`,
-  rappi:         `${W}/c/c9/Rappi_logo.svg/200px-Rappi_logo.svg.png`,
-  falabella:     `${W}/2/25/Falabella.svg/200px-Falabella.svg.png`,
-  pedidosya:     `${W}/6/67/PedidosYa_logo.svg/200px-PedidosYa_logo.svg.png`,
-  despegar:      `${W}/3/3e/Despegar_logo.svg/200px-Despegar_logo.svg.png`,
-  uala:          `${W}/4/43/Ual%C3%A1_logo.svg/200px-Ual%C3%A1_logo.svg.png`,
-  galicia:       `${W}/4/4e/Logo_Banco_Galicia.svg/200px-Logo_Banco_Galicia.svg.png`,
-  vodafone:      `${W}/a/a6/Vodafone_icon.svg/100px-Vodafone_icon.svg.png`,
-  bancolombia:   `${W}/6/6e/Bancolombia_logo.svg/200px-Bancolombia_logo.svg.png`,
-  itau:          `${W}/8/8b/Banco_Ita%C3%BA_logo.svg/200px-Banco_Ita%C3%BA_logo.svg.png`,
-  ifood:         `${W}/9/9e/IFood_logo.svg/200px-IFood_logo.svg.png`,
-  bimbo:         `${W}/5/56/Bimbo-logo.svg/200px-Bimbo-logo.svg.png`,
-  cemex:         `${W}/7/72/Cemex-logo-new.svg/200px-Cemex-logo-new.svg.png`,
-  telefonica:    `${W}/8/87/Telef%C3%B3nica_logo.svg/200px-Telef%C3%B3nica_logo.svg.png`,
-  inditex:       `${W}/b/b7/Inditex_logo.svg/200px-Inditex_logo.svg.png`,
-  hsbc:          `${W}/a/aa/HSBC_logo_%282018%29.svg/200px-HSBC_logo_%282018%29.svg.png`,
-}
+// Simple Icons via jsDelivr CDN — siempre funciona, ícono oficial de cada marca
+// Slugs: https://simpleicons.org (buscar el nombre exacto)
+const SI = slug => `https://cdn.simpleicons.org/${slug}`
 
 const COUNTRY_LOGOS = {
   AR: [
-    { name: 'Mercado Libre', src: LOGOS.mercadolibre },
-    { name: 'Amazon',        src: LOGOS.amazon       },
-    { name: 'Galicia',       src: LOGOS.galicia      },
-    { name: 'Ualá',          src: LOGOS.uala         },
-    { name: 'Despegar',      src: LOGOS.despegar     },
+    { name: 'Mercado Libre', icon: SI('mercadolibre'), color: '#FFE600' },
+    { name: 'Amazon',        icon: SI('amazon'),        color: '#FF9900' },
+    { name: 'Galicia',       icon: null,                color: '#E30613' },
+    { name: 'Ualá',          icon: SI('uala'),          color: '#00C8B4' },
+    { name: 'Despegar',      icon: null,                color: '#1A73E8' },
   ],
   BR: [
-    { name: 'Nubank',  src: LOGOS.nubank  },
-    { name: 'iFood',   src: LOGOS.ifood   },
-    { name: 'Itaú',    src: LOGOS.itau    },
-    { name: 'Amazon',  src: LOGOS.amazon  },
+    { name: 'Nubank',  icon: SI('nubank'),  color: '#820AD1' },
+    { name: 'iFood',   icon: SI('ifood'),   color: '#EA1D2C' },
+    { name: 'Itaú',    icon: SI('itau'),    color: '#EC7000' },
+    { name: 'Amazon',  icon: SI('amazon'),  color: '#FF9900' },
   ],
   MX: [
-    { name: 'Bimbo',     src: LOGOS.bimbo     },
-    { name: 'Cemex',     src: LOGOS.cemex     },
-    { name: 'Amazon',    src: LOGOS.amazon    },
-    { name: 'Microsoft', src: LOGOS.microsoft },
+    { name: 'Bimbo',     icon: SI('bimbo'),     color: '#E30613' },
+    { name: 'Cemex',     icon: null,             color: '#009FDF' },
+    { name: 'Amazon',    icon: SI('amazon'),     color: '#FF9900' },
+    { name: 'Microsoft', icon: SI('microsoft'),  color: '#737373' },
   ],
   CO: [
-    { name: 'Bancolombia', src: LOGOS.bancolombia },
-    { name: 'Rappi',       src: LOGOS.rappi       },
-    { name: 'Falabella',   src: LOGOS.falabella   },
-    { name: 'Amazon',      src: LOGOS.amazon      },
+    { name: 'Bancolombia', icon: SI('bancolombia'), color: '#FDDA24' },
+    { name: 'Rappi',       icon: SI('rappi'),        color: '#FF441F' },
+    { name: 'Falabella',   icon: null,               color: '#007A3D' },
+    { name: 'Amazon',      icon: SI('amazon'),       color: '#FF9900' },
   ],
   CL: [
-    { name: 'Falabella', src: LOGOS.falabella },
-    { name: 'LATAM',     src: LOGOS.latam     },
-    { name: 'Rappi',     src: LOGOS.rappi     },
-    { name: 'Amazon',    src: LOGOS.amazon    },
+    { name: 'Falabella', icon: null,          color: '#007A3D' },
+    { name: 'Rappi',     icon: SI('rappi'),   color: '#FF441F' },
+    { name: 'LATAM',     icon: SI('latam'),   color: '#E21836' },
+    { name: 'Amazon',    icon: SI('amazon'),  color: '#FF9900' },
   ],
   PE: [
-    { name: 'LATAM',     src: LOGOS.latam     },
-    { name: 'Falabella', src: LOGOS.falabella },
-    { name: 'Rappi',     src: LOGOS.rappi     },
-    { name: 'Amazon',    src: LOGOS.amazon    },
+    { name: 'Falabella', icon: null,          color: '#007A3D' },
+    { name: 'Rappi',     icon: SI('rappi'),   color: '#FF441F' },
+    { name: 'LATAM',     icon: SI('latam'),   color: '#E21836' },
+    { name: 'Amazon',    icon: SI('amazon'),  color: '#FF9900' },
   ],
   UY: [
-    { name: 'Mercado Libre', src: LOGOS.mercadolibre },
-    { name: 'LATAM',         src: LOGOS.latam        },
-    { name: 'Pedidos Ya',    src: LOGOS.pedidosya    },
-    { name: 'Amazon',        src: LOGOS.amazon       },
+    { name: 'Mercado Libre', icon: SI('mercadolibre'), color: '#FFE600' },
+    { name: 'LATAM',         icon: SI('latam'),         color: '#E21836' },
+    { name: 'Rappi',         icon: SI('rappi'),         color: '#FF441F' },
+    { name: 'Amazon',        icon: SI('amazon'),        color: '#FF9900' },
   ],
   ES: [
-    { name: 'Santander',  src: LOGOS.santander  },
-    { name: 'BBVA',       src: LOGOS.bbva       },
-    { name: 'Telefónica', src: LOGOS.telefonica },
-    { name: 'Inditex',    src: LOGOS.inditex    },
+    { name: 'Santander',  icon: SI('santander'),  color: '#EC0000' },
+    { name: 'BBVA',       icon: SI('bbva'),        color: '#004481' },
+    { name: 'Telefónica', icon: SI('telefonica'),  color: '#0066FF' },
+    { name: 'Inditex',    icon: null,              color: '#333333' },
   ],
   US: [
-    { name: 'Google',    src: LOGOS.google    },
-    { name: 'Amazon',    src: LOGOS.amazon    },
-    { name: 'Microsoft', src: LOGOS.microsoft },
-    { name: 'Apple',     src: LOGOS.apple     },
-    { name: 'Meta',      src: LOGOS.meta      },
+    { name: 'Google',    icon: SI('google'),    color: '#4285F4' },
+    { name: 'Amazon',    icon: SI('amazon'),    color: '#FF9900' },
+    { name: 'Microsoft', icon: SI('microsoft'), color: '#737373' },
+    { name: 'Apple',     icon: SI('apple'),     color: '#555555' },
+    { name: 'Meta',      icon: SI('meta'),      color: '#0082FB' },
   ],
   GB: [
-    { name: 'HSBC',      src: LOGOS.hsbc      },
-    { name: 'Vodafone',  src: LOGOS.vodafone  },
-    { name: 'Amazon',    src: LOGOS.amazon    },
-    { name: 'Microsoft', src: LOGOS.microsoft },
+    { name: 'HSBC',     icon: SI('hsbc'),     color: '#DB0011' },
+    { name: 'Vodafone', icon: SI('vodafone'), color: '#E60000' },
+    { name: 'Amazon',   icon: SI('amazon'),   color: '#FF9900' },
+    { name: 'Google',   icon: SI('google'),   color: '#4285F4' },
   ],
   DEFAULT: [
-    { name: 'Google',    src: LOGOS.google    },
-    { name: 'Amazon',    src: LOGOS.amazon    },
-    { name: 'Microsoft', src: LOGOS.microsoft },
-    { name: 'Meta',      src: LOGOS.meta      },
+    { name: 'Google',    icon: SI('google'),    color: '#4285F4' },
+    { name: 'Amazon',    icon: SI('amazon'),    color: '#FF9900' },
+    { name: 'Microsoft', icon: SI('microsoft'), color: '#737373' },
+    { name: 'Meta',      icon: SI('meta'),      color: '#0082FB' },
   ],
 }
 
@@ -244,23 +218,17 @@ export function PlanCards({ onSelectPlan, loadingPeriod, processor, coupon }) {
   )
 }
 
-function LogoImg({ name, src }) {
-  const [failed, setFailed] = useState(false)
-  if (failed || !src) {
-    return (
-      <div className="up-logo-pill">
-        <span className="up-logo-pill-letter">{name[0]}</span>
-        <span className="up-logo-pill-name">{name}</span>
-      </div>
-    )
-  }
+function CompanyLogo({ name, icon, color }) {
+  const [iconFailed, setIconFailed] = useState(false)
+  const showIcon = icon && !iconFailed
   return (
-    <img
-      src={src}
-      alt={name}
-      className="up-logo-img"
-      onError={() => setFailed(true)}
-    />
+    <div className="up-logo-chip">
+      {showIcon
+        ? <img src={icon} alt="" className="up-logo-chip-icon" onError={() => setIconFailed(true)} style={{ filter: 'none' }} />
+        : <span className="up-logo-chip-dot" style={{ background: color }} />
+      }
+      <span className="up-logo-chip-name">{name}</span>
+    </div>
   )
 }
 
@@ -271,9 +239,7 @@ function CompanyLogos({ country }) {
       <div className="up-logos-title">Preparación para empresas líderes</div>
       <div className="up-logos-grid">
         {logos.map(l => (
-          <div key={l.name} className="up-logo-item">
-            <LogoImg name={l.name} src={l.src} />
-          </div>
+          <CompanyLogo key={l.name} name={l.name} icon={l.icon} color={l.color} />
         ))}
       </div>
     </div>
