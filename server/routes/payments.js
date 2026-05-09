@@ -8,9 +8,37 @@ export const paymentsRouter = express.Router()
 
 const MP_COUNTRIES = new Set(['AR', 'BR', 'MX', 'CO', 'CL', 'PE', 'UY'])
 
-const PRICES = {
-  monthly:   { usd: parseFloat(process.env.PRICE_MONTHLY_USD   || '9.99'),  ars: parseFloat(process.env.PRICE_MONTHLY_ARS   || '9990') },
-  quarterly: { usd: parseFloat(process.env.PRICE_QUARTERLY_USD || '14.99'), ars: parseFloat(process.env.PRICE_QUARTERLY_ARS || '14990') },
+const PRICES_USD = {
+  monthly:   parseFloat(process.env.PRICE_MONTHLY_USD   || '9.99'),
+  quarterly: parseFloat(process.env.PRICE_QUARTERLY_USD || '14.99'),
+}
+
+// Cache del tipo de cambio oficial (5 minutos)
+let usdArsCache = { rate: null, fetchedAt: 0 }
+
+async function getOfficialUSDtoARS() {
+  const now = Date.now()
+  if (usdArsCache.rate && now - usdArsCache.fetchedAt < 5 * 60 * 1000) {
+    return usdArsCache.rate
+  }
+  try {
+    const res = await fetch('https://api.bluelytics.com.ar/v2/latest')
+    const data = await res.json()
+    const rate = data?.oficial?.value_sell
+    if (!rate) throw new Error('Sin datos')
+    usdArsCache = { rate, fetchedAt: now }
+    return rate
+  } catch {
+    // Fallback: si falla la API, usar el último valor cacheado o un default
+    return usdArsCache.rate || 1420
+  }
+}
+
+async function usdToARS(usd) {
+  const rate = await getOfficialUSDtoARS()
+  const raw = usd * rate
+  // Redondear para arriba a los 100s
+  return Math.ceil(raw / 100) * 100
 }
 
 // IDs de planes MP en memoria (se crean una vez y se reusan)
@@ -36,12 +64,21 @@ function getClientIP(req) {
   return req.headers['x-forwarded-for'] || req.socket.remoteAddress || ''
 }
 
-// Crea el plan de suscripción en MP si no existe todavía
-async function getOrCreateMPPlan(period) {
-  // Primero chequear env vars (para no recrear en cada restart)
+// Crea el plan de suscripción en MP con el precio en ARS actualizado
+// MP no permite editar planes, así que creamos uno nuevo cuando el precio cambia
+const mpPlanPrices = { monthly: null, quarterly: null }
+
+async function getOrCreateMPPlan(period, priceARS) {
+  // Si el precio cambió, invalidar el plan cacheado para crear uno nuevo
+  if (mpPlanIds[period] && mpPlanPrices[period] !== priceARS) {
+    mpPlanIds[period] = null
+  }
+
+  // Chequear env vars al arrancar
   if (!mpPlanIds[period]) {
     mpPlanIds.monthly   = process.env.MP_PLAN_MONTHLY_ID   || null
     mpPlanIds.quarterly = process.env.MP_PLAN_QUARTERLY_ID || null
+    mpPlanPrices[period] = priceARS
   }
   if (mpPlanIds[period]) return mpPlanIds[period]
 
@@ -50,19 +87,14 @@ async function getOrCreateMPPlan(period) {
   const appUrl = process.env.APP_URL || 'https://coachtowork.io'
 
   const configs = {
-    monthly: {
-      reason: 'CoachToWork Pro - Mensual',
-      auto_recurring: { frequency: 1, frequency_type: 'months', transaction_amount: PRICES.monthly.ars, currency_id: 'ARS' },
-    },
-    quarterly: {
-      reason: 'CoachToWork Pro - Trimestral',
-      auto_recurring: { frequency: 3, frequency_type: 'months', transaction_amount: PRICES.quarterly.ars, currency_id: 'ARS' },
-    },
+    monthly:   { reason: 'CoachToWork Pro - Mensual',    auto_recurring: { frequency: 1, frequency_type: 'months', transaction_amount: priceARS, currency_id: 'ARS' } },
+    quarterly: { reason: 'CoachToWork Pro - Trimestral', auto_recurring: { frequency: 3, frequency_type: 'months', transaction_amount: priceARS, currency_id: 'ARS' } },
   }
 
   const result = await planApi.create({ body: { ...configs[period], back_url: `${appUrl}/payment-success` } })
   mpPlanIds[period] = result.id
-  console.log(`MP plan creado [${period}]: ${result.id} — guardalo como MP_PLAN_${period.toUpperCase()}_ID en las env vars`)
+  mpPlanPrices[period] = priceARS
+  console.log(`MP plan creado [${period}] a $${priceARS} ARS: ${result.id}`)
   return result.id
 }
 
@@ -107,7 +139,7 @@ paymentsRouter.post('/checkout', requireAuth, async (req, res) => {
     if (!process.env.MP_ACCESS_TOKEN) return res.status(503).json({ error: 'Mercado Pago no configurado' })
 
     try {
-      const planId = await getOrCreateMPPlan(period)
+      const planId = await getOrCreateMPPlan(period, await usdToARS(PRICES_USD[period]))
       const client = getMPClient()
       const preApproval = new PreApproval(client)
 
