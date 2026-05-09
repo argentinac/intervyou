@@ -3947,10 +3947,22 @@ html, body, #root, .app {
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 8px;
-  flex-wrap: wrap;
+}
+.up-coupon-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.up-coupon-input-wrap svg {
+  position: absolute;
+  left: 10px;
+  color: #9ca3af;
+  pointer-events: none;
+  flex-shrink: 0;
 }
 .up-coupon-input {
-  padding: 9px 12px;
+  width: 100%;
+  padding: 9px 12px 9px 32px;
   border: 1.5px solid #d1d5db;
   border-radius: 8px;
   font-size: 13px;
@@ -3985,15 +3997,31 @@ html, body, #root, .app {
 .up-coupon-applied {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   font-size: 13px;
   color: #15803d;
   background: #f0fdf4;
   border: 1px solid #bbf7d0;
   border-radius: 8px;
-  padding: 9px 12px;
+  padding: 8px 12px;
   font-weight: 500;
 }
+.up-coupon-dismiss {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: none;
+  background: #dcfce7;
+  color: #15803d;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s;
+  padding: 0;
+}
+.up-coupon-dismiss:hover { background: #bbf7d0; }
 
 /* ══════════════════════════════════════════════════════════
    PRICING PAGE (full page, same structure as modal)

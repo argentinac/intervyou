@@ -254,7 +254,14 @@ function CompanyLogos({ country }) {
   )
 }
 
-function CouponField({ onApply, appliedCoupon, couponError }) {
+const IconCoupon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+    <line x1="7" y1="7" x2="7.01" y2="7"/>
+  </svg>
+)
+
+function CouponField({ onApply, onDismiss, appliedCoupon, couponError }) {
   const [value, setValue] = useState('')
 
   const handleApply = () => {
@@ -265,7 +272,12 @@ function CouponField({ onApply, appliedCoupon, couponError }) {
     const info = VALID_COUPONS[appliedCoupon]
     return (
       <div className="up-coupon-applied">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#15803d" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <button className="up-coupon-dismiss" onClick={onDismiss} aria-label="Quitar cupón">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+        <IconCoupon />
         <span>Cupón <strong>{appliedCoupon}</strong> aplicado — {info.label}</span>
       </div>
     )
@@ -273,14 +285,17 @@ function CouponField({ onApply, appliedCoupon, couponError }) {
 
   return (
     <div className="up-coupon-row">
-      <input
-        className={`up-coupon-input${couponError ? ' up-coupon-input--error' : ''}`}
-        placeholder="Código de cupón"
-        value={value}
-        onChange={e => setValue(e.target.value)}
-        onKeyDown={e => e.key === 'Enter' && handleApply()}
-        maxLength={20}
-      />
+      <div className="up-coupon-input-wrap">
+        <IconCoupon />
+        <input
+          className={`up-coupon-input${couponError ? ' up-coupon-input--error' : ''}`}
+          placeholder="Código de cupón"
+          value={value}
+          onChange={e => setValue(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && handleApply()}
+          maxLength={20}
+        />
+      </div>
       <button className="up-coupon-btn" onClick={handleApply} disabled={!value.trim()}>
         Aplicar
       </button>
@@ -378,6 +393,7 @@ export default function UpgradeModal() {
 
             <CouponField
               onApply={handleApplyCoupon}
+              onDismiss={() => { setAppliedCoupon(null); setCouponError(null) }}
               appliedCoupon={appliedCoupon}
               couponError={couponError}
             />
