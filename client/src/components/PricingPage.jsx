@@ -23,7 +23,7 @@ const IconLock = () => (
   </svg>
 )
 
-export default function PricingPage({ onSelectPlan }) {
+export default function PricingPage({ onSelectPlan, loadingPeriod, processor }) {
   return (
     <div className="pricing-page">
       <div className="pricing-inner">
@@ -62,7 +62,7 @@ export default function PricingPage({ onSelectPlan }) {
 
         {/* Derecha */}
         <div className="pricing-right">
-          <PlanCards onSelectPlan={onSelectPlan} />
+          <PlanCards onSelectPlan={onSelectPlan} loadingPeriod={loadingPeriod} processor={processor} />
 
           <div className="pricing-features-section">
             <div className="pricing-features-title">Incluye todo esto:</div>
@@ -70,7 +70,7 @@ export default function PricingPage({ onSelectPlan }) {
           </div>
 
           <div className="pricing-trust-line">
-            <IconLock /> Pago seguro con Mercado Pago y Stripe
+            <IconLock /> Pago seguro con {processor === 'mercadopago' ? 'Mercado Pago' : processor === 'lemonsqueezy' ? 'Lemon Squeezy' : 'Mercado Pago y Lemon Squeezy'}
           </div>
         </div>
 

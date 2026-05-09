@@ -49,7 +49,14 @@ const FEATURES = [
   'Y mucho más',
 ]
 
-export function PlanCards({ onSelectPlan, loading }) {
+export function PlanCards({ onSelectPlan, loadingPeriod, processor }) {
+  const isMP = processor === 'mercadopago'
+  const currency = isMP ? 'ARS' : 'USD'
+  // Precios aproximados en ARS (referencia visual — el precio real lo calcula el backend)
+  const prices = isMP
+    ? { quarterly: 'ARS 14.900', quarterlyNote: 'Aprox. ARS 4.967/mes', monthly: 'ARS 9.900' }
+    : { quarterly: 'USD 14,99', quarterlyNote: 'Equivale a USD 5,00/mes', monthly: 'USD 9,99' }
+
   return (
     <div className="up-plans">
       {/* 3 meses — dominante */}
@@ -57,15 +64,15 @@ export function PlanCards({ onSelectPlan, loading }) {
         <div className="up-plan-badge-top"><IconStar /> MÁS ELEGIDO</div>
         <div className="up-plan-name">3 meses</div>
         <div className="up-plan-price">
-          <span className="up-price-amount">USD 14,99</span>
+          <span className="up-price-amount">{prices.quarterly}</span>
           <span className="up-price-label">total</span>
         </div>
         <div className="up-plan-savings">
           <span className="up-savings-badge">50% DE AHORRO</span>
-          <span className="up-savings-note">Equivale a USD 5,00/mes</span>
+          <span className="up-savings-note">{prices.quarterlyNote}</span>
         </div>
-        <button className="up-plan-btn up-plan-btn--filled" disabled={loading} onClick={() => onSelectPlan?.('quarterly')}>
-          {loading ? 'Procesando...' : 'Elegir plan de 3 meses'}
+        <button className="up-plan-btn up-plan-btn--filled" disabled={!!loadingPeriod} onClick={() => onSelectPlan?.('quarterly')}>
+          {loadingPeriod === 'quarterly' ? 'Procesando...' : 'Elegir plan de 3 meses'}
         </button>
       </div>
 
@@ -73,11 +80,11 @@ export function PlanCards({ onSelectPlan, loading }) {
       <div className="up-plan-card up-plan-card--secondary">
         <div className="up-plan-name up-plan-name--muted">Mensual</div>
         <div className="up-plan-price">
-          <span className="up-price-amount up-price-amount--muted">USD 9,99</span>
+          <span className="up-price-amount up-price-amount--muted">{prices.monthly}</span>
           <span className="up-price-label">/mes</span>
         </div>
-        <button className="up-plan-btn up-plan-btn--ghost" disabled={loading} onClick={() => onSelectPlan?.('monthly')}>
-          {loading ? 'Procesando...' : 'Elegir mensual'}
+        <button className="up-plan-btn up-plan-btn--ghost" disabled={!!loadingPeriod} onClick={() => onSelectPlan?.('monthly')}>
+          {loadingPeriod === 'monthly' ? 'Procesando...' : 'Elegir mensual'}
         </button>
       </div>
     </div>
@@ -98,7 +105,7 @@ export function ProFeatureList() {
 }
 
 export default function UpgradeModal() {
-  const { closeUpgradeModal, startCheckout, checkoutLoading, checkoutError } = usePlan()
+  const { closeUpgradeModal, startCheckout, checkoutLoading, checkoutError, processor } = usePlan()
 
   return (
     <div className="up-overlay" onClick={closeUpgradeModal}>
@@ -140,7 +147,7 @@ export default function UpgradeModal() {
 
           {/* Derecha */}
           <div className="up-right">
-            <PlanCards onSelectPlan={startCheckout} loading={checkoutLoading} />
+            <PlanCards onSelectPlan={startCheckout} loadingPeriod={checkoutLoading} processor={processor} />
 
             {checkoutError && (
               <div className="up-checkout-error">{checkoutError}</div>
@@ -152,7 +159,7 @@ export default function UpgradeModal() {
             </div>
 
             <div className="up-trust-line">
-              <IconLock /> Pago seguro con Mercado Pago y Lemon Squeezy
+              <IconLock /> Pago seguro con {processor === 'mercadopago' ? 'Mercado Pago' : processor === 'lemonsqueezy' ? 'Lemon Squeezy' : 'Mercado Pago y Lemon Squeezy'}
             </div>
           </div>
         </div>

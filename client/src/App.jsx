@@ -56,7 +56,7 @@ function getBlogSlugFromUrl() {
 
 function AppInner() {
   const { user } = useAuth()
-  const { plan, planStatus, isPro, startCheckout, refreshSubscription } = usePlan()
+  const { plan, planStatus, isPro, startCheckout, checkoutLoading, refreshSubscription, processor } = usePlan()
   const [view, setView] = useState(getInitialView) // 'landing' | 'auth' | 'dashboard' | 'interview' | 'visa-interview' | 'blog' | 'pricing' | 'payment-success' | 'payment-error' | 'terms' | 'privacy' | 'faq'
   const [interviewConfig, setInterviewConfig] = useState(null)
   const [interviewReturn, setInterviewReturn] = useState('landing')
@@ -261,6 +261,8 @@ function AppInner() {
     return (
       <PricingPage
         onSelectPlan={startCheckout}
+        loadingPeriod={checkoutLoading}
+        processor={processor}
         onBack={() => setView(user ? 'dashboard' : 'landing')}
       />
     )
