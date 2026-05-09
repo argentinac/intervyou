@@ -45,6 +45,8 @@ function getInitialView() {
   if (path === '/terminos') return 'terms'
   if (path === '/privacidad') return 'privacy'
   if (path === '/faq') return 'faq'
+  if (path === '/payment-success') return 'payment-success'
+  if (path === '/payment-error') return 'payment-error'
   return 'landing'
 }
 
@@ -90,7 +92,7 @@ function AppInner() {
   }, [])
 
   useEffect(() => {
-    if (user && view !== 'interview' && view !== 'visa-interview' && view !== 'blog' && view !== 'terms' && view !== 'privacy' && view !== 'faq') setView('dashboard')
+    if (user && view !== 'interview' && view !== 'visa-interview' && view !== 'blog' && view !== 'terms' && view !== 'privacy' && view !== 'faq' && view !== 'payment-success' && view !== 'payment-error') setView('dashboard')
   }, [user])
 
   const goToBlog = (slug) => {
