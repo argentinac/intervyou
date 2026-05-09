@@ -153,7 +153,7 @@ export default function AuthForm({ onBack }) {
     setError(null)
     setLoading(true)
     try {
-      const { error } = await supabase.auth.signInWithOtp({ email, options: { shouldCreateUser: true } })
+      const { error } = await supabase.auth.signInWithOtp({ email, options: { shouldCreateUser: true, emailRedirectTo: window.location.origin } })
       if (error) throw error
       setStep('otp-code')
     } catch (err) {
