@@ -3872,6 +3872,14 @@ html, body, #root, .app {
   border-top: 1px solid #f1f5f9;
 }
 
+/* ── Card header (badge + radio alineados) ───────────────── */
+.up-plan-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
 /* ── Radio buttons ───────────────────────────────────────── */
 .up-plan-radio {
   width: 18px;
@@ -3879,10 +3887,34 @@ html, body, #root, .app {
   border-radius: 50%;
   border: 2px solid #d1d5db;
   flex-shrink: 0;
+  margin-left: 8px;
 }
 .up-plan-radio--active {
   border-color: #6366f1;
   background: radial-gradient(circle, #6366f1 40%, transparent 41%);
+}
+
+/* ── Logo pill fallback ───────────────────────────────────── */
+.up-logo-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: #f1f5f9;
+  border-radius: 6px;
+  padding: 3px 8px;
+  height: 24px;
+}
+.up-logo-pill-letter {
+  font-size: 11px;
+  font-weight: 800;
+  color: #6366f1;
+  line-height: 1;
+}
+.up-logo-pill-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: #374151;
+  white-space: nowrap;
 }
 
 /* ── Precio tachado (con cupón) ──────────────────────────── */

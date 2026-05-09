@@ -175,7 +175,7 @@ export function PlanCards({ onSelectPlan, loadingPeriod, processor, coupon }) {
     <div className="up-plans">
       {/* 3 meses — dominante */}
       <div className="up-plan-card up-plan-card--featured">
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+        <div className="up-plan-card-header">
           <div className="up-plan-badge-top"><IconStar /> MÁS ELEGIDO</div>
           <div className="up-plan-radio up-plan-radio--active" />
         </div>
@@ -185,11 +185,13 @@ export function PlanCards({ onSelectPlan, loadingPeriod, processor, coupon }) {
             <span className="up-price-original">{basePrices.quarterly}</span>
           )}
           <span className="up-price-amount">{prices.quarterly}</span>
-          <span className="up-price-label">total</span>
+          <span className="up-price-label">cada 3 meses</span>
         </div>
         <div className="up-plan-savings">
-          <span className="up-savings-badge">50% OFF</span>
-          <span className="up-savings-note">{prices.quarterlyNote}</span>
+          {discount
+            ? <><span className="up-savings-badge">{discount.label}</span><span className="up-savings-note">con tu cupón · {prices.quarterlyNote}</span></>
+            : <><span className="up-savings-badge">50% OFF</span><span className="up-savings-note">{prices.quarterlyNote}</span></>
+          }
         </div>
         <button className="up-plan-btn up-plan-btn--filled" disabled={!!loadingPeriod} onClick={() => onSelectPlan?.('quarterly', coupon)}>
           {loadingPeriod === 'quarterly' ? 'Procesando...' : 'Elegir plan de 3 meses'}
@@ -198,7 +200,6 @@ export function PlanCards({ onSelectPlan, loadingPeriod, processor, coupon }) {
 
       {/* Mensual — secundario */}
       <div className="up-plan-card up-plan-card--secondary">
-        <div className="up-plan-radio" />
         <div style={{ flex: 1 }}>
           <div className="up-plan-name up-plan-name--muted">Mensual</div>
           <div className="up-plan-price">
@@ -212,8 +213,29 @@ export function PlanCards({ onSelectPlan, loadingPeriod, processor, coupon }) {
         <button className="up-plan-btn up-plan-btn--ghost" disabled={!!loadingPeriod} onClick={() => onSelectPlan?.('monthly', coupon)}>
           {loadingPeriod === 'monthly' ? 'Procesando...' : 'Elegir mensual'}
         </button>
+        <div className="up-plan-radio" />
       </div>
     </div>
+  )
+}
+
+function LogoImg({ name, domain }) {
+  const [failed, setFailed] = useState(false)
+  if (failed) {
+    return (
+      <div className="up-logo-pill">
+        <span className="up-logo-pill-letter">{name[0]}</span>
+        <span className="up-logo-pill-name">{name}</span>
+      </div>
+    )
+  }
+  return (
+    <img
+      src={`https://logo.clearbit.com/${domain}?size=80`}
+      alt={name}
+      className="up-logo-img"
+      onError={() => setFailed(true)}
+    />
   )
 }
 
@@ -225,16 +247,7 @@ function CompanyLogos({ country }) {
       <div className="up-logos-grid">
         {logos.map(l => (
           <div key={l.domain} className="up-logo-item">
-            <img
-              src={`https://logo.clearbit.com/${l.domain}`}
-              alt={l.name}
-              className="up-logo-img"
-              onError={e => {
-                e.target.style.display = 'none'
-                e.target.nextSibling.style.display = 'flex'
-              }}
-            />
-            <span className="up-logo-fallback" style={{ display: 'none' }}>{l.name}</span>
+            <LogoImg name={l.name} domain={l.domain} />
           </div>
         ))}
       </div>
