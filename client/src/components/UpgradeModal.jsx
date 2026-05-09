@@ -49,53 +49,53 @@ const VALID_COUPONS = {
 // Logos de empresas top por país
 const COUNTRY_LOGOS = {
   AR: [
-    { name: 'Mercado Libre', domain: 'mercadolibre.com' },
-    { name: 'Galicia',       domain: 'galicia.com.ar'   },
-    { name: 'Ualá',          domain: 'uala.com.ar'      },
-    { name: 'Naranja X',     domain: 'naranjax.com'     },
-    { name: 'Despegar',      domain: 'despegar.com'     },
+    { name: 'Mercado Libre', domain: 'mercadolibre.com'   },
+    { name: 'Amazon',        domain: 'amazon.com'         },
+    { name: 'Galicia',       domain: 'bancogalicia.com'   },
+    { name: 'Ualá',          domain: 'uala.com.ar'        },
+    { name: 'Despegar',      domain: 'despegar.com'       },
   ],
   BR: [
-    { name: 'Nubank',          domain: 'nubank.com.br'      },
-    { name: 'iFood',           domain: 'ifood.com.br'       },
-    { name: 'Itaú',            domain: 'itau.com.br'        },
-    { name: 'Magazine Luiza',  domain: 'magazineluiza.com.br'},
+    { name: 'Nubank',   domain: 'nubank.com.br'       },
+    { name: 'iFood',    domain: 'ifood.com.br'         },
+    { name: 'Itaú',     domain: 'itau.com.br'          },
+    { name: 'Totvs',    domain: 'totvs.com'            },
   ],
   MX: [
-    { name: 'Bimbo',     domain: 'grupobimbo.com' },
-    { name: 'Cemex',     domain: 'cemex.com'      },
-    { name: 'Televisa',  domain: 'televisa.com'   },
-    { name: 'Soriana',   domain: 'soriana.com'    },
+    { name: 'Bimbo',    domain: 'grupobimbo.com'  },
+    { name: 'Cemex',    domain: 'cemex.com'        },
+    { name: 'OXXO',     domain: 'oxxo.com'         },
+    { name: 'Clip',     domain: 'clip.mx'          },
   ],
   CO: [
-    { name: 'Bancolombia', domain: 'bancolombia.com'    },
-    { name: 'Rappi',       domain: 'rappi.com'          },
-    { name: 'Ecopetrol',   domain: 'ecopetrol.com.co'   },
-    { name: 'Falabella',   domain: 'falabella.com.co'   },
+    { name: 'Bancolombia', domain: 'bancolombia.com' },
+    { name: 'Rappi',       domain: 'rappi.com'        },
+    { name: 'Ecopetrol',   domain: 'ecopetrol.com.co' },
+    { name: 'Falabella',   domain: 'falabella.com.co' },
   ],
   CL: [
-    { name: 'Falabella',    domain: 'falabella.com'   },
-    { name: 'Ripley',       domain: 'ripley.com'      },
-    { name: 'LATAM',        domain: 'latam.com'       },
-    { name: 'BancoEstado',  domain: 'bancoestado.cl'  },
+    { name: 'Falabella',  domain: 'falabella.com'  },
+    { name: 'Ripley',     domain: 'ripley.com'     },
+    { name: 'LATAM',      domain: 'latam.com'      },
+    { name: 'Entel',      domain: 'entel.cl'       },
   ],
   PE: [
-    { name: 'BCP',       domain: 'viabcp.com'       },
-    { name: 'Interbank', domain: 'interbank.com.pe'  },
-    { name: 'Backus',    domain: 'backus.com.pe'     },
-    { name: 'Gloria',    domain: 'grupogloria.com'   },
+    { name: 'BCP',       domain: 'viabcp.com'      },
+    { name: 'Interbank', domain: 'interbank.com.pe' },
+    { name: 'Yape',      domain: 'yape.com.pe'     },
+    { name: 'LATAM',     domain: 'latam.com'       },
   ],
   UY: [
-    { name: 'Antel',   domain: 'antel.com.uy'   },
-    { name: 'ANCAP',   domain: 'ancap.com.uy'   },
-    { name: 'Abitab',  domain: 'abitab.com.uy'  },
-    { name: 'OCA',     domain: 'oca.com.uy'     },
+    { name: 'Antel',    domain: 'antel.com.uy'  },
+    { name: 'Mercado Libre', domain: 'mercadolibre.com' },
+    { name: 'LATAM',    domain: 'latam.com'      },
+    { name: 'Pedidos Ya', domain: 'pedidosya.com' },
   ],
   ES: [
-    { name: 'Santander', domain: 'santander.com' },
-    { name: 'BBVA',      domain: 'bbva.com'      },
-    { name: 'Telefónica',domain: 'telefonica.com'},
-    { name: 'Inditex',   domain: 'inditex.com'  },
+    { name: 'Santander', domain: 'santander.com'  },
+    { name: 'BBVA',      domain: 'bbva.com'       },
+    { name: 'Telefónica',domain: 'telefonica.com' },
+    { name: 'Inditex',   domain: 'inditex.com'   },
   ],
   US: [
     { name: 'Google',    domain: 'google.com'    },
@@ -105,10 +105,10 @@ const COUNTRY_LOGOS = {
     { name: 'Meta',      domain: 'meta.com'      },
   ],
   GB: [
-    { name: 'HSBC',        domain: 'hsbc.com'        },
-    { name: 'BP',          domain: 'bp.com'          },
-    { name: 'Unilever',    domain: 'unilever.com'    },
-    { name: 'Vodafone',    domain: 'vodafone.com'    },
+    { name: 'HSBC',     domain: 'hsbc.com'     },
+    { name: 'Unilever', domain: 'unilever.com' },
+    { name: 'Vodafone', domain: 'vodafone.com' },
+    { name: 'BP',       domain: 'bp.com'       },
   ],
   DEFAULT: [
     { name: 'Google',    domain: 'google.com'    },
@@ -215,9 +215,6 @@ export function PlanCards({ onSelectPlan, loadingPeriod, processor, coupon }) {
   )
 }
 
-// Google Favicons siempre funciona y devuelve el ícono oficial de la marca
-const logoUrl = domain => `https://www.google.com/s2/favicons?domain=${domain}&sz=128`
-
 function LogoImg({ name, domain }) {
   const [failed, setFailed] = useState(false)
   if (failed) {
@@ -230,7 +227,7 @@ function LogoImg({ name, domain }) {
   }
   return (
     <img
-      src={logoUrl(domain)}
+      src={`https://logo.clearbit.com/${domain}`}
       alt={name}
       className="up-logo-img"
       onError={() => setFailed(true)}

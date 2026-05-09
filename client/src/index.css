@@ -3928,18 +3928,16 @@ html, body, #root, .app {
   align-items: center;
 }
 .up-logo-item {
-  height: 32px;
+  height: 28px;
   display: flex;
   align-items: center;
 }
 .up-logo-img {
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
+  height: 28px;
+  width: auto;
+  max-width: 90px;
   object-fit: contain;
-  border: 1px solid #e2e8f0;
-  background: #fff;
-  padding: 2px;
+  opacity: 0.88;
 }
 
 /* ── Campo de cupón ──────────────────────────────────────── */
