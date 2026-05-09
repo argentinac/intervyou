@@ -11,8 +11,16 @@ export function PlanProvider({ children }) {
   const [planPeriod, setPlanPeriod] = useState('monthly')
   const [planExpiresAt, setPlanExpiresAt] = useState(null)
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
-  const [checkoutLoading, setCheckoutLoading] = useState(false)
+  const [checkoutLoading, setCheckoutLoading] = useState(null) // 'monthly' | 'quarterly' | null
   const [checkoutError, setCheckoutError] = useState(null)
+  const [processor, setProcessor] = useState(null) // 'mercadopago' | 'lemonsqueezy' | null
+
+  useEffect(() => {
+    fetch(`${API}/api/payments/country`)
+      .then(r => r.json())
+      .then(d => setProcessor(d.processor))
+      .catch(() => {})
+  }, [])
 
   const isPro = plan === 'pro'
 
@@ -46,12 +54,12 @@ export function PlanProvider({ children }) {
   }, [loadSubscription])
 
   const startCheckout = useCallback(async (period) => {
-    setCheckoutLoading(true)
+    setCheckoutLoading(period)
     setCheckoutError(null)
     try {
       const { data } = await supabase.auth.getSession()
       const token = data?.session?.access_token
-      if (!token) { setCheckoutError('Necesitás iniciar sesión'); setCheckoutLoading(false); return }
+      if (!token) { setCheckoutError('Necesitás iniciar sesión'); setCheckoutLoading(null); return }
 
       const res = await fetch(`${API}/api/payments/checkout`, {
         method: 'POST',
@@ -59,11 +67,11 @@ export function PlanProvider({ children }) {
         body: JSON.stringify({ period }),
       })
       const json = await res.json()
-      if (!res.ok || !json.url) { setCheckoutError(json.error || 'Error al iniciar el pago'); setCheckoutLoading(false); return }
+      if (!res.ok || !json.url) { setCheckoutError(json.error || 'Error al iniciar el pago'); setCheckoutLoading(null); return }
       window.location.href = json.url
     } catch {
       setCheckoutError('Error de conexión. Intentá de nuevo.')
-      setCheckoutLoading(false)
+      setCheckoutLoading(null)
     }
   }, [])
 
@@ -82,7 +90,7 @@ export function PlanProvider({ children }) {
       plan, planStatus, planPeriod, planExpiresAt,
       isPro,
       showUpgradeModal, openUpgradeModal, closeUpgradeModal,
-      startCheckout, checkoutLoading, checkoutError,
+      startCheckout, checkoutLoading, checkoutError, processor,
       setDemoPlan,
       refreshSubscription: loadSubscription,
     }}>
