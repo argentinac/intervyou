@@ -3872,27 +3872,6 @@ html, body, #root, .app {
   border-top: 1px solid #f1f5f9;
 }
 
-/* ── Card header (badge + radio alineados) ───────────────── */
-.up-plan-card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-
-/* ── Radio buttons ───────────────────────────────────────── */
-.up-plan-radio {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  border: 2px solid #d1d5db;
-  flex-shrink: 0;
-  margin-left: 8px;
-}
-.up-plan-radio--active {
-  border-color: #6366f1;
-  background: radial-gradient(circle, #6366f1 40%, transparent 41%);
-}
 
 /* ── Logo pill fallback ───────────────────────────────────── */
 .up-logo-pill {
@@ -3949,23 +3928,18 @@ html, body, #root, .app {
   align-items: center;
 }
 .up-logo-item {
-  height: 24px;
+  height: 32px;
   display: flex;
   align-items: center;
 }
 .up-logo-img {
-  height: 24px;
-  width: auto;
-  max-width: 80px;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
   object-fit: contain;
-  filter: grayscale(20%);
-  opacity: 0.85;
-}
-.up-logo-fallback {
-  font-size: 12px;
-  font-weight: 600;
-  color: #6b7280;
-  align-items: center;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  padding: 2px;
 }
 
 /* ── Campo de cupón ──────────────────────────────────────── */

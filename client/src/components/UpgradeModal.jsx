@@ -175,10 +175,7 @@ export function PlanCards({ onSelectPlan, loadingPeriod, processor, coupon }) {
     <div className="up-plans">
       {/* 3 meses — dominante */}
       <div className="up-plan-card up-plan-card--featured">
-        <div className="up-plan-card-header">
-          <div className="up-plan-badge-top"><IconStar /> MÁS ELEGIDO</div>
-          <div className="up-plan-radio up-plan-radio--active" />
-        </div>
+        <div className="up-plan-badge-top" style={{ marginBottom: 10 }}><IconStar /> MÁS ELEGIDO</div>
         <div className="up-plan-name">3 meses</div>
         <div className="up-plan-price">
           {discount && (
@@ -213,11 +210,13 @@ export function PlanCards({ onSelectPlan, loadingPeriod, processor, coupon }) {
         <button className="up-plan-btn up-plan-btn--ghost" disabled={!!loadingPeriod} onClick={() => onSelectPlan?.('monthly', coupon)}>
           {loadingPeriod === 'monthly' ? 'Procesando...' : 'Elegir mensual'}
         </button>
-        <div className="up-plan-radio" />
       </div>
     </div>
   )
 }
+
+// Google Favicons siempre funciona y devuelve el ícono oficial de la marca
+const logoUrl = domain => `https://www.google.com/s2/favicons?domain=${domain}&sz=128`
 
 function LogoImg({ name, domain }) {
   const [failed, setFailed] = useState(false)
@@ -231,7 +230,7 @@ function LogoImg({ name, domain }) {
   }
   return (
     <img
-      src={`https://logo.clearbit.com/${domain}?size=80`}
+      src={logoUrl(domain)}
       alt={name}
       className="up-logo-img"
       onError={() => setFailed(true)}
