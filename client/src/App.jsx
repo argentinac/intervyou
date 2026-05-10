@@ -96,7 +96,7 @@ function AppInner() {
   }, [])
 
   useEffect(() => {
-    if (user && view !== 'interview' && view !== 'visa-interview' && view !== 'simulation' && view !== 'blog' && view !== 'terms' && view !== 'privacy' && view !== 'faq' && view !== 'payment-success' && view !== 'payment-error') setView('dashboard')
+    if (user && !user.is_anonymous && view !== 'interview' && view !== 'visa-interview' && view !== 'simulation' && view !== 'blog' && view !== 'terms' && view !== 'privacy' && view !== 'faq' && view !== 'payment-success' && view !== 'payment-error') setView('dashboard')
   }, [user])
 
   const goToBlog = (slug) => {
@@ -220,7 +220,7 @@ function AppInner() {
       <InterviewSession
         config={interviewConfig}
         onEnd={() => { setInterviewConfig(null); setView(interviewReturn) }}
-        onDashboard={user ? (id) => { setInterviewConfig(null); if (id) setPendingInterviewId(id); setView('dashboard') } : undefined}
+        onDashboard={user && !user.is_anonymous ? (id) => { setInterviewConfig(null); if (id) setPendingInterviewId(id); setView('dashboard') } : undefined}
       />
     )
   }

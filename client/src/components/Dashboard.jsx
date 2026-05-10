@@ -603,7 +603,7 @@ export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRep
       </div>
       {sidebarOpen && <div className="db-overlay" onClick={() => setSidebarOpen(false)} />}
       <aside className={`db-sidebar${sidebarOpen ? ' db-sidebar--open' : ''}`}>
-        <div className="db-sidebar-logo" onClick={() => setSection('home')} style={{ cursor: 'pointer' }}>
+        <div className="db-sidebar-logo" onClick={() => user?.is_anonymous ? handleSignOut() : setSection('home')} style={{ cursor: 'pointer' }}>
           <img src="/logo.png" alt="CoachToWork" style={{ height: 32, width: 'auto' }} />
         </div>
 

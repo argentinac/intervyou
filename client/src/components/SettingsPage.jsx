@@ -156,33 +156,47 @@ export default function SettingsPage({ onSignOut }) {
 
       {activeTab === 'account' && (
         <>
-          <div className="settings-card">
-            <h3>Tu cuenta</h3>
-            <form onSubmit={handleSave} className="settings-form">
-              <div className="auth-field">
-                <label>Email</label>
-                <input type="email" value={user?.email ?? ''} readOnly style={{ opacity: 0.6, cursor: 'not-allowed' }} />
-              </div>
-              <div className="auth-field">
-                <label>Nombre completo</label>
-                <input
-                  type="text"
-                  value={fullName}
-                  onChange={e => setFullName(e.target.value)}
-                  placeholder="Tu nombre"
-                />
-              </div>
-              <button type="submit" className="db-btn-primary" disabled={saving} style={{ alignSelf: 'flex-start' }}>
-                {saving ? 'Guardando…' : saved ? 'Guardado ✓' : 'Guardar cambios'}
+          {user?.is_anonymous ? (
+            <div className="settings-card">
+              <h3>Creá tu cuenta</h3>
+              <p style={{ color: '#666', marginBottom: 16 }}>
+                Estás usando CoachToWork como invitado. Registrate para guardar tu historial, acceder a tus entrevistas y desbloquear todas las funciones.
+              </p>
+              <button className="auth-submit" onClick={handleSignOut}>
+                Crear cuenta o iniciar sesión
               </button>
-            </form>
-          </div>
+            </div>
+          ) : (
+            <div className="settings-card">
+              <h3>Tu cuenta</h3>
+              <form onSubmit={handleSave} className="settings-form">
+                <div className="auth-field">
+                  <label>Email</label>
+                  <input type="email" value={user?.email ?? ''} readOnly style={{ opacity: 0.6, cursor: 'not-allowed' }} />
+                </div>
+                <div className="auth-field">
+                  <label>Nombre completo</label>
+                  <input
+                    type="text"
+                    value={fullName}
+                    onChange={e => setFullName(e.target.value)}
+                    placeholder="Tu nombre"
+                  />
+                </div>
+                <button type="submit" className="db-btn-primary" disabled={saving} style={{ alignSelf: 'flex-start' }}>
+                  {saving ? 'Guardando…' : saved ? 'Guardado ✓' : 'Guardar cambios'}
+                </button>
+              </form>
+            </div>
+          )}
 
-          <div className="settings-card settings-card--danger">
-            <h3>Sesión</h3>
-            <p>Al cerrar sesión vas a tener que volver a iniciar sesión para acceder a tu cuenta.</p>
-            <button className="settings-signout-btn" onClick={handleSignOut}>Cerrar sesión</button>
-          </div>
+          {!user?.is_anonymous && (
+            <div className="settings-card settings-card--danger">
+              <h3>Sesión</h3>
+              <p>Al cerrar sesión vas a tener que volver a iniciar sesión para acceder a tu cuenta.</p>
+              <button className="settings-signout-btn" onClick={handleSignOut}>Cerrar sesión</button>
+            </div>
+          )}
         </>
       )}
 

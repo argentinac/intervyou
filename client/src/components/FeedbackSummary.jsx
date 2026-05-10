@@ -755,7 +755,7 @@ function NewFeedback({ feedback, config, onRestart, onDashboard, onBack }) {
         {downloading ? 'Generando PDF…' : 'Descargar reporte'}
       </button>
       <button className="rpt-btn-primary" onClick={onRestart} data-track="restart_interview_clicked">
-        Nueva entrevista →
+        {onDashboard ? 'Nueva entrevista →' : 'Ir al inicio'}
       </button>
     </div>
   </>
@@ -787,7 +787,7 @@ export default function FeedbackSummary({ feedback, config, onRestart, onDashboa
             Ocurrió un error al procesar tu entrevista.<br />Podés intentar una nueva entrevista.
           </p>
         </div>
-        <div className="fb-actions"><button className="fb-restart" onClick={onRestart}>Nueva entrevista →</button></div>
+        <div className="fb-actions"><button className="fb-restart" onClick={onRestart}>{onDashboard ? 'Nueva entrevista →' : 'Ir al inicio'}</button></div>
       </div></div>
     )
   }
@@ -805,7 +805,7 @@ export default function FeedbackSummary({ feedback, config, onRestart, onDashboa
             Necesitamos al menos un par de respuestas para analizar cómo te expresás.<br />Intentá completar más preguntas la próxima vez.
           </p>
         </div>
-        <div className="fb-actions"><button className="fb-restart" onClick={onRestart}>Nueva entrevista →</button></div>
+        <div className="fb-actions"><button className="fb-restart" onClick={onRestart}>{onDashboard ? 'Nueva entrevista →' : 'Ir al inicio'}</button></div>
       </div></div>
     )
   }
