@@ -1,3 +1,8 @@
+// Per-simulation voice overrides by gender
+const SIMULATION_VOICE = {
+  primera_cita: { male: '1ZPQohMlEcajpu7Yqpu9', female: 'UhYEfL4WY9ayH55DPdzF' },
+}
+
 // Premade ElevenLabs voices by gender (official, non-community)
 const GENDER_VOICE = {
   female: 'XB0fDUnXU5powFXDhCwa', // Charlotte — multilingual, handles Spanish naturally
@@ -50,7 +55,7 @@ const LANG_CODE_FALLBACK = {
 
 export async function speakRoute(req, res) {
   try {
-    const { text, language, country, gender = 'female' } = req.body
+    const { text, language, country, gender = 'female', simulationId } = req.body
     if (!text || typeof text !== 'string' || !text.trim()) {
       return res.status(400).json({ error: 'Text is required' })
     }
@@ -62,7 +67,8 @@ export async function speakRoute(req, res) {
       if (typeof entry === 'string') return entry
       return entry[gender] || null
     }
-    const voiceId = pickByGender(COUNTRY_VOICE_OVERRIDE[country])
+    const voiceId = pickByGender(SIMULATION_VOICE[simulationId])
+      || pickByGender(COUNTRY_VOICE_OVERRIDE[country])
       || (COUNTRY_VOICE[country] ? COUNTRY_VOICE[country](gender) : null)
       || pickByGender(LANGUAGE_VOICE[language])
       || GENDER_VOICE[gender]
