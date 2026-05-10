@@ -189,6 +189,28 @@ function shuffled(arr) {
 
 const RANDOM_RECURSOS = shuffled(blogPosts).slice(0, RECURSO_PREVIEW_COUNT)
 
+function HomeSkeleton() {
+  return (
+    <div className="db-home">
+      <div className="home-sk-welcome">
+        <span className="sk" style={{ width: 220, height: 34 }} />
+        <span className="sk" style={{ width: 280, height: 20 }} />
+      </div>
+      <span className="sk home-sk-hero" />
+      <div className="home-sk-grid">
+        <span className="sk home-sk-card" />
+        <span className="sk home-sk-card" />
+        <span className="sk home-sk-card" />
+      </div>
+      <div className="home-sk-recursos">
+        <span className="sk home-sk-recurso" />
+        <span className="sk home-sk-recurso" />
+        <span className="sk home-sk-recurso" />
+      </div>
+    </div>
+  )
+}
+
 function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRecursos, onBlogPost }) {
   const firstName = fullName
     ? fullName.split(' ')[0]
@@ -215,6 +237,8 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRec
   }, [mockInterviews])
 
   const interviews = mockInterviews !== undefined ? mockInterviews : realInterviews
+
+  if (interviews === null) return <HomeSkeleton />
 
   const hasInterviews = interviews && interviews.length > 0
   const scoredInterviews = interviews?.filter(iv => iv.interview_feedback?.[0]?.score != null) ?? []
