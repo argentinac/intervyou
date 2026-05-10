@@ -5627,3 +5627,77 @@ html, body, #root, .app {
   .rpt-main-grid { grid-template-columns: 1fr; }
   .rpt-user-pills { flex-direction: column; }
 }
+
+/* ── Landing: Companies strip ──────────────────────────────── */
+.ld-companies {
+  padding: 72px 0 56px;
+  text-align: center;
+  background: #fff;
+}
+.ld-companies-wrap {
+  overflow: hidden;
+  margin-top: 40px;
+  position: relative;
+}
+.ld-companies-wrap::before,
+.ld-companies-wrap::after {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 140px;
+  z-index: 2;
+  pointer-events: none;
+}
+.ld-companies-wrap::before { left: 0; background: linear-gradient(to right, #fff 40%, transparent); }
+.ld-companies-wrap::after  { right: 0; background: linear-gradient(to left, #fff 40%, transparent); }
+.ld-companies-track {
+  display: flex;
+  gap: 14px;
+  width: max-content;
+  animation: ld-marquee 32s linear infinite;
+  padding: 6px 0;
+}
+.ld-companies-track:hover { animation-play-state: paused; }
+@keyframes ld-marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.ld-company-chip {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: #fff;
+  border: 1.5px solid #e8edf4;
+  border-radius: 12px;
+  padding: 10px 20px;
+  height: 52px;
+  white-space: nowrap;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+  cursor: default;
+  transition: box-shadow 0.18s, border-color 0.18s;
+}
+.ld-company-chip:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); border-color: #c8d4e8; }
+.ld-company-chip-img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.ld-company-chip-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-block;
+}
+.ld-company-chip span {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+  letter-spacing: -0.01em;
+}
+.ld-companies-footer {
+  margin-top: 36px;
+  font-size: 13px;
+  color: #94a3b8;
+}

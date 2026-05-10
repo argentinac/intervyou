@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import BlogSection from './BlogSection'
+import { COUNTRY_LOGOS, COUNTRY_NAMES } from '../utils/countryLogos'
 
 // ── Hooks ───────────────────────────────────────────────────
 
@@ -123,6 +124,51 @@ function FadeIn({ children, delay = 0, className = '' }) {
   )
 }
 
+// ── Companies strip ─────────────────────────────────────────
+
+function CompaniesStrip() {
+  const [country, setCountry] = useState(null)
+  useEffect(() => {
+    fetch('/api/payments/country')
+      .then(r => r.json())
+      .then(d => setCountry(d.country || 'DEFAULT'))
+      .catch(() => setCountry('DEFAULT'))
+  }, [])
+
+  const logos = COUNTRY_LOGOS[country] || COUNTRY_LOGOS.DEFAULT
+  const countryName = COUNTRY_NAMES[country] || ''
+  const doubled = [...logos, ...logos]
+
+  return (
+    <section className="ld-companies">
+      <FadeIn>
+        <div className="ld-section-badge">TU PRÓXIMO PASO</div>
+        <h2 className="ld-section-title">
+          Preparate para llegar a las <span className="ld-accent">mejores empresas</span>.
+        </h2>
+        <p className="ld-section-sub">
+          Entrená entrevistas, mejorá tus respuestas y aplicá con más confianza
+          {countryName ? ` a compañías líderes de ${countryName}` : ' a compañías líderes'}.
+        </p>
+      </FadeIn>
+      <div className="ld-companies-wrap">
+        <div className="ld-companies-track">
+          {doubled.map((l, i) => (
+            <div key={i} className="ld-company-chip">
+              {l.logo
+                ? <img src={l.logo} alt={l.name} className="ld-company-chip-img" />
+                : <span className="ld-company-chip-dot" style={{ background: l.color }} />
+              }
+              <span>{l.name}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <p className="ld-companies-footer">🔒 +100 empresas confían en CoachToWork para encontrar talento preparado.</p>
+    </section>
+  )
+}
+
 // ── Component ───────────────────────────────────────────────
 
 export default function Landing({ user, onLogin, onTryFree, onDashboard, onBlogPost, onTerms, onPrivacy, onFaq }) {
@@ -233,6 +279,9 @@ export default function Landing({ user, onLogin, onTryFree, onDashboard, onBlogP
           </div>
         </div>
       </section>
+
+      {/* COMPANIES */}
+      <CompaniesStrip />
 
       {/* STATS */}
       <section className="ld-stats" ref={statsRef}>
