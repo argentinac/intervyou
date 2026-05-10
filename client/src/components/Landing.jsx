@@ -151,7 +151,7 @@ function CompaniesStrip() {
   const active = demo || country
   const logos = COUNTRY_LOGOS[active] || COUNTRY_LOGOS.DEFAULT
   const countryName = COUNTRY_NAMES[active] || ''
-  const doubled = [...logos, ...logos]
+  const doubled = [...logos, ...logos, ...logos, ...logos]
 
   return (
     <section className="ld-companies">
@@ -177,7 +177,7 @@ function CompaniesStrip() {
         </div>
       </FadeIn>
       <div className="ld-companies-wrap">
-        <div className="ld-companies-track">
+        <div key={active} className="ld-companies-track">
           {doubled.map((l, i) => (
             <div key={i} className="ld-company-chip">
               <img src={l.logo} alt={l.name} className="ld-company-chip-img" />
