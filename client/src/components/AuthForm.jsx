@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import { unlockAudio } from '../audioContext'
 
 const DOMAINS = [
   'gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com', 'icloud.com',
@@ -134,6 +135,7 @@ export default function AuthForm({ onBack, context }) {
   const [error, setError] = useState(null)
 
   const handleGoogle = async () => {
+    unlockAudio()
     setError(null)
     setGoogleLoading(true)
     try {
@@ -165,6 +167,7 @@ export default function AuthForm({ onBack, context }) {
 
   const verifyOtp = async (e) => {
     e.preventDefault()
+    unlockAudio()
     setError(null)
     setLoading(true)
     try {

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, Component } from 'react'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
+import { supabase } from './lib/supabase'
 import { PlanProvider, usePlan } from './contexts/PlanContext'
 import { identifyUser, resetAnalyticsUser, track, deriveEventName } from './lib/analytics'
 import AuthForm from './components/AuthForm'
@@ -97,7 +98,7 @@ function AppInner() {
   }, [])
 
   useEffect(() => {
-    if (user && !user.is_anonymous) {
+    if (user && !user.is_anonymous && user.id !== 'guest') {
       if (pendingGuestConfigRef.current) {
         setInterviewConfig(pendingGuestConfigRef.current)
         setInterviewReturn('dashboard')
@@ -234,7 +235,7 @@ function AppInner() {
       return (
         <SetupForm
           onSubmit={(cfg) => {
-            if (!user || user.is_anonymous) {
+            if (supabase && (!user || user.is_anonymous)) {
               pendingGuestConfigRef.current = cfg
               setInterviewReturn('dashboard')
               setView('auth')
