@@ -3872,6 +3872,148 @@ html, body, #root, .app {
   border-top: 1px solid #f1f5f9;
 }
 
+
+/* ── Logo pill fallback ───────────────────────────────────── */
+/* ── Precio tachado (con cupón) ──────────────────────────── */
+.up-price-original {
+  font-size: 16px;
+  font-weight: 600;
+  color: #9ca3af;
+  text-decoration: line-through;
+  margin-right: 4px;
+}
+.up-price-original--sm {
+  font-size: 13px;
+}
+
+/* ── Logos de empresas ───────────────────────────────────── */
+.up-logos-section {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+.up-logos-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #374151;
+  margin-bottom: 10px;
+}
+.up-logos-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.up-logo-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 5px 10px;
+  height: 32px;
+}
+.up-logo-chip-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.up-logo-chip-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.up-logo-chip-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  white-space: nowrap;
+}
+
+/* ── Campo de cupón ──────────────────────────────────────── */
+.up-coupon-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+}
+.up-coupon-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.up-coupon-input-wrap svg {
+  position: absolute;
+  left: 10px;
+  color: #9ca3af;
+  pointer-events: none;
+  flex-shrink: 0;
+}
+.up-coupon-input {
+  width: 100%;
+  padding: 9px 12px 9px 32px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: inherit;
+  color: #111827;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.up-coupon-input:focus { border-color: #6366f1; }
+.up-coupon-input--error { border-color: #dc2626; }
+.up-coupon-btn {
+  padding: 9px 16px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  color: #374151;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.up-coupon-btn:hover:not(:disabled) { border-color: #6366f1; color: #6366f1; }
+.up-coupon-btn:disabled { opacity: 0.45; cursor: default; }
+.up-coupon-error {
+  grid-column: 1 / -1;
+  font-size: 12px;
+  color: #dc2626;
+  margin-top: -2px;
+}
+.up-coupon-applied {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  color: #15803d;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-weight: 500;
+}
+.up-coupon-dismiss {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: none;
+  background: #dcfce7;
+  color: #15803d;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s;
+  padding: 0;
+}
+.up-coupon-dismiss:hover { background: #bbf7d0; }
+
 /* ══════════════════════════════════════════════════════════
    PRICING PAGE (full page, same structure as modal)
    ══════════════════════════════════════════════════════════ */

@@ -543,7 +543,7 @@ function SimulacionesSection({
 
 export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRepeatInterview, onPricing, onPaymentSuccess, onPaymentError, pendingInterviewId, onPendingInterviewIdConsumed, onVisaInterview }) {
   const { user, signOut } = useAuth()
-  const { isPro, planStatus, showUpgradeModal, openUpgradeModal, setDemoPlan } = usePlan()
+  const { isPro, planStatus, showUpgradeModal, openUpgradeModal, setDemoPlan, setDemoCountry, country } = usePlan()
   const [section, setSection] = useState('home')
   const [deepInterviewId, setDeepInterviewId] = useState(null)
 
@@ -782,6 +782,30 @@ export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRep
                 <button className="demo-bar-btn" onClick={() => { setDemoPlan({ plan: 'free', status: 'active' }); setPaymentBannerDismissed(false) }}>Free</button>
                 <button className="demo-bar-btn" onClick={() => { setDemoPlan({ plan: 'pro', status: 'active', period: 'monthly' }); setPaymentBannerDismissed(false) }}>Pro Activo</button>
                 <button className="demo-bar-btn" onClick={() => { setDemoPlan({ plan: 'pro', status: 'past_due', period: 'monthly' }); setPaymentBannerDismissed(false) }}>Pro Pago fallido</button>
+              </div>
+              <div className="demo-bar-divider" />
+              <div className="demo-bar-group">
+                <span className="demo-bar-label">País</span>
+                {[
+                  { code: 'AR', label: '🇦🇷 AR' },
+                  { code: 'BR', label: '🇧🇷 BR' },
+                  { code: 'MX', label: '🇲🇽 MX' },
+                  { code: 'CO', label: '🇨🇴 CO' },
+                  { code: 'CL', label: '🇨🇱 CL' },
+                  { code: 'PE', label: '🇵🇪 PE' },
+                  { code: 'UY', label: '🇺🇾 UY' },
+                  { code: 'ES', label: '🇪🇸 ES' },
+                  { code: 'US', label: '🇺🇸 US' },
+                  { code: 'GB', label: '🇬🇧 GB' },
+                ].map(c => (
+                  <button
+                    key={c.code}
+                    className={`demo-bar-btn ${country === c.code ? 'demo-bar-btn--active' : ''}`}
+                    onClick={() => setDemoCountry(c.code)}
+                  >
+                    {c.label}
+                  </button>
+                ))}
               </div>
               <div className="demo-bar-divider" />
               <div className="demo-bar-group">

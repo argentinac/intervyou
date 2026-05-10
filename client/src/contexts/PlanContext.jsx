@@ -14,13 +14,26 @@ export function PlanProvider({ children }) {
   const [checkoutLoading, setCheckoutLoading] = useState(null) // 'monthly' | 'quarterly' | null
   const [checkoutError, setCheckoutError] = useState(null)
   const [processor, setProcessor] = useState(null) // 'mercadopago' | 'lemonsqueezy' | null
+  const [country, setCountry] = useState(null)
+  const [demoCountry, setDemoCountry] = useState(null)
+
+  const MP_COUNTRIES = new Set(['AR', 'BR', 'MX', 'CO', 'CL', 'PE', 'UY'])
 
   useEffect(() => {
     fetch(`${API}/api/payments/country`)
       .then(r => r.json())
-      .then(d => setProcessor(d.processor))
+      .then(d => {
+        setProcessor(d.processor)
+        setCountry(d.country)
+      })
       .catch(() => {})
   }, [])
+
+  // Si hay país demo override, recalcular processor
+  const effectiveCountry = demoCountry || country
+  const effectiveProcessor = demoCountry
+    ? (MP_COUNTRIES.has(demoCountry) ? 'mercadopago' : 'lemonsqueezy')
+    : processor
 
   const isPro = plan === 'pro'
 
@@ -53,7 +66,7 @@ export function PlanProvider({ children }) {
     return () => subscription.unsubscribe()
   }, [loadSubscription])
 
-  const startCheckout = useCallback(async (period) => {
+  const startCheckout = useCallback(async (period, coupon) => {
     setCheckoutLoading(period)
     setCheckoutError(null)
     try {
@@ -64,7 +77,7 @@ export function PlanProvider({ children }) {
       const res = await fetch(`${API}/api/payments/checkout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ period }),
+        body: JSON.stringify({ period, coupon: coupon || undefined }),
       })
       const json = await res.json()
       if (!res.ok || !json.url) { setCheckoutError(json.error || 'Error al iniciar el pago'); setCheckoutLoading(null); return }
@@ -90,7 +103,10 @@ export function PlanProvider({ children }) {
       plan, planStatus, planPeriod, planExpiresAt,
       isPro,
       showUpgradeModal, openUpgradeModal, closeUpgradeModal,
-      startCheckout, checkoutLoading, checkoutError, processor,
+      startCheckout, checkoutLoading, checkoutError,
+      processor: effectiveProcessor,
+      country: effectiveCountry,
+      setDemoCountry,
       setDemoPlan,
       refreshSubscription: loadSubscription,
     }}>
