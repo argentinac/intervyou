@@ -4,13 +4,15 @@ const GENDER_VOICE = {
   male:   'ErXwobaYiN019PkySvjV',  // Antoni   — warm, works well across languages
 }
 
-// Language-specific voice overrides per gender
+// Language-specific voice overrides per gender. If a gender is missing here,
+// the lookup falls through to GENDER_VOICE (Antoni for male, Charlotte for
+// female) — both are multilingual and handle Spanish naturally.
 const LANGUAGE_VOICE = {
-  Spanish: { female: 'p18tR9wFA5Ng9WhfWI0o', male: 'IoWqv5cMlGyROtAvVbb6' /* spanish male */ },
+  Spanish: { female: 'p18tR9wFA5Ng9WhfWI0o' },
 }
 
 const COUNTRY_VOICE_OVERRIDE = {
-  Argentina: { female: 'tRERXWzrPzFTtdfQUUbb', male: 'IoWqv5cMlGyROtAvVbb6' },
+  Argentina: { female: 'tRERXWzrPzFTtdfQUUbb' },
 }
 
 // Country overrides for English speakers (premade voices)
@@ -52,10 +54,13 @@ export async function speakRoute(req, res) {
     if (!text || typeof text !== 'string' || !text.trim()) {
       return res.status(400).json({ error: 'Text is required' })
     }
+    // When a regional override doesn't define the requested gender,
+    // return null so we fall through to the next override / generic
+    // gender voice — never silently swap to the opposite gender.
     const pickByGender = (entry) => {
       if (!entry) return null
       if (typeof entry === 'string') return entry
-      return entry[gender] || entry.female || entry.male || null
+      return entry[gender] || null
     }
     const voiceId = pickByGender(COUNTRY_VOICE_OVERRIDE[country])
       || (COUNTRY_VOICE[country] ? COUNTRY_VOICE[country](gender) : null)
