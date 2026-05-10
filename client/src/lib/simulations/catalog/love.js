@@ -53,9 +53,9 @@ const PRIMERA_CITA = {
           type: 'select',
           required: true,
           options: [
-            { value: 'male', label: 'Hombre' },
-            { value: 'female', label: 'Mujer' },
-            { value: 'neutral', label: 'Indistinto' },
+            { value: 'male', label: 'Hombre', icon: 'male' },
+            { value: 'female', label: 'Mujer', icon: 'female' },
+            { value: 'neutral', label: 'Indistinto', icon: 'neutral' },
           ],
         },
       ],

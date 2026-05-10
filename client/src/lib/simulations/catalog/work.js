@@ -29,9 +29,9 @@ const PEDIR_AUMENTO = {
           type: 'select',
           required: true,
           options: [
-            { value: 'manager_directo', label: 'Mi manager directo' },
-            { value: 'recursos_humanos', label: 'Recursos Humanos' },
-            { value: 'ceo', label: 'El/la dueño/a o CEO' },
+            { value: 'manager_directo', label: 'Mi manager directo', icon: 'manager' },
+            { value: 'recursos_humanos', label: 'Recursos Humanos', icon: 'hr' },
+            { value: 'ceo', label: 'El/la dueño/a o CEO', icon: 'ceo' },
           ],
         },
         {
@@ -40,9 +40,9 @@ const PEDIR_AUMENTO = {
           type: 'select',
           required: true,
           options: [
-            { value: 'male', label: 'Hombre' },
-            { value: 'female', label: 'Mujer' },
-            { value: 'neutral', label: 'Indistinto' },
+            { value: 'male', label: 'Hombre', icon: 'male' },
+            { value: 'female', label: 'Mujer', icon: 'female' },
+            { value: 'neutral', label: 'Indistinto', icon: 'neutral' },
           ],
         },
         {

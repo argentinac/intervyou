@@ -1119,6 +1119,20 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
 
     const durationSeconds = Math.round((Date.now() - startTimeRef.current) / 1000)
 
+    // Hard guard: simulations need at least N user turns AND M total user words
+    // before we even ask Claude to score. Saves a useless API call and prevents
+    // the LLM from inventing feedback from thin air.
+    if (isSimulation) {
+      const userMessages = messagesRef.current.filter((m) => m.role === 'user' && !m.content.startsWith('('))
+      const userWordCount = userMessages.reduce((acc, m) => acc + m.content.trim().split(/\s+/).filter(Boolean).length, 0)
+      const TURNS_MIN = 3
+      const WORDS_MIN = 40
+      if (userMessages.length < TURNS_MIN || userWordCount < WORDS_MIN) {
+        setFeedback({ notEnoughData: true, reason: 'too_short', userTurns: userMessages.length, userWords: userWordCount })
+        return
+      }
+    }
+
     const transcript = messagesRef.current
       .filter((m) => m.role !== 'user' || !m.content.startsWith('('))
       .map((m) => `${m.role === 'assistant' ? 'Interviewer' : 'Candidate'}: ${m.content}`)

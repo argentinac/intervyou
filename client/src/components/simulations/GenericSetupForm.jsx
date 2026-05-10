@@ -14,6 +14,40 @@ const DiffIcon = ({ bars }) => (
   </svg>
 )
 
+// Named icons for option chips. Add more as the catalog needs them.
+const OPTION_ICONS = {
+  male: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="7" r="3.2" /><path d="M5 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2" />
+    </svg>
+  ),
+  female: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="7" r="3.2" /><path d="M7 21l1.5-6h7L17 21" /><path d="M9 14h6" />
+    </svg>
+  ),
+  neutral: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="9" cy="7" r="2.6" /><circle cx="15" cy="7" r="2.6" /><path d="M4 21v-2a3 3 0 0 1 3-3h2" /><path d="M20 21v-2a3 3 0 0 0-3-3h-2" />
+    </svg>
+  ),
+  manager: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="7" r="3" /><path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" /><path d="M9 11l3 2 3-2" />
+    </svg>
+  ),
+  hr: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="9" cy="7" r="3" /><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" /><path d="M16 3l2 2-2 2" /><path d="M18 5h3" />
+    </svg>
+  ),
+  ceo: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 17l3-9 3 6 3-10 3 10 3-6 3 9z" /><line x1="3" y1="20" x2="21" y2="20" />
+    </svg>
+  ),
+}
+
 const RadioCard = ({ active, label, desc, onClick, wide, icon, flag }) => (
   <button
     type="button"
@@ -72,7 +106,11 @@ function Question({ q, value, onChange }) {
               label={o.label}
               desc={o.desc}
               flag={o.flag}
-              icon={isDifficulty ? <DiffIcon bars={DIFFICULTY_BARS[o.value] || 2} /> : undefined}
+              icon={
+                isDifficulty
+                  ? <DiffIcon bars={DIFFICULTY_BARS[o.value] || 2} />
+                  : (o.icon && OPTION_ICONS[o.icon]) || undefined
+              }
               onClick={() => onChange(o.value)}
               wide
             />
