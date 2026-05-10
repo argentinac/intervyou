@@ -422,11 +422,13 @@ function InterviewDetail({ id, onBack, onNewInterview }) {
   )
 }
 
-export default function MyInterviews({ onNewInterview, onRepeat, initialSelectedId, onDeepIdConsumed }) {
+export default function MyInterviews({ onNewInterview, onRepeat, initialSelectedId, onDeepIdConsumed, mockInterviews }) {
   const { getToken } = useAuth()
-  const [interviews, setInterviews] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [realInterviews, setRealInterviews] = useState([])
+  const [loading, setLoading] = useState(mockInterviews !== undefined ? false : true)
   const [selectedId, setSelectedId] = useState(initialSelectedId || null)
+
+  const interviews = mockInterviews !== undefined ? mockInterviews : realInterviews
 
   useEffect(() => {
     if (initialSelectedId) {
@@ -436,17 +438,18 @@ export default function MyInterviews({ onNewInterview, onRepeat, initialSelected
   }, [initialSelectedId])
 
   useEffect(() => {
+    if (mockInterviews !== undefined) { setLoading(false); return }
     async function load() {
       const token = await getToken()
       const res = await fetch('/api/interviews', {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       })
       const json = await res.json()
-      setInterviews(Array.isArray(json) ? json : [])
+      setRealInterviews(Array.isArray(json) ? json : [])
       setLoading(false)
     }
     load()
-  }, [])
+  }, [mockInterviews])
 
   if (selectedId) {
     return <InterviewDetail id={selectedId} onBack={() => setSelectedId(null)} onNewInterview={onNewInterview} />
