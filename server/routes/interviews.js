@@ -10,17 +10,31 @@ interviewsRouter.post('/', requireAuth, async (req, res) => {
   const { config, transcript, feedback, durationSeconds } = req.body
   const userId = req.user.id
 
+  const isSimulation = !!config.simulationId
+
   try {
+    // Ensure the simulation row exists in the catalog table (idempotent upsert).
+    if (isSimulation) {
+      await supabase.from('simulations').upsert({
+        id:       config.simulationId,
+        category: config.simulationCategory || 'other',
+        title:    config.simulationTitle || config.simulationId,
+        active:   true,
+      }, { onConflict: 'id' })
+    }
+
     const { data: interview, error: iErr } = await supabase
       .from('interviews')
       .insert({
-        user_id:          userId,
-        type:             config.interviewType?.toLowerCase() ?? 'hr',
-        length:           'standard',
+        user_id:             userId,
+        type:                isSimulation ? 'simulation' : (config.interviewType?.toLowerCase() ?? 'hr'),
+        length:              'standard',
         config,
-        status:           'completed',
-        duration_seconds: durationSeconds ?? null,
-        completed_at:     new Date().toISOString(),
+        status:              'completed',
+        duration_seconds:    durationSeconds ?? null,
+        completed_at:        new Date().toISOString(),
+        simulation_id:       isSimulation ? config.simulationId : null,
+        simulation_category: isSimulation ? (config.simulationCategory || null) : null,
       })
       .select('id')
       .single()
@@ -33,6 +47,27 @@ interviewsRouter.post('/', requireAuth, async (req, res) => {
         user_id:      userId,
         messages:     transcript,
       })
+    }
+
+    // Simulations use a different feedback shape (4 dimensions, no axes/penalties)
+    if (isSimulation && feedback && !feedback.parseError) {
+      await supabase.from('simulation_feedback').insert({
+        interview_id:    interview.id,
+        user_id:         userId,
+        simulation_id:   config.simulationId,
+        general_score:   feedback.general_score ?? null,
+        summary:         feedback.summary ?? null,
+        clarity_score:   feedback.clarity_score   ?? null,
+        emotional_score: feedback.emotional_score ?? null,
+        listening_score: feedback.listening_score ?? null,
+        objective_score: feedback.objective_score ?? null,
+        patterns:        Array.isArray(feedback.patterns) ? feedback.patterns : [],
+        strengths:       Array.isArray(feedback.strengths) ? feedback.strengths : [],
+        opportunities:   Array.isArray(feedback.opportunities) ? feedback.opportunities : [],
+        next_steps:      Array.isArray(feedback.next_steps) ? feedback.next_steps : [],
+        raw_response:    feedback,
+      })
+      return res.json({ id: interview.id })
     }
 
     if (feedback && !feedback.notEnoughData && !feedback.parseError) {

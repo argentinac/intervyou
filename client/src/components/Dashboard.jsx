@@ -8,6 +8,7 @@ import MyProfile from './MyProfile'
 import SettingsPage from './SettingsPage'
 import BlogListPage from './BlogListPage'
 import UpgradeModal from './UpgradeModal'
+import SimulationsHub from './simulations/SimulationsHub'
 import { INTERVIEW_TIPS } from '../data/tips'
 import { blogPosts } from '../data/blogPosts'
 import targetImg from '../assets/Target.png'
@@ -541,7 +542,7 @@ function SimulacionesSection({
   )
 }
 
-export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRepeatInterview, onPricing, onPaymentSuccess, onPaymentError, pendingInterviewId, onPendingInterviewIdConsumed, onVisaInterview }) {
+export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRepeatInterview, onPricing, onPaymentSuccess, onPaymentError, pendingInterviewId, onPendingInterviewIdConsumed, onVisaInterview, onStartSimulation }) {
   const { user, signOut } = useAuth()
   const { isPro, planStatus, showUpgradeModal, openUpgradeModal, setDemoPlan, setDemoCountry, country } = usePlan()
   const [section, setSection] = useState('home')
@@ -582,7 +583,7 @@ export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRep
     { id: 'interviews',    label: 'Mis entrevistas',       icon: <IconList /> },
     { id: 'recursos',      label: 'Recursos',              icon: <IconBook /> },
     { id: 'profile',       label: 'Mi perfil profesional', icon: <IconUser /> },
-    { id: 'simulaciones',  label: 'Simulaciones',          icon: <IconFlask />, adminOnly: true },
+    { id: 'simulaciones',  label: 'Simulaciones',          icon: <IconFlask /> },
   ].filter(item => !item.adminOnly || isAdmin)
 
   const handleNav = (id) => {
@@ -734,19 +735,7 @@ export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRep
         {section === 'profile'     && <MyProfile />}
         {section === 'settings'    && <SettingsPage onSignOut={handleSignOut} />}
         {section === 'simulaciones' && (
-          <SimulacionesSection
-            demoIndex={demoIndex}
-            setDemoIndex={setDemoIndex}
-            setSection={setSection}
-            setDemoPlan={setDemoPlan}
-            setPaymentBannerDismissed={setPaymentBannerDismissed}
-            openUpgradeModal={openUpgradeModal}
-            onPricing={onPricing}
-            onPaymentSuccess={onPaymentSuccess}
-            onPaymentError={onPaymentError}
-            onNewInterview={onNewInterview}
-            onVisaInterview={onVisaInterview}
-          />
+          <SimulationsHub onStartSimulation={onStartSimulation} />
         )}
       </main>
 

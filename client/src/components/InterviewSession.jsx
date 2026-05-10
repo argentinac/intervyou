@@ -2,12 +2,17 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import PhaseIndicator from './PhaseIndicator'
 import Avatar from './Avatar'
 import FeedbackSummary from './FeedbackSummary'
+import SimulationHeader from './simulations/SimulationHeader'
+import SimulationFeedback from './simulations/SimulationFeedback'
 import { useAuth } from '../contexts/AuthContext'
 import { track } from '../lib/analytics'
 import { supabase } from '../lib/supabase'
 import { INTERVIEW_TIPS } from '../data/tips'
 import { getAudioContext } from '../audioContext'
 import { calculateScore } from '../lib/scoring'
+import { getSimulationById } from '../lib/simulations/catalog'
+import { buildSystemPrompt } from '../lib/simulations/promptBuilder'
+import { buildScoringPrompt as buildSimulationScoringPrompt } from '../lib/simulations/scoringBuilder'
 
 const INACTIVITY_MS = 120000   // 2 minutos de inactividad → mostrar alerta
 const WARN_SECS     = 30       // 30 segundos de countdown antes de cerrar
@@ -103,7 +108,7 @@ Otherwise respond with this exact JSON structure:
 Rules: 2-3 items in wentWell, 2-3 items in toImprove, exactly 4 items in actionPlan (2 alta + 2 media priority).`
 }
 
-function IntroLoading() {
+function IntroLoading({ titleText }) {
   const [tipIndex, setTipIndex] = useState(() => Math.floor(Math.random() * INTERVIEW_TIPS.length))
   const [visible, setVisible] = useState(true)
 
@@ -136,7 +141,7 @@ function IntroLoading() {
           </div>
         </div>
 
-        <p className="intro-loading-title">Preparando tu entrevista…</p>
+        <p className="intro-loading-title">{titleText || 'Preparando tu entrevista…'}</p>
 
         <div className={`intro-loading-tip ${visible ? 'intro-loading-tip--in' : 'intro-loading-tip--out'}`}>
           <span className="intro-loading-tip-label">💡 Tip</span>
@@ -633,11 +638,15 @@ function stopActiveAudio() {
 }
 
 export default function InterviewSession({ config, onEnd, onDashboard }) {
+  const simulation = config.simulationId ? getSimulationById(config.simulationId) : null
+  const isSimulation = !!simulation
   const isVisa = config.interviewType === 'Visa'
   const baseStr = UI_STRINGS[config.language] || UI_STRINGS.English
-  const str = isVisa
-    ? { ...baseStr, phases: ['Bienvenida', 'Propósito', 'Vínculos', 'Documentación', 'Cierre'] }
-    : baseStr
+  const str = isSimulation
+    ? baseStr
+    : isVisa
+      ? { ...baseStr, phases: ['Bienvenida', 'Propósito', 'Vínculos', 'Documentación', 'Cierre'] }
+      : baseStr
   const { getToken } = useAuth()
   const startTimeRef = useRef(Date.now())
   const sessionIdRef  = useRef(crypto.randomUUID())
@@ -655,8 +664,14 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
   const [error, setError] = useState(null)
   const [introLoading, setIntroLoading] = useState(true)
 
-  const interviewerLabel = isVisa ? 'Oficial Consular' : config.interviewType === 'Technical' ? 'Tech Interviewer' : config.interviewType === 'Mixed' ? 'Interviewer' : 'HR Interviewer'
-  const interviewerName = isVisa ? 'Embajada de EE.UU.' : config.companyName ? `${config.companyName} — ${interviewerLabel}` : interviewerLabel
+  const interviewerLabel = isSimulation
+    ? (simulation.uiCopy?.interlocutorLabel || simulation.title)
+    : isVisa ? 'Oficial Consular' : config.interviewType === 'Technical' ? 'Tech Interviewer' : config.interviewType === 'Mixed' ? 'Interviewer' : 'HR Interviewer'
+  const interviewerName = isSimulation
+    ? (config.interlocutorName
+        ? `${config.interlocutorName} — ${config.interlocutorRole || simulation.interlocutorRole || interviewerLabel}`
+        : interviewerLabel)
+    : isVisa ? 'Embajada de EE.UU.' : config.companyName ? `${config.companyName} — ${interviewerLabel}` : interviewerLabel
 
   const [cameraOn, setCameraOn] = useState(false)
   const [inactivityWarning, setInactivityWarning] = useState(false)
@@ -675,7 +690,11 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
   const videoRef           = useRef(null)
   const cameraStreamRef    = useRef(null)
   const interviewStarted   = useRef(false)
-  const interviewerGender  = useRef(getInterviewerGender(config.country, config.language))
+  const interviewerGender  = useRef(
+    isSimulation
+      ? (config.interlocutorGender || simulation.interlocutorDefaultGender || 'male')
+      : getInterviewerGender(config.country, config.language)
+  )
   const skipPendingRef     = useRef(false)
   const sessionEndedRef    = useRef(false)
   const doClosingRef       = useRef(null)
@@ -771,7 +790,12 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
     const res = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ system: SYSTEM_PROMPT({ ...config, gender: interviewerGender.current }), messages: updatedMessages }),
+      body: JSON.stringify({
+        system: isSimulation
+          ? buildSystemPrompt(simulation, config)
+          : SYSTEM_PROMPT({ ...config, gender: interviewerGender.current }),
+        messages: updatedMessages,
+      }),
     })
     if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.error || 'Request failed') }
     const data = await res.json()
@@ -847,6 +871,15 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
   useEffect(() => {
     if (interviewStarted.current) return
     interviewStarted.current = true
+    if (isSimulation) {
+      track('simulation_started', {
+        simulation_id: simulation.id,
+        category: simulation.category,
+        language: config.language,
+        difficulty: config.difficulty,
+        interlocutor_gender: interviewerGender.current,
+      })
+    }
     async function startInterview() {
       try {
         // Warm up ElevenLabs AND the browser's MP3 decoder: decode and play silently,
@@ -1073,9 +1106,32 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
     recognitionRef.current?.stop()
     recognitionRef.current = null
     setSessionEnded(true)
-    track('interview_session_completed')
+    if (isSimulation) {
+      track('simulation_session_ended', {
+        simulation_id: simulation.id,
+        category: simulation.category,
+        duration_seconds: Math.round((Date.now() - startTimeRef.current) / 1000),
+        turn_count: messagesRef.current.filter((m) => m.role === 'assistant').length,
+      })
+    } else {
+      track('interview_session_completed')
+    }
 
     const durationSeconds = Math.round((Date.now() - startTimeRef.current) / 1000)
+
+    // Hard guard: simulations need at least N user turns AND M total user words
+    // before we even ask Claude to score. Saves a useless API call and prevents
+    // the LLM from inventing feedback from thin air.
+    if (isSimulation) {
+      const userMessages = messagesRef.current.filter((m) => m.role === 'user' && !m.content.startsWith('('))
+      const userWordCount = userMessages.reduce((acc, m) => acc + m.content.trim().split(/\s+/).filter(Boolean).length, 0)
+      const TURNS_MIN = 3
+      const WORDS_MIN = 40
+      if (userMessages.length < TURNS_MIN || userWordCount < WORDS_MIN) {
+        setFeedback({ notEnoughData: true, reason: 'too_short', userTurns: userMessages.length, userWords: userWordCount })
+        return
+      }
+    }
 
     const transcript = messagesRef.current
       .filter((m) => m.role !== 'user' || !m.content.startsWith('('))
@@ -1098,17 +1154,21 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
     }
 
     try {
+      const scoringSystem = isSimulation
+        ? `Sos un coach evaluando una simulación de práctica conversacional. Respondé SIEMPRE con JSON válido, sin markdown ni texto extra. Escribí en ${config.language || simulation.defaultLanguage || 'Spanish'}.`
+        : `You are an expert interview coach analyzing a voice interview for a ${config.jobTitle || 'professional'} position${config.companyName ? ` at ${config.companyName}` : ''}. The candidate spoke their answers aloud — there was no text or writing involved. The transcript was generated by speech recognition software and may contain transcription errors: words may be missing, misheard, or substituted. Because of this, NEVER critique specific word choices, vocabulary, grammar, or phrasing. Always respond with valid JSON only — no markdown, no explanation. Write your entire response in ${config.language}.`
+      const scoringUserMessage = isSimulation
+        ? buildSimulationScoringPrompt(simulation, transcript, config)
+        : buildScoringPrompt(config, transcript)
+
       const [res, previousScore] = await Promise.all([
         fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             max_tokens: 6000,
-            system: `You are an expert interview coach analyzing a voice interview for a ${config.jobTitle || 'professional'} position${config.companyName ? ` at ${config.companyName}` : ''}. The candidate spoke their answers aloud — there was no text or writing involved. The transcript was generated by speech recognition software and may contain transcription errors: words may be missing, misheard, or substituted. Because of this, NEVER critique specific word choices, vocabulary, grammar, or phrasing. Always respond with valid JSON only — no markdown, no explanation. Write your entire response in ${config.language}.`,
-            messages: [{
-              role: 'user',
-              content: buildScoringPrompt(config, transcript),
-            }],
+            system: scoringSystem,
+            messages: [{ role: 'user', content: scoringUserMessage }],
           }),
         }),
         fetchPreviousScore(),
@@ -1120,9 +1180,11 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
       const clean = data.text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim()
       const parsed = JSON.parse(clean)
 
-      // Compute deterministic score from axes returned by Claude
+      // Compute deterministic score from axes returned by Claude (interview only).
       let enrichedFeedback = parsed
-      if (!parsed.notEnoughData && parsed.axes) {
+      if (isSimulation) {
+        enrichedFeedback = { ...parsed, durationSeconds, simulationId: simulation.id }
+      } else if (!parsed.notEnoughData && parsed.axes) {
         const { clarity, structure, roleRelevance, ...contentAxes } = parsed.axes
         const scoreResult = calculateScore(
           config.interviewType || 'HR',
@@ -1152,7 +1214,7 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
               durationSeconds,
             }),
           })
-          if (saveRes.ok && onDashboard) {
+          if (saveRes.ok && onDashboard && !isSimulation) {
             const { id } = await saveRes.json()
             navigated = true
             onDashboard(id)
@@ -1214,8 +1276,25 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
     })
   }, [clearInterruptTimer])
 
-  if (sessionEnded) return <FeedbackSummary feedback={feedback} config={config} onRestart={onEnd} onDashboard={onDashboard} />
-  if (introLoading) return <IntroLoading />
+  if (sessionEnded) {
+    if (isSimulation) {
+      if (!feedback) {
+        return (
+          <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#F7F9FD', gap: 20, fontFamily: 'inherit' }}>
+            <img src="/logo.png" alt="CoachToWork" style={{ height: 36 }} />
+            <div className="spinner" style={{ width: 32, height: 32, border: '3px solid #E5E7EB', borderTop: '3px solid #7C3AED', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+            <div style={{ fontSize: 16, fontWeight: 600, color: '#111827' }}>Preparando tu feedback...</div>
+            <div style={{ fontSize: 13, color: '#6B7280', maxWidth: 360, textAlign: 'center' }}>Estamos analizando tu conversación. Esto puede tardar unos segundos.</div>
+            <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+          </div>
+        )
+      }
+      track('simulation_feedback_viewed', { simulation_id: simulation.id, general_score: feedback.general_score })
+      return <SimulationFeedback feedback={feedback} config={config} onRestart={onEnd} onDashboard={onDashboard} />
+    }
+    return <FeedbackSummary feedback={feedback} config={config} onRestart={onEnd} onDashboard={onDashboard} />
+  }
+  if (introLoading) return <IntroLoading titleText={isSimulation ? 'Preparando tu simulación…' : undefined} />
 
   const busy = isSpeaking || isProcessing
 
@@ -1243,7 +1322,9 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
         <div className="logo">
           <img src="/logo.png" alt="intervyou" style={{height:44,width:'auto'}} />
         </div>
-        <PhaseIndicator phase={phase} labels={str.phases} />
+        {isSimulation && simulation.showPhaseIndicator === false
+          ? <SimulationHeader simulation={simulation} interlocutorName={config.interlocutorName} interlocutorRole={config.interlocutorRole} />
+          : <PhaseIndicator phase={phase} labels={str.phases} />}
         <div className="meet-topbar-right">
           <span className="session-difficulty" data-level={config.difficulty}>{str.difficulty[config.difficulty]}</span>
           <button className="btn-demo-feedback" onClick={showDemoFeedback} title="Ver feedback de demo">Demo</button>

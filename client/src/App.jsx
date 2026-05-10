@@ -6,6 +6,8 @@ import AuthForm from './components/AuthForm'
 import Landing from './components/Landing'
 import SetupForm from './components/SetupForm'
 import VisaSetupForm from './components/VisaSetupForm'
+import GenericSetupForm from './components/simulations/GenericSetupForm'
+import { getSimulationById } from './lib/simulations/catalog'
 import InterviewSession from './components/InterviewSession'
 import Dashboard from './components/Dashboard'
 import BlogPost from './components/BlogPost'
@@ -57,10 +59,12 @@ function getBlogSlugFromUrl() {
 function AppInner() {
   const { user } = useAuth()
   const { plan, planStatus, isPro, startCheckout, checkoutLoading, refreshSubscription, processor } = usePlan()
-  const [view, setView] = useState(getInitialView) // 'landing' | 'auth' | 'dashboard' | 'interview' | 'visa-interview' | 'blog' | 'pricing' | 'payment-success' | 'payment-error' | 'terms' | 'privacy' | 'faq'
+  const [view, setView] = useState(getInitialView) // 'landing' | 'auth' | 'dashboard' | 'interview' | 'visa-interview' | 'simulation' | 'blog' | 'pricing' | 'payment-success' | 'payment-error' | 'terms' | 'privacy' | 'faq'
   const [interviewConfig, setInterviewConfig] = useState(null)
   const [interviewReturn, setInterviewReturn] = useState('landing')
   const [visaConfig, setVisaConfig] = useState(null)
+  const [simulationId, setSimulationId] = useState(null)
+  const [simulationConfig, setSimulationConfig] = useState(null)
   const [blogSlug, setBlogSlug] = useState(getBlogSlugFromUrl)
   const [pendingInterviewId, setPendingInterviewId] = useState(null)
 
@@ -92,7 +96,7 @@ function AppInner() {
   }, [])
 
   useEffect(() => {
-    if (user && view !== 'interview' && view !== 'visa-interview' && view !== 'blog' && view !== 'terms' && view !== 'privacy' && view !== 'faq' && view !== 'payment-success' && view !== 'payment-error') setView('dashboard')
+    if (user && view !== 'interview' && view !== 'visa-interview' && view !== 'simulation' && view !== 'blog' && view !== 'terms' && view !== 'privacy' && view !== 'faq' && view !== 'payment-success' && view !== 'payment-error') setView('dashboard')
   }, [user])
 
   const goToBlog = (slug) => {
@@ -221,6 +225,27 @@ function AppInner() {
     )
   }
 
+  if (view === 'simulation') {
+    const simulation = simulationId ? getSimulationById(simulationId) : null
+    if (!simulation) { setView('dashboard'); return null }
+    if (!simulationConfig) {
+      return (
+        <GenericSetupForm
+          simulation={simulation}
+          onSubmit={(cfg) => setSimulationConfig({ ...cfg, simulationTitle: simulation.title })}
+          onBack={() => { setSimulationConfig(null); setSimulationId(null); setView('dashboard') }}
+        />
+      )
+    }
+    return (
+      <InterviewSession
+        config={simulationConfig}
+        onEnd={() => { setSimulationConfig(null); setSimulationId(null); setView('dashboard') }}
+        onDashboard={user ? (id) => { setSimulationConfig(null); setSimulationId(null); if (id) setPendingInterviewId(id); setView('dashboard') } : undefined}
+      />
+    )
+  }
+
   if (view === 'visa-interview') {
     if (!visaConfig) {
       return (
@@ -253,6 +278,7 @@ function AppInner() {
         pendingInterviewId={pendingInterviewId}
         onPendingInterviewIdConsumed={() => setPendingInterviewId(null)}
         onVisaInterview={() => { setVisaConfig(null); setView('visa-interview') }}
+        onStartSimulation={(id) => { setSimulationId(id); setSimulationConfig(null); setView('simulation') }}
       />
     )
   }
