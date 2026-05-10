@@ -199,7 +199,16 @@ export default function MyProgress({ onInterviewClick }) {
         <h2>Mi progreso</h2>
       </div>
 
-      {loading && <div className="iv-loading"><div className="spinner" /></div>}
+      {loading && (
+        <div className="iv-sk-list">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 16 }}>
+            <span className="sk" style={{ height: 80, borderRadius: 12 }} />
+            <span className="sk" style={{ height: 80, borderRadius: 12 }} />
+            <span className="sk" style={{ height: 80, borderRadius: 12 }} />
+          </div>
+          <span className="sk" style={{ height: 260, borderRadius: 14 }} />
+        </div>
+      )}
 
       {!loading && points.length === 0 && <EmptyProgress />}
 

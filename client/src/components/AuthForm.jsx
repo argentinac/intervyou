@@ -125,7 +125,7 @@ function RightPanel() {
   )
 }
 
-export default function AuthForm({ onBack }) {
+export default function AuthForm({ onBack, context }) {
   const [step, setStep] = useState('main')
   const [email, setEmail] = useState('')
   const [otp, setOtp] = useState('')
@@ -191,8 +191,8 @@ export default function AuthForm({ onBack }) {
                 <img src="/logo.png" alt="CoachToWork" />
               </div>
 
-              <h1 className="auth-title">Ingresá a tu cuenta</h1>
-              <p className="auth-subtitle">Usá Google o tu email para acceder.</p>
+              <h1 className="auth-title">{context === 'interview' ? 'Guardá tu entrevista' : 'Ingresá a tu cuenta'}</h1>
+              <p className="auth-subtitle">{context === 'interview' ? 'Creá tu cuenta gratis para empezar y guardar tus resultados.' : 'Usá Google o tu email para acceder.'}</p>
 
               <div className="auth-card">
                 <button

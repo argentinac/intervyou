@@ -366,7 +366,16 @@ function InterviewDetail({ id, onBack, onNewInterview }) {
     load()
   }, [id])
 
-  if (loading) return <div className="iv-loading"><div className="spinner" /></div>
+  if (loading) return (
+    <div className="iv-page">
+      <div className="iv-sk-list">
+        <span className="sk" style={{ width: 120, height: 20, marginBottom: 16 }} />
+        <span className="sk" style={{ height: 180, borderRadius: 14 }} />
+        <span className="sk" style={{ height: 120, borderRadius: 14 }} />
+        <span className="sk" style={{ height: 120, borderRadius: 14 }} />
+      </div>
+    </div>
+  )
   if (error) return <div className="iv-empty">{error}</div>
   if (!data) return <div className="iv-empty">No se encontró la entrevista.</div>
 
@@ -461,7 +470,13 @@ export default function MyInterviews({ onNewInterview, onRepeat, initialSelected
         <h2>Mis entrevistas</h2>
       </div>
 
-      {loading && <div className="iv-loading"><div className="spinner" /></div>}
+      {loading && (
+        <div className="iv-sk-list">
+          {[...Array(5)].map((_, i) => (
+            <span key={i} className="sk iv-sk-row" />
+          ))}
+        </div>
+      )}
 
       {!loading && interviews.length === 0 && (
         <div className="iv-empty">

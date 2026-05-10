@@ -1,4 +1,4 @@
-import { useState, useEffect, Component } from 'react'
+import { useState, useEffect, useRef, Component } from 'react'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { PlanProvider, usePlan } from './contexts/PlanContext'
 import { identifyUser, resetAnalyticsUser, track, deriveEventName } from './lib/analytics'
@@ -67,6 +67,7 @@ function AppInner() {
   const [simulationConfig, setSimulationConfig] = useState(null)
   const [blogSlug, setBlogSlug] = useState(getBlogSlugFromUrl)
   const [pendingInterviewId, setPendingInterviewId] = useState(null)
+  const pendingGuestConfigRef = useRef(null)
 
   // Auto-track every screen change
   useEffect(() => {
@@ -96,7 +97,16 @@ function AppInner() {
   }, [])
 
   useEffect(() => {
-    if (user && !user.is_anonymous && view !== 'interview' && view !== 'visa-interview' && view !== 'simulation' && view !== 'blog' && view !== 'terms' && view !== 'privacy' && view !== 'faq' && view !== 'payment-success' && view !== 'payment-error') setView('dashboard')
+    if (user && !user.is_anonymous) {
+      if (pendingGuestConfigRef.current) {
+        setInterviewConfig(pendingGuestConfigRef.current)
+        setInterviewReturn('dashboard')
+        pendingGuestConfigRef.current = null
+        setView('interview')
+      } else if (view !== 'interview' && view !== 'visa-interview' && view !== 'simulation' && view !== 'blog' && view !== 'terms' && view !== 'privacy' && view !== 'faq' && view !== 'payment-success' && view !== 'payment-error') {
+        setView('dashboard')
+      }
+    }
   }, [user])
 
   const goToBlog = (slug) => {
@@ -203,14 +213,35 @@ function AppInner() {
   }
 
   if (view === 'auth') {
-    return <AuthForm onBack={() => setView('landing')} />
+    const fromGuestFlow = !!pendingGuestConfigRef.current
+    return (
+      <AuthForm
+        context={fromGuestFlow ? 'interview' : undefined}
+        onBack={() => {
+          if (fromGuestFlow) {
+            pendingGuestConfigRef.current = null
+            setView('interview')
+          } else {
+            setView('landing')
+          }
+        }}
+      />
+    )
   }
 
   if (view === 'interview') {
     if (!interviewConfig) {
       return (
         <SetupForm
-          onSubmit={(cfg) => setInterviewConfig(cfg)}
+          onSubmit={(cfg) => {
+            if (!user || user.is_anonymous) {
+              pendingGuestConfigRef.current = cfg
+              setInterviewReturn('dashboard')
+              setView('auth')
+            } else {
+              setInterviewConfig(cfg)
+            }
+          }}
           onBack={() => { setInterviewConfig(null); setView(interviewReturn) }}
           initialConfig={interviewConfig}
         />
