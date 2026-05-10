@@ -149,7 +149,6 @@ function CompanyLogo({ name, logo }) {
   return (
     <div className="up-logo-chip">
       <img src={logo} alt={name} className="up-logo-chip-icon" />
-      <span className="up-logo-chip-name">{name}</span>
     </div>
   )
 }
