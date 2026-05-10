@@ -13,7 +13,7 @@ export const COUNTRY_NAMES = {
 
 export const COUNTRY_LOGOS = {
   AR: [
-    { name: 'Mercado Libre', logo: '/logos/mercadolibre.png' },
+    { name: 'Mercado Libre', logo: '/logos/mercadolibre.svg' },
     { name: 'Globant',       logo: '/logos/globant.png' },
     { name: 'Ualá',          logo: '/logos/uala.png' },
     { name: 'Galicia',       logo: '/logos/galicia.png' },
@@ -55,7 +55,7 @@ export const COUNTRY_LOGOS = {
     { name: 'Nubank',    logo: '/logos/nubank.png' },
   ],
   UY: [
-    { name: 'Mercado Libre', logo: '/logos/mercadolibre.png' },
+    { name: 'Mercado Libre', logo: '/logos/mercadolibre.svg' },
     { name: 'Rappi',         logo: '/logos/rappi.png' },
     { name: 'Despegar',      logo: '/logos/despegar.png' },
     { name: 'PedidosYa',    logo: '/logos/pedidosya.png' },
