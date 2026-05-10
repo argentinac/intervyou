@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { usePlan } from '../contexts/PlanContext'
+import { COUNTRY_LOGOS } from '../utils/countryLogos'
 
 const IconClose = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
@@ -39,6 +40,8 @@ const IconLock = () => (
   </svg>
 )
 
+const MP_COUNTRIES = new Set(['AR', 'BR', 'MX', 'CO', 'CL', 'PE', 'UY'])
+
 // Códigos de cupón válidos (se validan también en backend al hacer checkout)
 const VALID_COUPONS = {
   'COACH50':     { pct: 50, label: '50% OFF' },
@@ -46,82 +49,6 @@ const VALID_COUPONS = {
   'LAUNCH30':    { pct: 30, label: '30% OFF' },
 }
 
-// Simple Icons via jsDelivr CDN — siempre funciona, ícono oficial de cada marca
-// Slugs: https://simpleicons.org (buscar el nombre exacto)
-const SI = slug => `https://cdn.simpleicons.org/${slug}`
-
-const COUNTRY_LOGOS = {
-  AR: [
-    { name: 'Mercado Libre', icon: SI('mercadolibre'), color: '#FFE600' },
-    { name: 'Amazon',        icon: SI('amazon'),        color: '#FF9900' },
-    { name: 'Galicia',       icon: null,                color: '#E30613' },
-    { name: 'Ualá',          icon: SI('uala'),          color: '#00C8B4' },
-    { name: 'Despegar',      icon: null,                color: '#1A73E8' },
-  ],
-  BR: [
-    { name: 'Nubank',  icon: SI('nubank'),  color: '#820AD1' },
-    { name: 'iFood',   icon: SI('ifood'),   color: '#EA1D2C' },
-    { name: 'Itaú',    icon: SI('itau'),    color: '#EC7000' },
-    { name: 'Amazon',  icon: SI('amazon'),  color: '#FF9900' },
-  ],
-  MX: [
-    { name: 'Bimbo',     icon: SI('bimbo'),     color: '#E30613' },
-    { name: 'Cemex',     icon: null,             color: '#009FDF' },
-    { name: 'Amazon',    icon: SI('amazon'),     color: '#FF9900' },
-    { name: 'Microsoft', icon: SI('microsoft'),  color: '#737373' },
-  ],
-  CO: [
-    { name: 'Bancolombia', icon: SI('bancolombia'), color: '#FDDA24' },
-    { name: 'Rappi',       icon: SI('rappi'),        color: '#FF441F' },
-    { name: 'Falabella',   icon: null,               color: '#007A3D' },
-    { name: 'Amazon',      icon: SI('amazon'),       color: '#FF9900' },
-  ],
-  CL: [
-    { name: 'Falabella', icon: null,          color: '#007A3D' },
-    { name: 'Rappi',     icon: SI('rappi'),   color: '#FF441F' },
-    { name: 'LATAM',     icon: SI('latam'),   color: '#E21836' },
-    { name: 'Amazon',    icon: SI('amazon'),  color: '#FF9900' },
-  ],
-  PE: [
-    { name: 'Falabella', icon: null,          color: '#007A3D' },
-    { name: 'Rappi',     icon: SI('rappi'),   color: '#FF441F' },
-    { name: 'LATAM',     icon: SI('latam'),   color: '#E21836' },
-    { name: 'Amazon',    icon: SI('amazon'),  color: '#FF9900' },
-  ],
-  UY: [
-    { name: 'Mercado Libre', icon: SI('mercadolibre'), color: '#FFE600' },
-    { name: 'LATAM',         icon: SI('latam'),         color: '#E21836' },
-    { name: 'Rappi',         icon: SI('rappi'),         color: '#FF441F' },
-    { name: 'Amazon',        icon: SI('amazon'),        color: '#FF9900' },
-  ],
-  ES: [
-    { name: 'Santander',  icon: SI('santander'),  color: '#EC0000' },
-    { name: 'BBVA',       icon: SI('bbva'),        color: '#004481' },
-    { name: 'Telefónica', icon: SI('telefonica'),  color: '#0066FF' },
-    { name: 'Inditex',    icon: null,              color: '#333333' },
-  ],
-  US: [
-    { name: 'Google',    icon: SI('google'),    color: '#4285F4' },
-    { name: 'Amazon',    icon: SI('amazon'),    color: '#FF9900' },
-    { name: 'Microsoft', icon: SI('microsoft'), color: '#737373' },
-    { name: 'Apple',     icon: SI('apple'),     color: '#555555' },
-    { name: 'Meta',      icon: SI('meta'),      color: '#0082FB' },
-  ],
-  GB: [
-    { name: 'HSBC',     icon: SI('hsbc'),     color: '#DB0011' },
-    { name: 'Vodafone', icon: SI('vodafone'), color: '#E60000' },
-    { name: 'Amazon',   icon: SI('amazon'),   color: '#FF9900' },
-    { name: 'Google',   icon: SI('google'),   color: '#4285F4' },
-  ],
-  DEFAULT: [
-    { name: 'Google',    icon: SI('google'),    color: '#4285F4' },
-    { name: 'Amazon',    icon: SI('amazon'),    color: '#FF9900' },
-    { name: 'Microsoft', icon: SI('microsoft'), color: '#737373' },
-    { name: 'Meta',      icon: SI('meta'),      color: '#0082FB' },
-  ],
-}
-
-const MP_COUNTRIES = new Set(['AR', 'BR', 'MX', 'CO', 'CL', 'PE', 'UY'])
 
 const FEATURES_LEFT = [
   'Plan completo',
@@ -218,15 +145,10 @@ export function PlanCards({ onSelectPlan, loadingPeriod, processor, coupon }) {
   )
 }
 
-function CompanyLogo({ name, icon, color }) {
-  const [iconFailed, setIconFailed] = useState(false)
-  const showIcon = icon && !iconFailed
+function CompanyLogo({ name, logo }) {
   return (
     <div className="up-logo-chip">
-      {showIcon
-        ? <img src={icon} alt="" className="up-logo-chip-icon" onError={() => setIconFailed(true)} style={{ filter: 'none' }} />
-        : <span className="up-logo-chip-dot" style={{ background: color }} />
-      }
+      <img src={logo} alt={name} className="up-logo-chip-icon" />
       <span className="up-logo-chip-name">{name}</span>
     </div>
   )
@@ -239,7 +161,7 @@ function CompanyLogos({ country }) {
       <div className="up-logos-title">Preparación para empresas líderes</div>
       <div className="up-logos-grid">
         {logos.map(l => (
-          <CompanyLogo key={l.name} name={l.name} icon={l.icon} color={l.color} />
+          <CompanyLogo key={l.name} name={l.name} logo={l.logo} />
         ))}
       </div>
     </div>
