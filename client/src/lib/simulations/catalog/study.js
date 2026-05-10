@@ -1,4 +1,5 @@
 import { makeLabelResolver } from './_util'
+import { COUNTRIES_ES } from '../countries'
 
 const APLICAR_UNIVERSIDAD = {
   id: 'aplicar_universidad',
@@ -10,6 +11,7 @@ const APLICAR_UNIVERSIDAD = {
   defaultLanguage: 'Spanish',
   availableLanguages: ['Spanish', 'English'],
   interlocutorDefaultGender: 'female',
+  interlocutorRole: 'Admissions Officer',
   uiCopy: {
     interlocutorLabel: 'Admissions Officer',
     sessionTitle: 'Entrevista de admisión',
@@ -43,7 +45,7 @@ const APLICAR_UNIVERSIDAD = {
             { value: 'top', label: 'Muy selectivo (Ivy League, top global)' },
           ],
         },
-        { id: 'country', label: 'País de la institución', type: 'shortText', placeholder: 'Ej: Estados Unidos', required: true },
+        { id: 'country', label: 'País de la institución', type: 'country', options: COUNTRIES_ES, defaultValue: 'Estados Unidos', required: true },
       ],
     },
     screen2: {

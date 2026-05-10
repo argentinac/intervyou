@@ -10,6 +10,7 @@ const PRIMERA_CITA = {
   defaultLanguage: 'Spanish',
   availableLanguages: ['Spanish'],
   interlocutorDefaultGender: 'female',
+  interlocutorRole: 'Tu cita',
   uiCopy: {
     interlocutorLabel: 'Tu cita',
     sessionTitle: 'Primera cita',

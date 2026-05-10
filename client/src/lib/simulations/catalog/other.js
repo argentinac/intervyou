@@ -10,6 +10,7 @@ const PITCH_VC = {
   defaultLanguage: 'Spanish',
   availableLanguages: ['Spanish', 'English'],
   interlocutorDefaultGender: 'male',
+  interlocutorRole: 'Venture Capitalist',
   uiCopy: {
     interlocutorLabel: 'Venture Capitalist',
     sessionTitle: 'Pitch a un VC',

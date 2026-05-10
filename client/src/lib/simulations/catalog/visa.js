@@ -1,4 +1,5 @@
 import { makeLabelResolver } from './_util'
+import { COUNTRIES_ES } from '../countries'
 
 const ENTREVISTA_VISA_USA = {
   id: 'entrevista_visa_usa',
@@ -10,6 +11,7 @@ const ENTREVISTA_VISA_USA = {
   defaultLanguage: 'Spanish',
   availableLanguages: ['Spanish', 'English'],
   interlocutorDefaultGender: 'male',
+  interlocutorRole: 'Oficial Consular USA',
   uiCopy: {
     interlocutorLabel: 'Oficial Consular',
     sessionTitle: 'Entrevista consular',
@@ -36,7 +38,7 @@ const ENTREVISTA_VISA_USA = {
             { value: 'GreenCard', label: 'Green Card — Residencia permanente', flag: '🟢' },
           ],
         },
-        { id: 'nationality', label: 'Tu nacionalidad', type: 'shortText', placeholder: 'Ej: Argentina', required: true },
+        { id: 'nationality', label: 'Tu nacionalidad', type: 'country', options: COUNTRIES_ES, defaultValue: 'Argentina', required: true },
       ],
     },
     screen2: {

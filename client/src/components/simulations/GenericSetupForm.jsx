@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { unlockAudio } from '../../audioContext'
+import { generateInterlocutorName } from '../../lib/simulations/interlocutorNames'
 
 const IntervyouIcon = () => (
   <img src="/logo.png" alt="intervyou" style={{ height: 48, width: 'auto' }} />
@@ -53,10 +54,17 @@ function Question({ q, value, onChange }) {
 
   if (q.type === 'select' || q.type === 'difficulty') {
     const isDifficulty = q.type === 'difficulty'
+    const useGrid = !isDifficulty && (q.options.length <= 8)
     return (
       <div className="sf-field">
         <label>{q.label}</label>
-        <div className="sf-cards-row" style={isDifficulty ? {} : { flexDirection: 'column', gap: 8 }}>
+        <div
+          className={isDifficulty ? 'sf-cards-row' : ''}
+          style={isDifficulty ? {} : useGrid
+            ? { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 8 }
+            : { display: 'flex', flexDirection: 'column', gap: 8 }
+          }
+        >
           {q.options.map((o) => (
             <RadioCard
               key={o.value}
@@ -70,6 +78,26 @@ function Question({ q, value, onChange }) {
             />
           ))}
         </div>
+      </div>
+    )
+  }
+
+  if (q.type === 'country') {
+    return (
+      <div className="sf-field">
+        <label>{q.label}</label>
+        <select
+          value={value || q.defaultValue || ''}
+          onChange={(e) => onChange(e.target.value)}
+          style={{ width: '100%', padding: '12px 14px', borderRadius: 10, border: '1px solid #E5E7EB', fontSize: 14, fontFamily: 'inherit', background: '#fff', boxSizing: 'border-box' }}
+        >
+          <option value="">Seleccioná un país…</option>
+          {(q.options || []).map((o) => (
+            <option key={typeof o === 'string' ? o : o.value} value={typeof o === 'string' ? o : o.value}>
+              {typeof o === 'string' ? o : o.label}
+            </option>
+          ))}
+        </select>
       </div>
     )
   }
@@ -120,9 +148,21 @@ function isAnswerValid(q, answers) {
   return !!v
 }
 
+function buildInitialAnswers(simulation) {
+  const initial = { difficulty: 'Intermediate' }
+  const all = [
+    ...(simulation.onboarding?.screen1?.questions || []),
+    ...(simulation.onboarding?.screen2?.questions || []),
+  ]
+  for (const q of all) {
+    if (q.defaultValue !== undefined) initial[q.id] = q.defaultValue
+  }
+  return initial
+}
+
 export default function GenericSetupForm({ simulation, onSubmit, onBack }) {
   const [step, setStep] = useState(1)
-  const [answers, setAnswers] = useState({ difficulty: 'Intermediate' })
+  const [answers, setAnswers] = useState(() => buildInitialAnswers(simulation))
 
   const setAnswer = (id, value) => setAnswers((a) => ({ ...a, [id]: value }))
 
@@ -139,13 +179,17 @@ export default function GenericSetupForm({ simulation, onSubmit, onBack }) {
       // SpeechRecognition handles the error
     }
     const interlocutorGender = answers.interlocutorGender || simulation.interlocutorDefaultGender || 'male'
+    const language = answers.language || simulation.defaultLanguage || 'Spanish'
+    const interlocutorName = generateInterlocutorName(interlocutorGender, language)
     onSubmit({
       ...answers,
       simulationId: simulation.id,
       simulationCategory: simulation.category,
       interviewType: 'Simulation',
-      language: answers.language || simulation.defaultLanguage || 'Spanish',
+      language,
       interlocutorGender,
+      interlocutorName,
+      interlocutorRole: simulation.interlocutorRole || simulation.uiCopy?.interlocutorLabel,
     })
   }
 

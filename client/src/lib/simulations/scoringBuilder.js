@@ -33,6 +33,15 @@ Calificá la conversación en 4 dimensiones, escala 0-1000:
 GENERAL (0-1000): Tu juicio global de la conversación. NO es necesariamente el promedio de las 4. Una persona puede tener buenas dimensiones individuales pero una conversación globalmente mediocre, o viceversa.
 `.trim()
 
+const ANTI_HALLUCINATION = `
+REGLAS CRÍTICAS PARA EL FEEDBACK:
+- Evaluá únicamente lo que dijo y cómo se comportó la PERSONA (el usuario), NO al interlocutor de la IA.
+- NO menciones ni asumas como reales fechas, propuestas, números, decisiones o acuerdos que mencionó el interlocutor durante la conversación. Todo lo que dijo el interlocutor es FICCIÓN de la simulación, no compromisos reales del mundo del usuario.
+- NO sugieras "para la próxima reunión...", "el miércoles vas a...", ni nada que tome contenido del interlocutor como verdadero.
+- Tus next_steps deben ser ACCIONES generales que la persona puede practicar (ej: "practicá liderar el cierre tú", "preparate ejemplos cuantificados antes de pedir un aumento"), no tareas relacionadas a las promesas ficticias del interlocutor.
+- Tu evaluación se basa en: cómo habló la persona, si fue clara, si sostuvo presión, si escuchó, si avanzó hacia el objetivo declarado en el onboarding.
+`.trim()
+
 const OUTPUT_INSTRUCTIONS = `
 Devolvé JSON válido con esta forma exacta:
 
@@ -74,7 +83,13 @@ export function buildScoringPrompt(simulation, transcript, answers) {
     `CONTEXTO DEL USUARIO (respuestas del onboarding):`,
     onboardingSummary || '(sin contexto adicional)',
     '',
+    ANTI_HALLUCINATION,
+    '',
     SCORING_RUBRIC,
+    '',
+    `Si la conversación fue muy corta (menos de 4 turnos del usuario o menos de 60 palabras totales del usuario), devolvé:`,
+    `{"notEnoughData": true, "reason": "Conversación demasiado corta para evaluar."}`,
+    'Sin texto fuera del JSON.',
     '',
     `TRANSCRIPCIÓN DE LA CONVERSACIÓN:`,
     typeof transcript === 'string' ? transcript : JSON.stringify(transcript, null, 2),

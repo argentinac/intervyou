@@ -10,6 +10,7 @@ const PEDIR_AUMENTO = {
   defaultLanguage: 'Spanish',
   availableLanguages: ['Spanish'],
   interlocutorDefaultGender: 'male',
+  interlocutorRole: 'Manager directo',
   uiCopy: {
     interlocutorLabel: 'Tu manager',
     sessionTitle: 'Pidiendo un aumento',

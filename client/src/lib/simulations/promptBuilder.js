@@ -25,6 +25,9 @@ export function buildSystemPrompt(simulation, answers) {
   const personality = simulation.systemPromptTemplate(answers)
   const language = answers.language || simulation.defaultLanguage || 'Spanish'
 
+  const interlocutorName = answers.interlocutorName
+  const interlocutorRole = simulation.interlocutorRole
+
   return [
     `Sos el interlocutor en una simulación de práctica conversacional. Categoría: ${simulation.category}. Simulación: "${simulation.title}".`,
     '',
@@ -34,6 +37,10 @@ export function buildSystemPrompt(simulation, answers) {
     '',
     `NIVEL DE DIFICULTAD: ${difficulty}. ${difficultyHint}`,
     '',
+    interlocutorName ? `TU NOMBRE: ${interlocutorName}.` : '',
+    interlocutorRole ? `TU ROL: ${interlocutorRole}.` : '',
+    interlocutorName || interlocutorRole ? `Si el contexto lo amerita, presentate al inicio con tu nombre y rol.` : '',
+    '',
     `TU PERSONAJE Y CONTEXTO:`,
     personality,
     '',
@@ -41,8 +48,12 @@ export function buildSystemPrompt(simulation, answers) {
     `- Duración objetivo: ${simulation.internalInstructions?.durationMaxMinutes || 10} minutos.`,
     `- Cantidad de intervenciones tuyas: aproximadamente ${getInterventionsRange(simulation, difficulty)}.`,
     `- Empezá vos con un saludo o pregunta inicial coherente con el contexto.`,
-    `- Cuando la conversación llegue al cierre natural, hacelo claro pero no abrupto.`,
-  ].join('\n')
+    '',
+    `CIERRE — REGLA CRÍTICA:`,
+    `Después de aproximadamente ${getInterventionsRange(simulation, difficulty)} intervenciones tuyas, llevá la conversación a un cierre natural y FIRME. Cuando termines tu mensaje de cierre, agregá literalmente al final el token \`[END_INTERVIEW]\` (con corchetes incluidos). Ese token es la señal que el sistema usa para finalizar la sesión.`,
+    `NO sigas conversando después de despedirte. Si la persona insiste en seguir hablando después de tu cierre, cortá con una despedida muy corta seguida de \`[END_INTERVIEW]\`.`,
+    `NO uses el token antes del cierre real — solo en tu último mensaje.`,
+  ].filter(Boolean).join('\n')
 }
 
 function getInterventionsRange(simulation, difficulty) {

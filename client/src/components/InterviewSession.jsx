@@ -108,7 +108,7 @@ Otherwise respond with this exact JSON structure:
 Rules: 2-3 items in wentWell, 2-3 items in toImprove, exactly 4 items in actionPlan (2 alta + 2 media priority).`
 }
 
-function IntroLoading() {
+function IntroLoading({ titleText }) {
   const [tipIndex, setTipIndex] = useState(() => Math.floor(Math.random() * INTERVIEW_TIPS.length))
   const [visible, setVisible] = useState(true)
 
@@ -141,7 +141,7 @@ function IntroLoading() {
           </div>
         </div>
 
-        <p className="intro-loading-title">Preparando tu entrevista…</p>
+        <p className="intro-loading-title">{titleText || 'Preparando tu entrevista…'}</p>
 
         <div className={`intro-loading-tip ${visible ? 'intro-loading-tip--in' : 'intro-loading-tip--out'}`}>
           <span className="intro-loading-tip-label">💡 Tip</span>
@@ -668,7 +668,9 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
     ? (simulation.uiCopy?.interlocutorLabel || simulation.title)
     : isVisa ? 'Oficial Consular' : config.interviewType === 'Technical' ? 'Tech Interviewer' : config.interviewType === 'Mixed' ? 'Interviewer' : 'HR Interviewer'
   const interviewerName = isSimulation
-    ? (simulation.uiCopy?.interlocutorContext ? `${simulation.uiCopy.interlocutorContext} — ${interviewerLabel}` : interviewerLabel)
+    ? (config.interlocutorName
+        ? `${config.interlocutorName} — ${config.interlocutorRole || simulation.interlocutorRole || interviewerLabel}`
+        : interviewerLabel)
     : isVisa ? 'Embajada de EE.UU.' : config.companyName ? `${config.companyName} — ${interviewerLabel}` : interviewerLabel
 
   const [cameraOn, setCameraOn] = useState(false)
@@ -1262,14 +1264,23 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
 
   if (sessionEnded) {
     if (isSimulation) {
-      if (feedback) {
-        track('simulation_feedback_viewed', { simulation_id: simulation.id, general_score: feedback.general_score })
+      if (!feedback) {
+        return (
+          <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#F7F9FD', gap: 20, fontFamily: 'inherit' }}>
+            <img src="/logo.png" alt="CoachToWork" style={{ height: 36 }} />
+            <div className="spinner" style={{ width: 32, height: 32, border: '3px solid #E5E7EB', borderTop: '3px solid #7C3AED', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+            <div style={{ fontSize: 16, fontWeight: 600, color: '#111827' }}>Preparando tu feedback...</div>
+            <div style={{ fontSize: 13, color: '#6B7280', maxWidth: 360, textAlign: 'center' }}>Estamos analizando tu conversación. Esto puede tardar unos segundos.</div>
+            <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+          </div>
+        )
       }
+      track('simulation_feedback_viewed', { simulation_id: simulation.id, general_score: feedback.general_score })
       return <SimulationFeedback feedback={feedback} config={config} onRestart={onEnd} onDashboard={onDashboard} />
     }
     return <FeedbackSummary feedback={feedback} config={config} onRestart={onEnd} onDashboard={onDashboard} />
   }
-  if (introLoading) return <IntroLoading />
+  if (introLoading) return <IntroLoading titleText={isSimulation ? 'Preparando tu simulación…' : undefined} />
 
   const busy = isSpeaking || isProcessing
 
@@ -1298,7 +1309,7 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
           <img src="/logo.png" alt="intervyou" style={{height:44,width:'auto'}} />
         </div>
         {isSimulation && simulation.showPhaseIndicator === false
-          ? <SimulationHeader simulation={simulation} />
+          ? <SimulationHeader simulation={simulation} interlocutorName={config.interlocutorName} interlocutorRole={config.interlocutorRole} />
           : <PhaseIndicator phase={phase} labels={str.phases} />}
         <div className="meet-topbar-right">
           <span className="session-difficulty" data-level={config.difficulty}>{str.difficulty[config.difficulty]}</span>

@@ -10,6 +10,7 @@ const DECLARAR_JUEZ = {
   defaultLanguage: 'Spanish',
   availableLanguages: ['Spanish'],
   interlocutorDefaultGender: 'male',
+  interlocutorRole: 'Juez/a o fiscal',
   uiCopy: {
     interlocutorLabel: 'Juez/a o fiscal',
     sessionTitle: 'Declaración judicial',

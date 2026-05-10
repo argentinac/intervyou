@@ -2,6 +2,26 @@ import { useRef } from 'react'
 import { track } from '../../lib/analytics'
 import { getSimulationById } from '../../lib/simulations/catalog'
 
+const DIFFICULTY_LABELS = { Basic: 'Básico', Intermediate: 'Intermedio', Advanced: 'Difícil' }
+const LANGUAGE_LABELS   = { Spanish: 'Español', English: 'Inglés', Portuguese: 'Portugués' }
+
+function FeedbackHeader() {
+  return (
+    <header style={{ background: '#fff', borderBottom: '1px solid #E5E7EB', padding: '16px 24px' }}>
+      <img src="/logo.png" alt="CoachToWork" style={{ height: 32, width: 'auto', display: 'block' }} />
+    </header>
+  )
+}
+
+function FeedbackFooter() {
+  return (
+    <footer style={{ borderTop: '1px solid #E5E7EB', padding: '16px 24px', textAlign: 'center', fontSize: 12, color: '#9CA3AF' }}>
+      <div style={{ marginBottom: 4 }}>CoachToWork — practicá conversaciones difíciles antes de tenerlas.</div>
+      <a href="https://coachtowork.io" style={{ color: '#7C3AED', textDecoration: 'none' }}>coachtowork.io</a>
+    </footer>
+  )
+}
+
 const RING_SIZE = 160
 const RING_RADIUS = 70
 const RING_STROKE = 12
@@ -117,20 +137,47 @@ export default function SimulationFeedback({ feedback, config, onRestart, onDash
     }
   }
 
-  const handleRepeat = () => {
-    track('simulation_repeated', { simulation_id: simulation?.id })
-    onRestart?.()
+  // Empty / not-enough-data state
+  void onRestart
+  const notEnough = !!(fb.notEnoughData || fb.parseError)
+  if (notEnough) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#F7F9FD', display: 'flex', flexDirection: 'column', fontFamily: 'inherit' }}>
+        <FeedbackHeader />
+        <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+          <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 16, padding: 32, maxWidth: 480, textAlign: 'center' }}>
+            <div style={{ fontSize: 40, marginBottom: 12 }}>⏱</div>
+            <h2 style={{ fontSize: 20, fontWeight: 700, color: '#111827', margin: 0, marginBottom: 8 }}>
+              Tu simulación fue muy corta
+            </h2>
+            <p style={{ fontSize: 14, color: '#6B7280', lineHeight: 1.6, margin: 0, marginBottom: 24 }}>
+              No tenemos suficiente conversación para evaluar tu desempeño. Para recibir feedback útil, intentá una sesión un poco más extendida — al menos 4 o 5 intercambios.
+            </p>
+            {onDashboard && (
+              <button
+                onClick={() => onDashboard()}
+                style={{ padding: '12px 24px', borderRadius: 10, fontSize: 14, fontWeight: 600, background: '#7C3AED', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}
+              >
+                Volver al inicio
+              </button>
+            )}
+          </div>
+        </main>
+        <FeedbackFooter />
+      </div>
+    )
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F7F9FD', padding: '32px 16px', fontFamily: 'inherit' }}>
-      <div ref={containerRef} style={{ maxWidth: 720, margin: '0 auto' }}>
+    <div style={{ minHeight: '100vh', background: '#F7F9FD', display: 'flex', flexDirection: 'column', fontFamily: 'inherit' }}>
+      <FeedbackHeader />
+      <div ref={containerRef} style={{ maxWidth: 720, margin: '0 auto', width: '100%', padding: '24px 16px', flex: 1 }}>
         {/* Contexto */}
         <Section title="Contexto">
           <ContextRow label="Simulación" value={simulation?.title} />
           <ContextRow label="Categoría" value={simulation?.uiCopy?.interlocutorContext} />
-          <ContextRow label="Dificultad" value={config?.difficulty} />
-          <ContextRow label="Idioma" value={config?.language} />
+          <ContextRow label="Dificultad" value={DIFFICULTY_LABELS[config?.difficulty] || config?.difficulty} />
+          <ContextRow label="Idioma" value={LANGUAGE_LABELS[config?.language] || config?.language} />
         </Section>
 
         {/* Score general */}
@@ -200,22 +247,13 @@ export default function SimulationFeedback({ feedback, config, onRestart, onDash
         {/* CTAs */}
         <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 24, flexWrap: 'wrap' }}>
           <button
-            onClick={handleRepeat}
+            onClick={handleDownload}
             style={{
               padding: '12px 24px', borderRadius: 10, fontSize: 14, fontWeight: 600,
               background: '#7C3AED', color: '#fff', border: 'none', cursor: 'pointer',
               fontFamily: 'inherit',
             }}
-          >
-            Repetir simulación
-          </button>
-          <button
-            onClick={handleDownload}
-            style={{
-              padding: '12px 24px', borderRadius: 10, fontSize: 14, fontWeight: 600,
-              background: '#fff', color: '#374151', border: '1px solid #E5E7EB', cursor: 'pointer',
-              fontFamily: 'inherit',
-            }}
+            data-track="simulation_feedback_pdf_button_clicked"
           >
             Descargar PDF
           </button>
@@ -224,7 +262,7 @@ export default function SimulationFeedback({ feedback, config, onRestart, onDash
               onClick={() => onDashboard()}
               style={{
                 padding: '12px 24px', borderRadius: 10, fontSize: 14, fontWeight: 600,
-                background: 'transparent', color: '#6B7280', border: 'none', cursor: 'pointer',
+                background: '#fff', color: '#374151', border: '1px solid #E5E7EB', cursor: 'pointer',
                 fontFamily: 'inherit',
               }}
             >
@@ -233,6 +271,7 @@ export default function SimulationFeedback({ feedback, config, onRestart, onDash
           )}
         </div>
       </div>
+      <FeedbackFooter />
     </div>
   )
 }

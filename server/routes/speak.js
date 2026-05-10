@@ -4,13 +4,13 @@ const GENDER_VOICE = {
   male:   'ErXwobaYiN019PkySvjV',  // Antoni   — warm, works well across languages
 }
 
-// Language-specific voice overrides (applied before generic gender fallback)
+// Language-specific voice overrides per gender
 const LANGUAGE_VOICE = {
-  Spanish: 'p18tR9wFA5Ng9WhfWI0o', // always female for Spanish
+  Spanish: { female: 'p18tR9wFA5Ng9WhfWI0o', male: 'IoWqv5cMlGyROtAvVbb6' /* spanish male */ },
 }
 
 const COUNTRY_VOICE_OVERRIDE = {
-  Argentina: 'tRERXWzrPzFTtdfQUUbb',
+  Argentina: { female: 'tRERXWzrPzFTtdfQUUbb', male: 'IoWqv5cMlGyROtAvVbb6' },
 }
 
 // Country overrides for English speakers (premade voices)
@@ -52,9 +52,14 @@ export async function speakRoute(req, res) {
     if (!text || typeof text !== 'string' || !text.trim()) {
       return res.status(400).json({ error: 'Text is required' })
     }
-    const voiceId = COUNTRY_VOICE_OVERRIDE[country]
+    const pickByGender = (entry) => {
+      if (!entry) return null
+      if (typeof entry === 'string') return entry
+      return entry[gender] || entry.female || entry.male || null
+    }
+    const voiceId = pickByGender(COUNTRY_VOICE_OVERRIDE[country])
       || (COUNTRY_VOICE[country] ? COUNTRY_VOICE[country](gender) : null)
-      || LANGUAGE_VOICE[language]
+      || pickByGender(LANGUAGE_VOICE[language])
       || GENDER_VOICE[gender]
       || GENDER_VOICE.female
     const languageCode = COUNTRY_LANG_CODE[country] || LANG_CODE_FALLBACK[language] || 'en'
