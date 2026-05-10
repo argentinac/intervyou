@@ -600,12 +600,12 @@ function replaceNumbers(text, language) {
   return text.replace(/\b(\d{1,9})\b/g, (_, num) => fn(parseInt(num, 10)))
 }
 
-async function speakElevenLabs(text, language, country, gender, shouldCancel = () => false, onPlay = null) {
+async function speakElevenLabs(text, language, country, gender, shouldCancel = () => false, onPlay = null, simulationId = null) {
   const t5 = Date.now()
   const res = await fetch('/api/speak', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text: replaceNumbers(expandAbbreviations(text), language), language, country, gender }),
+    body: JSON.stringify({ text: replaceNumbers(expandAbbreviations(text), language), language, country, gender, simulationId }),
   })
   if (!res.ok) throw new Error('TTS failed')
   const t6 = parseInt(res.headers.get('X-T6') || '0', 10) || Date.now()
@@ -770,7 +770,7 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
   const playAudio = useCallback(async (text, onPlay = null) => {
     setIsSpeaking(true)
     setStatusText(str.speaking[interviewerGender.current])
-    await speakElevenLabs(text, config.language, config.country, interviewerGender.current, () => sessionEndedRef.current, onPlay)
+    await speakElevenLabs(text, config.language, config.country, interviewerGender.current, () => sessionEndedRef.current, onPlay, config.simulationId)
     setIsSpeaking(false)
     if (sessionEndedRef.current) return
     setError(null)
