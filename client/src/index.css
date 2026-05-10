@@ -5665,36 +5665,23 @@ html, body, #root, .app {
 .ld-company-chip {
   display: flex;
   align-items: center;
-  gap: 9px;
+  justify-content: center;
   background: #fff;
   border: 1.5px solid #e8edf4;
-  border-radius: 12px;
-  padding: 10px 20px;
-  height: 52px;
-  white-space: nowrap;
+  border-radius: 16px;
+  padding: 16px 28px;
+  height: 80px;
+  min-width: 160px;
   box-shadow: 0 1px 6px rgba(0,0,0,0.06);
   cursor: default;
   transition: box-shadow 0.18s, border-color 0.18s;
 }
-.ld-company-chip:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); border-color: #c8d4e8; }
+.ld-company-chip:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.12); border-color: #c8d4e8; }
 .ld-company-chip-img {
-  width: 22px;
-  height: 22px;
+  width: auto;
+  height: 44px;
+  max-width: 140px;
   object-fit: contain;
-  flex-shrink: 0;
-}
-.ld-company-chip-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  display: inline-block;
-}
-.ld-company-chip span {
-  font-size: 14px;
-  font-weight: 600;
-  color: #1e293b;
-  letter-spacing: -0.01em;
 }
 .ld-companies-footer {
   margin-top: 36px;

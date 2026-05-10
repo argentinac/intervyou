@@ -156,7 +156,6 @@ function CompaniesStrip() {
           {doubled.map((l, i) => (
             <div key={i} className="ld-company-chip">
               <img src={l.logo} alt={l.name} className="ld-company-chip-img" />
-              <span>{l.name}</span>
             </div>
           ))}
         </div>
