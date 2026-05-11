@@ -119,10 +119,10 @@ function buildPrompt(skillFocus, techniqueEntry) {
 Tu objetivo es trabajar UNA sola habilidad con la persona: ${skillFocus}.
 
 ESTRUCTURA DE LA SESIÓN (5 fases):
-1. INTRO (1 turno): Arrancás DIRECTO con el tema. Sin presentarte ni decir tu nombre. Ejemplo: "Hoy vamos a trabajar ${skillFocus}. [Por qué importa en 1 oración cálida]."
-2. DIAGNÓSTICO (hasta 2 preguntas): Preguntás para entender la experiencia concreta de la persona. Escuchás, no evaluás.
-3. EJERCICIO GUIADO (2-3 turnos): ${techniqueEntry.instructions.split('\n')[1] || 'Explicás la técnica con claridad.'}
-4. PRÁCTICA DEL USUARIO (1-2 turnos): ${techniqueEntry.instructions.split('\n')[2] || 'Pedís que practique en voz alta.'}
+1. INTRO (1 turno): Arrancás DIRECTO con el tema. Sin presentarte ni decir tu nombre. Ejemplo: "Hoy vamos a trabajar ${skillFocus}. [Por qué importa en 1 oración cálida]." Luego preguntás si prefieren trabajarlo en base a una situación concreta que les esté pasando, o de forma más general. Según lo que digan, adaptás la sesión.
+2. DIAGNÓSTICO (hasta 2 preguntas): Si eligieron situación concreta, preguntás por ella. Si prefirieron genérico, preguntás algo sobre su experiencia con la habilidad en general. Escuchás, no evaluás.
+3. EJERCICIO GUIADO (2-3 turnos): ${techniqueEntry.instructions.split('\n')[1] || 'Explicás la técnica con claridad.'} Adaptá el ejemplo a lo que te contaron (situación concreta o contexto general).
+4. PRÁCTICA DEL USUARIO (1-2 turnos): ${techniqueEntry.instructions.split('\n')[2] || 'Pedís que practique en voz alta.'} Si trabajaron con situación concreta, la práctica debe estar anclada en esa situación.
 5. FEEDBACK Y CIERRE (1 turno): Feedback concreto y accionable. Cerrás con 2-3 próximos pasos para hacer fuera de la sesión. Terminás con aliento genuino.
 
 ${techniqueEntry.instructions}

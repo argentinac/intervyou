@@ -55,7 +55,7 @@ const LANG_CODE_FALLBACK = {
 
 export async function speakRoute(req, res) {
   try {
-    const { text, language, country, gender = 'female', simulationId } = req.body
+    const { text, language, country, gender = 'female', simulationId, isSkill = false } = req.body
     if (!text || typeof text !== 'string' || !text.trim()) {
       return res.status(400).json({ error: 'Text is required' })
     }
@@ -90,11 +90,11 @@ export async function speakRoute(req, res) {
           model_id: 'eleven_flash_v2_5',
           language_code: languageCode,
           voice_settings: {
-            stability: 0.45,
+            stability: isSkill ? 0.40 : 0.45,
             similarity_boost: 0.75,
-            style: 0.35,
+            style: isSkill ? 0.50 : 0.35,
             use_speaker_boost: true,
-            speed: 1.05,
+            speed: isSkill ? 0.92 : 1.05,
           },
         }),
       }
