@@ -8,6 +8,9 @@ import { useAuth } from '../contexts/AuthContext'
 import { track } from '../lib/analytics'
 import { supabase } from '../lib/supabase'
 import { INTERVIEW_TIPS } from '../data/tips'
+import { COACHING_TIPS } from '../data/coaching_tips'
+import SkillSuccess from './skills/SkillSuccess'
+import { getSkillById } from '../lib/skills/catalog'
 import { getAudioContext } from '../audioContext'
 import { calculateScore } from '../lib/scoring'
 import { getSimulationById } from '../lib/simulations/catalog'
@@ -108,15 +111,15 @@ Otherwise respond with this exact JSON structure:
 Rules: 2-3 items in wentWell, 2-3 items in toImprove, exactly 4 items in actionPlan (2 alta + 2 media priority).`
 }
 
-function IntroLoading({ titleText }) {
-  const [tipIndex, setTipIndex] = useState(() => Math.floor(Math.random() * INTERVIEW_TIPS.length))
+function IntroLoading({ titleText, tips = INTERVIEW_TIPS }) {
+  const [tipIndex, setTipIndex] = useState(() => Math.floor(Math.random() * tips.length))
   const [visible, setVisible] = useState(true)
 
   useEffect(() => {
     const interval = setInterval(() => {
       setVisible(false)
       setTimeout(() => {
-        setTipIndex(i => (i + 1) % INTERVIEW_TIPS.length)
+        setTipIndex(i => (i + 1) % tips.length)
         setVisible(true)
       }, 400)
     }, 3500)
@@ -145,7 +148,7 @@ function IntroLoading({ titleText }) {
 
         <div className={`intro-loading-tip ${visible ? 'intro-loading-tip--in' : 'intro-loading-tip--out'}`}>
           <span className="intro-loading-tip-label">💡 Tip</span>
-          <p>{INTERVIEW_TIPS[tipIndex]}</p>
+          <p>{tips[tipIndex]}</p>
         </div>
       </div>
     </div>
@@ -638,6 +641,7 @@ function stopActiveAudio() {
 }
 
 export default function InterviewSession({ config, onEnd, onDashboard }) {
+  const isSkill = !!config.isSkill
   const simulation = config.simulationId ? getSimulationById(config.simulationId) : null
   const isSimulation = !!simulation
   const isVisa = config.interviewType === 'Visa'
@@ -664,14 +668,18 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
   const [error, setError] = useState(null)
   const [introLoading, setIntroLoading] = useState(true)
 
-  const interviewerLabel = isSimulation
-    ? (simulation.uiCopy?.interlocutorLabel || simulation.title)
-    : isVisa ? 'Oficial Consular' : config.interviewType === 'Technical' ? 'Tech Interviewer' : config.interviewType === 'Mixed' ? 'Interviewer' : 'HR Interviewer'
-  const interviewerName = isSimulation
-    ? (config.interlocutorName
-        ? `${config.interlocutorName} — ${config.interlocutorRole || simulation.interlocutorRole || interviewerLabel}`
-        : interviewerLabel)
-    : isVisa ? 'Embajada de EE.UU.' : config.companyName ? `${config.companyName} — ${interviewerLabel}` : interviewerLabel
+  const interviewerLabel = isSkill
+    ? 'Coach Guiado'
+    : isSimulation
+      ? (simulation.uiCopy?.interlocutorLabel || simulation.title)
+      : isVisa ? 'Oficial Consular' : config.interviewType === 'Technical' ? 'Tech Interviewer' : config.interviewType === 'Mixed' ? 'Interviewer' : 'HR Interviewer'
+  const interviewerName = isSkill
+    ? 'Coach Guiado'
+    : isSimulation
+      ? (config.interlocutorName
+          ? `${config.interlocutorName} — ${config.interlocutorRole || simulation.interlocutorRole || interviewerLabel}`
+          : interviewerLabel)
+      : isVisa ? 'Embajada de EE.UU.' : config.companyName ? `${config.companyName} — ${interviewerLabel}` : interviewerLabel
 
   const [cameraOn, setCameraOn] = useState(false)
   const [inactivityWarning, setInactivityWarning] = useState(false)
@@ -691,9 +699,11 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
   const cameraStreamRef    = useRef(null)
   const interviewStarted   = useRef(false)
   const interviewerGender  = useRef(
-    isSimulation
-      ? (config.interlocutorGender || simulation.interlocutorDefaultGender || 'male')
-      : getInterviewerGender(config.country, config.language)
+    isSkill
+      ? 'female'
+      : isSimulation
+        ? (config.interlocutorGender || simulation.interlocutorDefaultGender || 'male')
+        : getInterviewerGender(config.country, config.language)
   )
   const skipPendingRef     = useRef(false)
   const sessionEndedRef    = useRef(false)
@@ -791,9 +801,11 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        system: isSimulation
-          ? buildSystemPrompt(simulation, config)
-          : SYSTEM_PROMPT({ ...config, gender: interviewerGender.current }),
+        system: isSkill
+          ? config.systemPrompt
+          : isSimulation
+            ? buildSystemPrompt(simulation, config)
+            : SYSTEM_PROMPT({ ...config, gender: interviewerGender.current }),
         messages: updatedMessages,
       }),
     })
@@ -1106,6 +1118,10 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
     recognitionRef.current?.stop()
     recognitionRef.current = null
     setSessionEnded(true)
+    if (isSkill) {
+      track('skill_session_ended', { skill_id: config.skillId })
+      return
+    }
     if (isSimulation) {
       track('simulation_session_ended', {
         simulation_id: simulation.id,
@@ -1277,6 +1293,10 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
   }, [clearInterruptTimer])
 
   if (sessionEnded) {
+    if (isSkill) {
+      const skill = getSkillById(config.skillId)
+      return <SkillSuccess skill={skill} messages={messagesRef.current} onDashboard={onDashboard} />
+    }
     if (isSimulation) {
       if (!feedback) {
         return (
@@ -1294,7 +1314,7 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
     }
     return <FeedbackSummary feedback={feedback} config={config} onRestart={onEnd} onDashboard={onDashboard} />
   }
-  if (introLoading) return <IntroLoading titleText={isSimulation ? 'Preparando tu simulación…' : undefined} />
+  if (introLoading) return <IntroLoading titleText={isSkill ? 'Preparando tu sesión de coaching…' : isSimulation ? 'Preparando tu simulación…' : undefined} tips={isSkill ? COACHING_TIPS : INTERVIEW_TIPS} />
 
   const busy = isSpeaking || isProcessing
 
@@ -1322,14 +1342,16 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
         <div className="logo">
           <img src="/logo.png" alt="intervyou" style={{height:44,width:'auto'}} />
         </div>
-        {isSimulation && simulation.showPhaseIndicator === false
-          ? <SimulationHeader simulation={simulation} interlocutorName={config.interlocutorName} interlocutorRole={config.interlocutorRole} />
-          : <PhaseIndicator phase={phase} labels={str.phases} />}
+        {isSkill
+          ? <div className="meet-topbar-skill-label">Coach Guiado · {config.skillName}</div>
+          : isSimulation && simulation.showPhaseIndicator === false
+            ? <SimulationHeader simulation={simulation} interlocutorName={config.interlocutorName} interlocutorRole={config.interlocutorRole} />
+            : <PhaseIndicator phase={phase} labels={str.phases} />}
         <div className="meet-topbar-right">
-          <span className="session-difficulty" data-level={config.difficulty}>{str.difficulty[config.difficulty]}</span>
-          <button className="btn-demo-feedback" onClick={showDemoFeedback} title="Ver feedback de demo">Demo</button>
-          <button className="btn-skip-end" onClick={skipToEnd} disabled={busy || sessionEnded || phase >= 4} title="Ir al cierre">Ir al cierre →</button>
-          <button className="btn-end-call" onClick={endInterview}>{str.endInterview}</button>
+          {!isSkill && <span className="session-difficulty" data-level={config.difficulty}>{str.difficulty[config.difficulty]}</span>}
+          {!isSkill && <button className="btn-demo-feedback" onClick={showDemoFeedback} title="Ver feedback de demo">Demo</button>}
+          {!isSkill && <button className="btn-skip-end" onClick={skipToEnd} disabled={busy || sessionEnded || phase >= 4} title="Ir al cierre">Ir al cierre →</button>}
+          <button className="btn-end-call" onClick={endInterview}>{isSkill ? 'Terminar sesión' : str.endInterview}</button>
         </div>
       </header>
 
