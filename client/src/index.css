@@ -2473,7 +2473,7 @@ html, body, #root, .app {
 }
 .home-recursos-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 0.5fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
   align-items: stretch;
 }
@@ -5885,7 +5885,6 @@ html, body, #root, .app {
   height: 130px;
   object-fit: contain;
   flex-shrink: 0;
-  mix-blend-mode: multiply;
 }
 
 /* Tu progreso */
@@ -6032,7 +6031,6 @@ html, body, #root, .app {
   width: 120px;
   height: 120px;
   object-fit: contain;
-  mix-blend-mode: multiply;
 }
 .home-skill-v2-name {
   font-size: 13px;
@@ -6127,7 +6125,6 @@ html, body, #root, .app {
   height: 70px;
   object-fit: contain;
   flex-shrink: 0;
-  mix-blend-mode: multiply;
 }
 
 /* Próxima mejor acción */
