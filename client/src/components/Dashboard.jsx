@@ -468,7 +468,6 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRec
                 </div>
                 <div className="home-recurso-body">
                   <div className="home-recurso-title">{post.title}</div>
-                  <div className="home-recurso-excerpt">{post.excerpt}</div>
                 </div>
               </button>
             ))}
