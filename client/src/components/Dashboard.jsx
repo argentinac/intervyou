@@ -11,6 +11,7 @@ import UpgradeModal from './UpgradeModal'
 import SimulationsHub from './simulations/SimulationsHub'
 import { INTERVIEW_TIPS } from '../data/tips'
 import { SKILLS_CATALOG } from '../lib/skills/catalog'
+import { unlockAudio } from '../audioContext'
 import { blogPosts } from '../data/blogPosts'
 import targetImg from '../assets/Target.png'
 import mountainImg from '../assets/Montaña.png'
@@ -422,7 +423,7 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRec
                   <span className="home-skill-duration">{skill.duration}</span>
                 </div>
                 <div className="home-skill-desc">{skill.description}</div>
-                <button className="home-skill-btn" onClick={() => onStartSkill?.(skill.id)}>Comenzar</button>
+                <button className="home-skill-btn" onClick={() => { unlockAudio(); onStartSkill?.(skill.id) }}>Comenzar</button>
               </div>
             ))}
           </div>
