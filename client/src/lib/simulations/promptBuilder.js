@@ -53,6 +53,7 @@ export function buildSystemPrompt(simulation, answers) {
     `Después de aproximadamente ${getInterventionsRange(simulation, difficulty)} intervenciones tuyas, llevá la conversación a un cierre natural y FIRME. Cuando termines tu mensaje de cierre, agregá literalmente al final el token \`[END_INTERVIEW]\` (con corchetes incluidos). Ese token es la señal que el sistema usa para finalizar la sesión.`,
     `NO sigas conversando después de despedirte. Si la persona insiste en seguir hablando después de tu cierre, cortá con una despedida muy corta seguida de \`[END_INTERVIEW]\`.`,
     `NO uses el token antes del cierre real — solo en tu último mensaje.`,
+    `El mensaje de cierre NUNCA puede ser una pregunta. Debe ser una despedida o comentario de cierre.`,
   ].filter(Boolean).join('\n')
 }
 

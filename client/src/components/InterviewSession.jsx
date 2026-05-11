@@ -388,7 +388,7 @@ ${TYPE_INSTRUCTIONS[interviewType] || TYPE_INSTRUCTIONS.HR}
 
 INTERVIEW LENGTH: Ask a maximum of 10 questions total across the entire interview. Distribute them naturally across the stages. Once you have asked 10 questions, move to closing regardless of what stage you are in.
 
-END OF INTERVIEW: Append the token [END_INTERVIEW] at the very end of your farewell message once the interview is complete. You may also end early if the candidate is clearly unprepared or the conversation has run its natural course before 10 questions. Never add [END_INTERVIEW] to a message that contains a question. Only use this token once.
+END OF INTERVIEW: Append the token [END_INTERVIEW] at the very end of your farewell message once the interview is complete. You may also end early if the candidate is clearly unprepared or the conversation has run its natural course before 10 questions. Never add [END_INTERVIEW] to a message that contains a question. Your farewell message must be a statement (a goodbye, a wish of good luck, or a closing remark) — never a question. Only use this token once.
 
 Hard rules:
 - This is a VOICE-ONLY interview. Your responses will be read aloud by a text-to-speech engine. Never use bullet points, numbered lists, markdown, symbols, or any visual formatting. Write in natural spoken sentences only.
@@ -829,7 +829,17 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
   // ── Process candidate turn → get reply → play → maybe auto-end
   const processTurn = useCallback(async (candidateText, currentMessages) => {
     const updated = [...currentMessages, { role: 'user', content: candidateText }]
-    const raw = await askClaude(updated)
+    let raw = await askClaude(updated)
+
+    // Safety: if the closing message contains a question, ask Claude for a clean farewell
+    if (raw.includes('[END_INTERVIEW]') && raw.replace('[END_INTERVIEW]', '').includes('?')) {
+      const fixMessages = [
+        ...updated,
+        { role: 'assistant', content: raw.replace('[END_INTERVIEW]', '').trim() },
+        { role: 'user', content: '[System: Tu mensaje de cierre no puede contener una pregunta. Enviá únicamente una despedida o comentario final, sin preguntas, seguido de [END_INTERVIEW].]' },
+      ]
+      raw = await askClaude(fixMessages)
+    }
 
     const isEnd = raw.includes('[END_INTERVIEW]')
     const reply = raw.replace('[END_INTERVIEW]', '').trim()
