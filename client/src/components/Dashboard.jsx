@@ -436,7 +436,7 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRec
               >
                 <img src={skill.img3d} alt={skill.shortTitle} className="home-skill-v2-img" />
                 <div className="home-skill-v2-name">{skill.shortTitle}</div>
-                <div className="home-skill-v2-nivel" style={{ color: skill.nivelColor }}>{skill.nivel}</div>
+                <div className="home-skill-v2-nivel">{skill.nivel}</div>
                 <div className="home-skill-v2-bar-wrap">
                   <div className="home-skill-v2-bar-track">
                     <div className="home-skill-v2-bar-fill" style={{ width: `${pct}%`, background: barColor }} />
