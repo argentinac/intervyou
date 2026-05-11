@@ -10,6 +10,7 @@ import BlogListPage from './BlogListPage'
 import UpgradeModal from './UpgradeModal'
 import SimulationsHub from './simulations/SimulationsHub'
 import { INTERVIEW_TIPS } from '../data/tips'
+import { SKILLS_CATALOG } from '../lib/skills/catalog'
 import { blogPosts } from '../data/blogPosts'
 import targetImg from '../assets/Target.png'
 import mountainImg from '../assets/Montaña.png'
@@ -211,7 +212,7 @@ function HomeSkeleton() {
   )
 }
 
-function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRecursos, onBlogPost }) {
+function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRecursos, onBlogPost, onStartSkill }) {
   const firstName = fullName
     ? fullName.split(' ')[0]
     : (user?.email?.split('@')[0] ?? 'ahí')
@@ -409,6 +410,24 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRec
           </div>
         </div>
 
+        {/* Quiero practicar una skill */}
+        <div className="home-skills-section">
+          <div className="home-card-title home-skills-title">Quiero practicar una skill</div>
+          <div className="home-skills-grid">
+            {SKILLS_CATALOG.map((skill) => (
+              <div key={skill.id} className="home-skill-card">
+                <div className="home-skill-name">{skill.name}</div>
+                <div className="home-skill-meta">
+                  <span className="home-skill-eje">{skill.eje}</span>
+                  <span className="home-skill-duration">{skill.duration}</span>
+                </div>
+                <div className="home-skill-desc">{skill.description}</div>
+                <button className="home-skill-btn" onClick={() => onStartSkill?.(skill.id)}>Comenzar</button>
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* Consejo del día */}
         <div className="home-card home-card--tip">
           <div className="home-tip-label">
@@ -566,7 +585,7 @@ function SimulacionesSection({
   )
 }
 
-export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRepeatInterview, onPricing, onPaymentSuccess, onPaymentError, pendingInterviewId, onPendingInterviewIdConsumed, onVisaInterview, onStartSimulation }) {
+export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRepeatInterview, onPricing, onPaymentSuccess, onPaymentError, pendingInterviewId, onPendingInterviewIdConsumed, onVisaInterview, onStartSimulation, onStartSkill }) {
   const { user, signOut } = useAuth()
   const { isPro, planStatus, showUpgradeModal, openUpgradeModal, setDemoPlan, setDemoCountry, country } = usePlan()
   const [section, setSection] = useState('home')
@@ -752,6 +771,7 @@ export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRep
             mockInterviews={demoIndex !== null ? DEMO_STATES[demoIndex].interviews : undefined}
             onGoToRecursos={() => setSection('recursos')}
             onBlogPost={onBlogPost}
+            onStartSkill={onStartSkill}
           />
         )}
         {section === 'interviews'  && <MyInterviews onNewInterview={onNewInterview} onRepeat={onRepeatInterview} initialSelectedId={deepInterviewId} onDeepIdConsumed={() => setDeepInterviewId(null)} mockInterviews={demoIndex !== null ? DEMO_STATES[demoIndex].interviews : undefined} />}

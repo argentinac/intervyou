@@ -9,6 +9,7 @@ import SetupForm from './components/SetupForm'
 import VisaSetupForm from './components/VisaSetupForm'
 import GenericSetupForm from './components/simulations/GenericSetupForm'
 import { getSimulationById } from './lib/simulations/catalog'
+import { getSkillById, getSkillSystemPrompt } from './lib/skills/catalog'
 import InterviewSession from './components/InterviewSession'
 import Dashboard from './components/Dashboard'
 import BlogPost from './components/BlogPost'
@@ -66,6 +67,7 @@ function AppInner() {
   const [visaConfig, setVisaConfig] = useState(null)
   const [simulationId, setSimulationId] = useState(null)
   const [simulationConfig, setSimulationConfig] = useState(null)
+  const [skillId, setSkillId] = useState(null)
   const [blogSlug, setBlogSlug] = useState(getBlogSlugFromUrl)
   const [pendingInterviewId, setPendingInterviewId] = useState(null)
   const pendingGuestConfigRef = useRef(null)
@@ -104,7 +106,7 @@ function AppInner() {
         setInterviewReturn('dashboard')
         pendingGuestConfigRef.current = null
         setView('interview')
-      } else if (view !== 'interview' && view !== 'visa-interview' && view !== 'simulation' && view !== 'blog' && view !== 'terms' && view !== 'privacy' && view !== 'faq' && view !== 'payment-success' && view !== 'payment-error') {
+      } else if (view !== 'interview' && view !== 'visa-interview' && view !== 'simulation' && view !== 'skill' && view !== 'blog' && view !== 'terms' && view !== 'privacy' && view !== 'faq' && view !== 'payment-success' && view !== 'payment-error') {
         setView('dashboard')
       }
     }
@@ -278,6 +280,28 @@ function AppInner() {
     )
   }
 
+  if (view === 'skill') {
+    const skill = skillId ? getSkillById(skillId) : null
+    if (!skill) { setView('dashboard'); return null }
+    const systemPrompt = getSkillSystemPrompt(skill)
+    const skillConfig = {
+      isSkill: true,
+      skillId: skill.id,
+      skillName: skill.name,
+      skillEje: skill.eje,
+      systemPrompt,
+      language: 'Spanish',
+      country: 'Argentina',
+    }
+    return (
+      <InterviewSession
+        config={skillConfig}
+        onEnd={() => { setSkillId(null); setView('dashboard') }}
+        onDashboard={() => { setSkillId(null); setView('dashboard') }}
+      />
+    )
+  }
+
   if (view === 'visa-interview') {
     if (!visaConfig) {
       return (
@@ -311,6 +335,7 @@ function AppInner() {
         onPendingInterviewIdConsumed={() => setPendingInterviewId(null)}
         onVisaInterview={() => { setVisaConfig(null); setView('visa-interview') }}
         onStartSimulation={(id) => { setSimulationId(id); setSimulationConfig(null); setView('simulation') }}
+        onStartSkill={(id) => { setSkillId(id); setView('skill') }}
       />
     )
   }
