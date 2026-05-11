@@ -434,7 +434,9 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRec
                 className="home-skill-v2-card"
                 onClick={() => { unlockAudio(); onStartSkill?.(skill.id) }}
               >
-                <img src={skill.img3d} alt={skill.shortTitle} className="home-skill-v2-img" />
+                <div className="home-skill-v2-img-wrap">
+                  <img src={skill.img3d} alt={skill.shortTitle} className="home-skill-v2-img" />
+                </div>
                 <div className="home-skill-v2-name">{skill.shortTitle}</div>
                 <div className="home-skill-v2-nivel">{skill.nivel}</div>
                 <div className="home-skill-v2-bar-wrap">
