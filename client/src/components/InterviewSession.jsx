@@ -640,7 +640,7 @@ function stopActiveAudio() {
   }
 }
 
-export default function InterviewSession({ config, onEnd, onDashboard }) {
+export default function InterviewSession({ config, onEnd, onDashboard, onSkillComplete }) {
   const isSkill = !!config.isSkill
   const simulation = config.simulationId ? getSimulationById(config.simulationId) : null
   const isSimulation = !!simulation
@@ -1121,6 +1121,7 @@ export default function InterviewSession({ config, onEnd, onDashboard }) {
     setSessionEnded(true)
     if (isSkill) {
       track('skill_session_ended', { skill_id: config.skillId })
+      onSkillComplete?.(config.skillId, config.techniqueIdx)
       return
     }
     if (isSimulation) {

@@ -205,5 +205,5 @@ export function getSkillSystemPrompt(skill) {
   const key = `skill_technique_index_${skill.id}`
   const idx = parseInt(localStorage.getItem(key) || '0')
   localStorage.setItem(key, String((idx + 1) % skill.techniques.length))
-  return skill.buildSystemPrompt(idx)
+  return { systemPrompt: skill.buildSystemPrompt(idx), techniqueIdx: idx }
 }
