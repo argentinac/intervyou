@@ -411,31 +411,6 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRec
           </div>
         </div>
 
-        {/* Mejorá tus habilidades */}
-        <div className="home-recursos home-skills-recursos">
-          <div className="home-recursos-header">
-            <div className="home-card-title" style={{ margin: 0 }}>Mejorá tus habilidades</div>
-          </div>
-          <div className="home-recursos-grid">
-            {SKILLS_CATALOG.map((skill) => (
-              <button
-                key={skill.id}
-                className="home-recurso-tile home-skill-tile"
-                onClick={() => { unlockAudio(); onStartSkill?.(skill.id) }}
-              >
-                <div className="home-skill-tile-body">
-                  <div className="home-skill-tile-top">
-                    <span className="home-skill-eje">{skill.eje}</span>
-                    <span className="home-skill-duration">{skill.duration}</span>
-                  </div>
-                  <div className="home-recurso-title">{skill.name}</div>
-                  <div className="home-recurso-excerpt">{skill.description}</div>
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-
         {/* Consejo del día */}
         <div className="home-card home-card--tip">
           <div className="home-tip-label">
@@ -488,6 +463,31 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRec
               <button className="db-btn-primary" onClick={onNewInterview} data-track="new_interview_clicked">Comenzar ahora</button>
             </div>
           )}
+        </div>
+      </div>
+
+      {/* Mejorá tus habilidades */}
+      <div className="home-recursos">
+        <div className="home-recursos-header">
+          <div className="home-card-title" style={{ margin: 0 }}>Mejorá tus habilidades</div>
+        </div>
+        <div className="home-recursos-grid home-skills-grid-5">
+          {SKILLS_CATALOG.map((skill) => (
+            <button
+              key={skill.id}
+              className="home-recurso-tile home-skill-tile"
+              onClick={() => { unlockAudio(); onStartSkill?.(skill.id) }}
+            >
+              <div className="home-skill-tile-body">
+                <div className="home-skill-tile-top">
+                  <span className="home-skill-eje">{skill.eje}</span>
+                  <span className="home-skill-duration">{skill.duration}</span>
+                </div>
+                <div className="home-recurso-title">{skill.name}</div>
+                <div className="home-recurso-excerpt">{skill.description}</div>
+              </div>
+            </button>
+          ))}
         </div>
       </div>
 

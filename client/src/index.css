@@ -5714,8 +5714,8 @@ html, body, #root, .app {
   color: #fff;
 }
 
-/* ── Skills section (home — same grid as Recursos) ────────── */
-.home-skills-recursos { margin-bottom: 8px; }
+/* ── Skills section (home — same structure as Recursos) ───── */
+.home-skills-grid-5 { grid-template-columns: repeat(5, 1fr); }
 .home-skill-tile { padding: 0 !important; }
 .home-skill-tile-body {
   padding: 14px 16px 16px;
@@ -5723,7 +5723,6 @@ html, body, #root, .app {
   flex-direction: column;
   gap: 6px;
   flex: 1;
-  min-height: 110px;
 }
 .home-skill-tile-top {
   display: flex;
@@ -5732,8 +5731,6 @@ html, body, #root, .app {
   flex-wrap: wrap;
   margin-bottom: 2px;
 }
-
-/* (keep existing .home-skill-eje and .home-skill-duration from below) */
 /* ── Skills section (home) ─────────────────────────────────── */
 .home-skills-section {
   margin-bottom: 8px;
