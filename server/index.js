@@ -1,6 +1,6 @@
 import { resolve, dirname } from 'path'
 import { fileURLToPath } from 'url'
-import { existsSync } from 'fs'
+import { existsSync, readFileSync } from 'fs'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 import dotenv from 'dotenv'
@@ -31,8 +31,26 @@ app.use('/api/payments', paymentsRouter)
 
 // Serve frontend in production
 const clientDist = resolve(process.cwd(), 'client/dist')
+const clientPublic = resolve(process.cwd(), 'client/public')
 console.log('client/dist path:', clientDist, '| exists:', existsSync(clientDist))
 app.use(express.static(clientDist))
+
+app.get('/sitemap.xml', (_, res) => {
+  const path = existsSync(resolve(clientDist, 'sitemap.xml'))
+    ? resolve(clientDist, 'sitemap.xml')
+    : resolve(clientPublic, 'sitemap.xml')
+  res.setHeader('Content-Type', 'application/xml')
+  res.send(readFileSync(path, 'utf-8'))
+})
+
+app.get('/robots.txt', (_, res) => {
+  const path = existsSync(resolve(clientDist, 'robots.txt'))
+    ? resolve(clientDist, 'robots.txt')
+    : resolve(clientPublic, 'robots.txt')
+  res.setHeader('Content-Type', 'text/plain')
+  res.send(readFileSync(path, 'utf-8'))
+})
+
 app.get('*', (_, res) => {
   const indexPath = resolve(clientDist, 'index.html')
   if (existsSync(indexPath)) {
