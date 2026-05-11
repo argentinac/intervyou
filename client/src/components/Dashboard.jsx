@@ -13,8 +13,6 @@ import { INTERVIEW_TIPS } from '../data/tips'
 import { SKILLS_CATALOG } from '../lib/skills/catalog'
 import { unlockAudio } from '../audioContext'
 import { blogPosts } from '../data/blogPosts'
-import targetImg from '../assets/Target.png'
-import mountainImg from '../assets/Montaña.png'
 
 const IconHome = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -213,7 +211,92 @@ function HomeSkeleton() {
   )
 }
 
-function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRecursos, onBlogPost, onStartSkill }) {
+function getSkillProgress(userId, skillId, techniqueCount) {
+  let done = 0
+  for (let i = 0; i < techniqueCount; i++) {
+    const key = `skill_done_${userId}_${skillId}_${i}`
+    if (localStorage.getItem(key) === '1') done++
+  }
+  return done
+}
+
+function getNextAction(interviews, scoredInterviews) {
+  if (!interviews || interviews.length === 0) {
+    return { msg: 'Completá tu primera entrevista para comenzar', cta: 'Empezar ahora', target: 'interview' }
+  }
+  const last = interviews[interviews.length - 1]
+  const daysSinceLast = last?.completed_at
+    ? Math.floor((Date.now() - new Date(last.completed_at).getTime()) / 86400000)
+    : 999
+  if (daysSinceLast >= 7) {
+    return { msg: `Llevas ${daysSinceLast} días sin practicar. ¡Retomá tu entrenamiento!`, cta: 'Practicar ahora', target: 'interview' }
+  }
+  if (interviews.length <= 2) {
+    return { msg: 'Seguí practicando para mejorar tu puntaje', cta: 'Nueva práctica', target: 'interview' }
+  }
+  return { msg: 'Completá una simulación esta semana para mejorar tu puntaje', cta: 'Ir a simulaciones', target: 'simulations' }
+}
+
+function getRecomendado(interviews) {
+  if (!interviews || interviews.length === 0) {
+    return {
+      eyebrow: 'Empezá aquí',
+      title: 'Tu primera entrevista',
+      desc: 'Practicá con IA y recibí feedback personalizado en minutos.',
+      cta: 'Comenzar →',
+      target: 'interview',
+    }
+  }
+  const last = interviews[interviews.length - 1]
+  const cfg = last?.config || {}
+  const label = cfg.jobTitle
+    ? `${cfg.interviewType === 'Technical' ? 'Entrevista técnica' : 'Entrevista'} de ${cfg.jobTitle}`
+    : 'Entrevista de práctica'
+  return {
+    eyebrow: 'Simulación recomendada',
+    title: label,
+    desc: 'Practicá preguntas clave y recibí feedback personalizado.',
+    cta: 'Retomar práctica →',
+    target: 'interview',
+  }
+}
+
+function WeeklyScoreChart({ interviews }) {
+  const scored = interviews.filter(iv => iv.interview_feedback?.[0]?.score != null).slice(-7)
+  if (scored.length < 2) return null
+  const DAY_LABELS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Hoy']
+  const scores = scored.map(iv => iv.interview_feedback[0].score)
+  const W = 280, H = 90, padX = 4, padY = 10
+  const min = Math.max(0, Math.min(...scores) - 50)
+  const max = Math.min(1000, Math.max(...scores) + 50)
+  const x = (i) => padX + (i / (scores.length - 1)) * (W - padX * 2)
+  const y = (s) => padY + (1 - (s - min) / (max - min)) * (H - padY * 2 - 16)
+  const points = scores.map((s, i) => `${x(i)},${y(s)}`).join(' ')
+  const area = `M${x(0)},${y(scores[0])} ` + scores.map((s, i) => `L${x(i)},${y(s)}`).join(' ') + ` L${x(scores.length - 1)},${H - 16} L${x(0)},${H - 16} Z`
+  const labelStart = Math.max(0, DAY_LABELS.length - scores.length)
+  return (
+    <svg width="100%" height={H} viewBox={`0 0 ${W} ${H}`} style={{ overflow: 'visible' }}>
+      <defs>
+        <linearGradient id="wcGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#5955F6" stopOpacity="0.18"/>
+          <stop offset="100%" stopColor="#5955F6" stopOpacity="0"/>
+        </linearGradient>
+      </defs>
+      <path d={area} fill="url(#wcGrad)"/>
+      <polyline points={points} fill="none" stroke="#5955F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      {scores.map((s, i) => (
+        <circle key={i} cx={x(i)} cy={y(s)} r="3.5" fill="#fff" stroke="#5955F6" strokeWidth="2"/>
+      ))}
+      {scores.map((_, i) => (
+        <text key={i} x={x(i)} y={H} textAnchor="middle" fontSize="10" fill="#94a3b8">
+          {DAY_LABELS[labelStart + i]}
+        </text>
+      ))}
+    </svg>
+  )
+}
+
+function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRecursos, onBlogPost, onStartSkill, onGoToProgress, onGoToSimulaciones }) {
   const firstName = fullName
     ? fullName.split(' ')[0]
     : (user?.email?.split('@')[0] ?? 'ahí')
@@ -242,283 +325,185 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRec
 
   if (interviews === null) return <HomeSkeleton />
 
-  const hasInterviews = interviews && interviews.length > 0
   const scoredInterviews = interviews?.filter(iv => iv.interview_feedback?.[0]?.score != null) ?? []
   const lastScore = scoredInterviews.length > 0 ? scoredInterviews[scoredInterviews.length - 1].interview_feedback[0].score : null
   const avgScore = scoredInterviews.length > 0
-    ? (scoredInterviews.reduce((s, iv) => s + iv.interview_feedback[0].score, 0) / scoredInterviews.length).toFixed(1)
+    ? scoredInterviews.reduce((s, iv) => s + iv.interview_feedback[0].score, 0) / scoredInterviews.length
     : null
+
+  const recomendado = getRecomendado(interviews)
+  const nextAction = getNextAction(interviews, scoredInterviews)
 
   return (
     <div className="db-home">
       {/* Header */}
       <div className="db-welcome">
         <h1>Hola, {firstName} 👋</h1>
-        <p>Bienvenido a tu espacio de entrenamiento.</p>
+        <p>Listo para seguir creciendo hoy.</p>
       </div>
 
-      {/* Hero banner — solo sin entrevistas */}
-      {interviews !== null && !hasInterviews && (
-        <div className="home-hero-banner">
-          <div className="home-hero-text">
-            <div className="home-hero-eyebrow">Empecemos tu camino</div>
-            <h2>Tu primera entrevista te está esperando</h2>
-            <p>Practicar es la mejor manera de prepararte y ganar confianza.</p>
-            <button className="home-hero-btn" onClick={onNewInterview} data-track="new_interview_clicked">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/>
-                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-                <line x1="12" y1="19" x2="12" y2="22"/>
-              </svg>
-              Comenzar mi primera entrevista
-            </button>
+      {/* Top grid: Recomendado | Tu progreso | Stats */}
+      <div className="home-top-grid">
+        {/* Recomendado para vos */}
+        <div className="home-recomendado-card">
+          <div className="home-recomendado-eyebrow">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            {recomendado.eyebrow}
           </div>
-          <div className="home-hero-art" aria-hidden="true">
-            <img src={targetImg} alt="" className="home-hero-img" />
+          <div className="home-recomendado-body">
+            <div className="home-recomendado-text">
+              <h3 className="home-recomendado-title">{recomendado.title}</h3>
+              <p className="home-recomendado-desc">{recomendado.desc}</p>
+              <button className="home-recomendado-btn" onClick={onNewInterview} data-track="new_interview_clicked">
+                {recomendado.cta}
+              </button>
+            </div>
+            <img src="/3d/01_monitor_recomendado.png" alt="" className="home-recomendado-img" />
           </div>
         </div>
-      )}
 
-      {false && <div className="home-section">
-        <div className="home-section-title">Así es tu camino en CoachToWork</div>
-        <div className="home-journey">
-
-          {/* 1. Practicá — micrófono 3D */}
-          <div className="home-journey-item">
-            <div className="home-journey-icon">
-              <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="32" cy="32" r="32" fill="#eef2ff"/>
-                <circle cx="32" cy="32" r="22" fill="#e0e7ff"/>
-                <rect x="24" y="14" width="16" height="24" rx="8" fill="url(#mic-grad)"/>
-                <rect x="26" y="16" width="6" height="4" rx="2" fill="white" opacity="0.4"/>
-                <path d="M20 34c0 6.627 5.373 12 12 12s12-5.373 12-12" stroke="#6366f1" strokeWidth="2.5" strokeLinecap="round" fill="none"/>
-                <line x1="32" y1="46" x2="32" y2="52" stroke="#6366f1" strokeWidth="2.5" strokeLinecap="round"/>
-                <line x1="26" y1="52" x2="38" y2="52" stroke="#6366f1" strokeWidth="2.5" strokeLinecap="round"/>
-                <defs>
-                  <linearGradient id="mic-grad" x1="24" y1="14" x2="40" y2="38" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#818cf8"/>
-                    <stop offset="1" stopColor="#6366f1"/>
-                  </linearGradient>
-                </defs>
-              </svg>
-            </div>
-            <div className="home-journey-label">1. Practicá</div>
-            <div className="home-journey-sub">Simulá entrevistas reales con IA.</div>
+        {/* Tu progreso */}
+        <div className="home-progreso-card">
+          <div className="home-progreso-header">
+            <span className="home-progreso-title">Tu progreso</span>
+            <button className="home-progreso-detalle" onClick={onGoToProgress}>Ver detalle →</button>
           </div>
-
-          <div className="home-journey-connector" />
-
-          {/* 2. Recibí feedback — documento con check 3D */}
-          <div className="home-journey-item">
-            <div className="home-journey-icon">
-              <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="32" cy="32" r="32" fill="#f0fdf4"/>
-                <circle cx="32" cy="32" r="22" fill="#dcfce7"/>
-                <rect x="18" y="12" width="28" height="36" rx="4" fill="url(#doc-grad)"/>
-                <rect x="20" y="14" width="10" height="6" rx="2" fill="white" opacity="0.35"/>
-                <rect x="22" y="24" width="16" height="2.5" rx="1.25" fill="white" opacity="0.5"/>
-                <rect x="22" y="30" width="12" height="2.5" rx="1.25" fill="white" opacity="0.4"/>
-                <rect x="22" y="36" width="14" height="2.5" rx="1.25" fill="white" opacity="0.4"/>
-                <circle cx="44" cy="44" r="10" fill="#22c55e"/>
-                <path d="M39.5 44l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <defs>
-                  <linearGradient id="doc-grad" x1="18" y1="12" x2="46" y2="48" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#4ade80"/>
-                    <stop offset="1" stopColor="#16a34a"/>
-                  </linearGradient>
-                </defs>
-              </svg>
+          {scoredInterviews.length > 0 ? (
+            <>
+              <div className="home-progreso-label">Puntaje promedio</div>
+              <div className="home-progreso-score">{Math.round(avgScore)}</div>
+              <WeeklyScoreChart interviews={interviews} />
+            </>
+          ) : (
+            <div className="home-stats-empty">
+              <p>Completá tu primera entrevista para ver tu progreso.</p>
+              <button className="db-btn-primary" onClick={onNewInterview} data-track="new_interview_clicked">Comenzar ahora</button>
             </div>
-            <div className="home-journey-label">2. Recibí feedback</div>
-            <div className="home-journey-sub">Obtené un análisis personalizado.</div>
-          </div>
-
-          <div className="home-journey-connector" />
-
-          {/* 3. Mejorá — flecha curva hacia arriba 3D */}
-          <div className="home-journey-item">
-            <div className="home-journey-icon">
-              <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="32" cy="32" r="32" fill="#eff6ff"/>
-                <circle cx="32" cy="32" r="22" fill="#dbeafe"/>
-                <rect x="14" y="38" width="8" height="14" rx="2" fill="#60a5fa"/>
-                <rect x="26" y="30" width="8" height="22" rx="2" fill="#3b82f6"/>
-                <rect x="38" y="20" width="8" height="32" rx="2" fill="url(#bar-grad)"/>
-                <rect x="40" y="22" width="3" height="5" rx="1" fill="white" opacity="0.35"/>
-                <path d="M16 36 Q28 18 44 16" stroke="#1d4ed8" strokeWidth="2" strokeLinecap="round" fill="none" strokeDasharray="3 2"/>
-                <polygon points="44,10 50,18 38,18" fill="#1d4ed8"/>
-                <defs>
-                  <linearGradient id="bar-grad" x1="38" y1="20" x2="46" y2="52" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#93c5fd"/>
-                    <stop offset="1" stopColor="#2563eb"/>
-                  </linearGradient>
-                </defs>
-              </svg>
-            </div>
-            <div className="home-journey-label">3. Mejorá</div>
-            <div className="home-journey-sub">Aplicá las sugerencias y repetí.</div>
-          </div>
-
-          <div className="home-journey-connector" />
-
-          {/* 4. Crecé — trofeo 3D */}
-          <div className="home-journey-item">
-            <div className="home-journey-icon">
-              <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="32" cy="32" r="32" fill="#fffbeb"/>
-                <circle cx="32" cy="32" r="22" fill="#fef3c7"/>
-                <path d="M22 14h20v16c0 5.523-4.477 10-10 10s-10-4.477-10-10V14z" fill="url(#trophy-grad)"/>
-                <path d="M24 16h14v4H24z" fill="white" opacity="0.25"/>
-                <path d="M22 18h-5a4 4 0 0 0 4 8h2" stroke="#d97706" strokeWidth="2" fill="none" strokeLinecap="round"/>
-                <path d="M42 18h5a4 4 0 0 1-4 8h-2" stroke="#d97706" strokeWidth="2" fill="none" strokeLinecap="round"/>
-                <rect x="28" y="40" width="8" height="6" rx="1" fill="#f59e0b"/>
-                <rect x="24" y="46" width="16" height="4" rx="2" fill="url(#base-grad)"/>
-                <defs>
-                  <linearGradient id="trophy-grad" x1="22" y1="14" x2="42" y2="40" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#fcd34d"/>
-                    <stop offset="1" stopColor="#f59e0b"/>
-                  </linearGradient>
-                  <linearGradient id="base-grad" x1="24" y1="46" x2="40" y2="50" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#fbbf24"/>
-                    <stop offset="1" stopColor="#d97706"/>
-                  </linearGradient>
-                </defs>
-              </svg>
-            </div>
-            <div className="home-journey-label">4. Crecé</div>
-            <div className="home-journey-sub">Subí tu score y alcanzá tus objetivos.</div>
-          </div>
-
+          )}
         </div>
-      </div>}
 
-      {/* Grid inferior */}
-      <div className="home-grid">
-        {/* ¿Qué podés practicar? */}
-        <div className="home-card">
-          <div className="home-card-title">¿Qué podés practicar?</div>
-          <div className="home-practice-list">
-            {PRACTICE_TYPES.map((pt, i) => (
-              <button key={i} className="home-practice-item" onClick={onNewInterview}>
-                <span className="home-practice-icon">{pt.icon}</span>
-                <span className="home-practice-text">
-                  <span className="home-practice-label">{pt.label}</span>
-                  <span className="home-practice-sub">{pt.sub}</span>
-                </span>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" strokeWidth="2" strokeLinecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        {/* Stats col */}
+        <div className="home-stats-col">
+          <div className="home-stats-col-row" onClick={onGoToProgress}>
+            <div className="home-stats-col-icon home-stats-col-icon--person">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <div className="home-stats-col-info">
+              <div className="home-stats-col-val">{lastScore != null ? Math.round(lastScore) : '—'}</div>
+              <div className="home-stats-col-key">Última entrevista</div>
+            </div>
+            <span className="home-stats-col-link">Ver →</span>
+          </div>
+          <div className="home-stats-col-row" onClick={onGoToProgress}>
+            <div className="home-stats-col-icon home-stats-col-icon--chat">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <div className="home-stats-col-info">
+              <div className="home-stats-col-val">{avgScore != null ? Math.round(avgScore) : '—'}</div>
+              <div className="home-stats-col-key">Promedio general</div>
+            </div>
+            <span className="home-stats-col-link">Ver →</span>
+          </div>
+          <div className="home-stats-col-row" onClick={onGoToProgress}>
+            <div className="home-stats-col-icon home-stats-col-icon--trophy">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>
+            </div>
+            <div className="home-stats-col-info">
+              <div className="home-stats-col-val">{scoredInterviews.length}</div>
+              <div className="home-stats-col-key">Entrevistas totales</div>
+            </div>
+            <span className="home-stats-col-link">Ver →</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Desarrollá tus habilidades */}
+      <div className="home-section-block">
+        <div className="home-section-header">
+          <h2 className="home-section-h2">Desarrollá tus habilidades</h2>
+          <button className="home-ver-todos-btn" onClick={onGoToRecursos}>Ver todos →</button>
+        </div>
+        <div className="home-skills-v2-grid">
+          {SKILLS_CATALOG.map((skill) => {
+            const done = getSkillProgress(user?.id || 'guest', skill.id, skill.techniques.length)
+            const pct = Math.round((done / skill.techniques.length) * 100)
+            const barColor = pct === 100 ? '#22c55e' : pct >= 50 ? '#5955F6' : '#5955F6'
+            return (
+              <button
+                key={skill.id}
+                className="home-skill-v2-card"
+                onClick={() => { unlockAudio(); onStartSkill?.(skill.id) }}
+              >
+                <img src={skill.img3d} alt={skill.shortTitle} className="home-skill-v2-img" />
+                <div className="home-skill-v2-name">{skill.shortTitle}</div>
+                <div className="home-skill-v2-bar-wrap">
+                  <div className="home-skill-v2-bar-track">
+                    <div className="home-skill-v2-bar-fill" style={{ width: `${pct}%`, background: barColor }} />
+                  </div>
+                  <span className="home-skill-v2-pct">{pct}%</span>
+                </div>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Recursos + Consejo del día */}
+      <div className="home-recursos-tip-grid">
+        {/* Recursos */}
+        <div className="home-section-block">
+          <div className="home-section-header">
+            <h2 className="home-section-h2">Recursos para seguir aprendiendo</h2>
+            <button className="home-ver-todos-btn" onClick={onGoToRecursos}>Ver todos →</button>
+          </div>
+          <div className="home-recursos-grid">
+            {RANDOM_RECURSOS.map((post) => (
+              <button
+                key={post.slug}
+                className="home-recurso-tile"
+                onClick={() => onBlogPost(post.slug)}
+              >
+                <div className="home-recurso-img-wrap">
+                  <img src={post.image} alt={post.imageAlt} className="home-recurso-img" />
+                </div>
+                <div className="home-recurso-body">
+                  <div className="home-recurso-title">{post.title}</div>
+                  <div className="home-recurso-excerpt">{post.excerpt}</div>
+                </div>
               </button>
             ))}
           </div>
         </div>
 
         {/* Consejo del día */}
-        <div className="home-card home-card--tip">
-          <div className="home-tip-label">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21h6"/><path d="M12 3a6 6 0 0 1 6 6c0 2.5-1.5 4.7-3.5 5.9V17H9.5v-2.1C7.5 13.7 6 11.5 6 9a6 6 0 0 1 6-6z"/></svg>
-            Consejo del día
+        <div className="home-tip-v2-col">
+          <div className="home-tip-v2-card">
+            <div className="home-tip-v2-header">
+              <span className="home-tip-v2-quote-icon">"</span>
+              <span className="home-tip-v2-label">Consejo del día</span>
+            </div>
+            <div className="home-tip-v2-body">
+              <blockquote className="home-tip-v2-text">"{DAILY_TIP}"</blockquote>
+              <img src="/3d/07_planta_consejo_del_dia.png" alt="" className="home-tip-v2-img" />
+            </div>
           </div>
-          <div className="home-tip-body">
-            <div className="home-tip-text">
-              <blockquote className="home-tip-quote">"{DAILY_TIP}"</blockquote>
-              <p className="home-tip-sub">Cuanto más practiques, más seguro y claro vas a ser.</p>
+
+          {/* Tu próxima mejor acción */}
+          <div className="home-next-action-card">
+            <div className="home-next-action-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5955F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
             </div>
-            <img src={mountainImg} alt="" className="home-tip-img" />
+            <div className="home-next-action-body">
+              <div className="home-next-action-label">Tu próxima mejor acción</div>
+              <p className="home-next-action-msg">{nextAction.msg}</p>
+              <button
+                className="home-next-action-btn"
+                onClick={nextAction.target === 'interview' ? onNewInterview : onGoToSimulaciones}
+              >
+                {nextAction.cta} →
+              </button>
+            </div>
           </div>
-        </div>
-
-        {/* Estadísticas */}
-        <div className="home-card">
-          <div className="home-card-title">Estadísticas</div>
-          {scoredInterviews.length > 0 ? (
-            <div className="home-stats">
-              {scoredInterviews.length === 1 ? (
-                <div className="home-stats-single">
-                  <div className="home-stat-val-big">{Math.round(lastScore)}</div>
-                  <div className="home-stat-key-sub">Tu última entrevista</div>
-                </div>
-              ) : (
-                <div className="home-stats-nums">
-                  <div className="home-stat">
-                    <div className="home-stat-val">{Math.round(lastScore)}</div>
-                    <div className="home-stat-key">Última</div>
-                  </div>
-                  <div className="home-stat">
-                    <div className="home-stat-val">{Math.round(avgScore)}</div>
-                    <div className="home-stat-key">Promedio</div>
-                  </div>
-                  <div className="home-stat">
-                    <div className="home-stat-val">{scoredInterviews.length}</div>
-                    <div className="home-stat-key">Total</div>
-                  </div>
-                </div>
-              )}
-              <MiniScoreChart interviews={interviews} />
-            </div>
-          ) : (
-            <div className="home-stats-empty">
-              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
-              </svg>
-              <p>Completá tu primera entrevista para ver tu progreso.</p>
-              <button className="db-btn-primary" onClick={onNewInterview} data-track="new_interview_clicked">Comenzar ahora</button>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Mejorá tus habilidades */}
-      <div className="home-recursos">
-        <div className="home-recursos-header">
-          <div className="home-card-title" style={{ margin: 0 }}>Mejorá tus habilidades</div>
-        </div>
-        <div className="home-recursos-grid home-skills-grid-5">
-          {SKILLS_CATALOG.map((skill) => (
-            <button
-              key={skill.id}
-              className="home-recurso-tile home-skill-tile"
-              onClick={() => { unlockAudio(); onStartSkill?.(skill.id) }}
-            >
-              <div className="home-skill-tile-body">
-                <div className="home-skill-tile-top">
-                  <span className="home-skill-eje">{skill.eje}</span>
-                  <span className="home-skill-duration">{skill.duration}</span>
-                </div>
-                <div className="home-recurso-title">{skill.name}</div>
-                <div className="home-recurso-excerpt">{skill.description}</div>
-              </div>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Recursos preview */}
-      <div className="home-recursos">
-        <div className="home-recursos-header">
-          <div className="home-card-title" style={{ margin: 0 }}>Recursos</div>
-        </div>
-        <div className="home-recursos-grid">
-          {RANDOM_RECURSOS.map((post) => (
-            <button
-              key={post.slug}
-              className="home-recurso-tile"
-              onClick={() => onBlogPost(post.slug)}
-            >
-              <div className="home-recurso-img-wrap">
-                <img src={post.image} alt={post.imageAlt} className="home-recurso-img" />
-              </div>
-              <div className="home-recurso-body">
-                <div className="home-recurso-title">{post.title}</div>
-                <div className="home-recurso-excerpt">{post.excerpt}</div>
-              </div>
-            </button>
-          ))}
-          <button className="home-recurso-tile home-recurso-tile--ver-todos" onClick={onGoToRecursos}>
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5955F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-            </svg>
-            <span className="home-recurso-vertodos-label">Ver todos los recursos</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5955F6" strokeWidth="2" strokeLinecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </button>
         </div>
       </div>
 
@@ -780,6 +765,8 @@ export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRep
             onGoToRecursos={() => setSection('recursos')}
             onBlogPost={onBlogPost}
             onStartSkill={onStartSkill}
+            onGoToProgress={() => setSection('interviews')}
+            onGoToSimulaciones={() => setSection('simulaciones')}
           />
         )}
         {section === 'interviews'  && <MyInterviews onNewInterview={onNewInterview} onRepeat={onRepeatInterview} initialSelectedId={deepInterviewId} onDeepIdConsumed={() => setDeepInterviewId(null)} mockInterviews={demoIndex !== null ? DEMO_STATES[demoIndex].interviews : undefined} />}
