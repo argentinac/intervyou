@@ -54,13 +54,6 @@ export default function SkillSuccess({ skill, messages, onDashboard }) {
           <span className="skill-success-badge skill-success-badge--eje">Eje: {skill?.eje}</span>
         </div>
 
-        {closingSummary && (
-          <div className="skill-success-summary">
-            <div className="skill-success-summary-label">Tu coach dice</div>
-            <p className="skill-success-summary-text">{closingSummary}</p>
-          </div>
-        )}
-
         {nextSteps.length > 0 && (
           <div className="skill-success-next">
             <div className="skill-success-next-label">Próximos pasos</div>

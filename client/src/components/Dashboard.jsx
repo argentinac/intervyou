@@ -411,20 +411,27 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRec
           </div>
         </div>
 
-        {/* Quiero practicar una skill */}
-        <div className="home-skills-section">
-          <div className="home-card-title home-skills-title">Quiero practicar una skill</div>
-          <div className="home-skills-grid">
+        {/* Mejorá tus habilidades */}
+        <div className="home-recursos home-skills-recursos">
+          <div className="home-recursos-header">
+            <div className="home-card-title" style={{ margin: 0 }}>Mejorá tus habilidades</div>
+          </div>
+          <div className="home-recursos-grid">
             {SKILLS_CATALOG.map((skill) => (
-              <div key={skill.id} className="home-skill-card">
-                <div className="home-skill-name">{skill.name}</div>
-                <div className="home-skill-meta">
-                  <span className="home-skill-eje">{skill.eje}</span>
-                  <span className="home-skill-duration">{skill.duration}</span>
+              <button
+                key={skill.id}
+                className="home-recurso-tile home-skill-tile"
+                onClick={() => { unlockAudio(); onStartSkill?.(skill.id) }}
+              >
+                <div className="home-skill-tile-body">
+                  <div className="home-skill-tile-top">
+                    <span className="home-skill-eje">{skill.eje}</span>
+                    <span className="home-skill-duration">{skill.duration}</span>
+                  </div>
+                  <div className="home-recurso-title">{skill.name}</div>
+                  <div className="home-recurso-excerpt">{skill.description}</div>
                 </div>
-                <div className="home-skill-desc">{skill.description}</div>
-                <button className="home-skill-btn" onClick={() => { unlockAudio(); onStartSkill?.(skill.id) }}>Comenzar</button>
-              </div>
+              </button>
             ))}
           </div>
         </div>

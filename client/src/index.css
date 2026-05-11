@@ -5714,6 +5714,26 @@ html, body, #root, .app {
   color: #fff;
 }
 
+/* ── Skills section (home — same grid as Recursos) ────────── */
+.home-skills-recursos { margin-bottom: 8px; }
+.home-skill-tile { padding: 0 !important; }
+.home-skill-tile-body {
+  padding: 14px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-height: 110px;
+}
+.home-skill-tile-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 2px;
+}
+
+/* (keep existing .home-skill-eje and .home-skill-duration from below) */
 /* ── Skills section (home) ─────────────────────────────────── */
 .home-skills-section {
   margin-bottom: 8px;
