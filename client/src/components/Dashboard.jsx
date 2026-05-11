@@ -436,6 +436,7 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRec
               >
                 <img src={skill.img3d} alt={skill.shortTitle} className="home-skill-v2-img" />
                 <div className="home-skill-v2-name">{skill.shortTitle}</div>
+                <div className="home-skill-v2-nivel" style={{ color: skill.nivelColor }}>{skill.nivel}</div>
                 <div className="home-skill-v2-bar-wrap">
                   <div className="home-skill-v2-bar-track">
                     <div className="home-skill-v2-bar-fill" style={{ width: `${pct}%`, background: barColor }} />
@@ -467,6 +468,9 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRec
                   <img src={post.image} alt={post.imageAlt} className="home-recurso-img" />
                 </div>
                 <div className="home-recurso-body">
+                  {(post.type || post.readTime) && (
+                    <div className="home-recurso-meta">{post.type}{post.readTime ? ` · ${post.readTime} min` : ''}</div>
+                  )}
                   <div className="home-recurso-title">{post.title}</div>
                 </div>
               </button>

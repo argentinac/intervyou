@@ -2515,6 +2515,12 @@ html, body, #root, .app {
   gap: 6px;
   flex: 1;
 }
+.home-recurso-meta {
+  font-size: 11px;
+  color: #6b7280;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
 .home-recurso-title {
   font-size: 13px;
   font-weight: 700;
@@ -6056,6 +6062,11 @@ html, body, #root, .app {
   border-radius: 99px;
   transition: width 0.4s ease;
   min-width: 3px;
+}
+.home-skill-v2-nivel {
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: -4px;
 }
 .home-skill-v2-pct {
   font-size: 11px;

@@ -5,6 +5,8 @@ export const blogPosts = [
     excerpt: `Aprende cómo prepararse para una entrevista de trabajo con RRHH en ${new Date().getFullYear()}. Checklist, errores frecuentes y estrategias comprobadas.`,
     image: '/blog-images/blog-01.png',
     imageAlt: 'Profesional preparándose para entrevista',
+    type: 'Artículo',
+    readTime: 6,
   },
   {
     slug: '02-preguntas-trampa-entrevista-de-trabajo',
@@ -12,6 +14,8 @@ export const blogPosts = [
     excerpt: 'Descubrí las 10 preguntas trampa más comunes en entrevistas de trabajo y cómo responderlas con confianza y estrategia.',
     image: '/blog-images/blog-02.png',
     imageAlt: 'Entrevistador y candidato en reunión',
+    type: 'Artículo',
+    readTime: 7,
   },
   {
     slug: '03-fortalezas-y-debilidades-entrevista',
@@ -19,6 +23,8 @@ export const blogPosts = [
     excerpt: 'Aprende qué decir sobre tus fortalezas y debilidades en una entrevista. Ejemplos reales y estrategias para responder con impacto.',
     image: '/blog-images/blog-03.png',
     imageAlt: 'Profesional reflexivo',
+    type: 'Artículo',
+    readTime: 5,
   },
   {
     slug: '04-como-responder-hablame-de-ti-entrevista',
@@ -26,6 +32,8 @@ export const blogPosts = [
     excerpt: 'Aprende cómo responder la pregunta más común de entrevistas con la fórmula Presente-Pasado-Futuro. Ejemplos por nivel de seniority.',
     image: '/blog-images/blog-04.png',
     imageAlt: 'Persona hablando en entrevista',
+    type: 'Guía',
+    readTime: 6,
   },
   {
     slug: '05-primera-entrevista-de-trabajo-sin-experiencia',
@@ -33,6 +41,8 @@ export const blogPosts = [
     excerpt: 'Guía para destacar en tu primera entrevista de trabajo sin experiencia. Estrategias concretas para mostrar potencial.',
     image: '/blog-images/blog-05.png',
     imageAlt: 'Joven profesional en su primera entrevista',
+    type: 'Guía',
+    readTime: 7,
   },
   {
     slug: '06-preguntas-primera-entrevista-de-trabajo',
@@ -40,6 +50,8 @@ export const blogPosts = [
     excerpt: 'Guía para jóvenes profesionales con las preguntas clave en una primera entrevista de trabajo y cómo responderlas con confianza.',
     image: '/blog-images/blog-06.png',
     imageAlt: 'Joven profesional con laptop',
+    type: 'Guía',
+    readTime: 8,
   },
   {
     slug: '07-que-ropa-usar-entrevista-de-trabajo',
@@ -47,6 +59,8 @@ export const blogPosts = [
     excerpt: 'Descubrí qué ropa usar para una entrevista de trabajo presencial o remota según la cultura de la empresa y el puesto.',
     image: '/blog-images/blog-07.png',
     imageAlt: 'Profesional con vestimenta de trabajo',
+    type: 'Artículo',
+    readTime: 4,
   },
   {
     slug: '08-nervios-ansiedad-entrevista-de-trabajo',
@@ -54,6 +68,8 @@ export const blogPosts = [
     excerpt: 'Aprende a controlar los nervios y la ansiedad antes de una entrevista de trabajo con técnicas concretas y efectivas.',
     image: '/blog-images/blog-08.png',
     imageAlt: 'Persona calmada antes de una presentación',
+    type: 'Artículo',
+    readTime: 5,
   },
   {
     slug: '09-como-pasar-entrevista-tecnica-it',
@@ -61,6 +77,8 @@ export const blogPosts = [
     excerpt: 'Guía paso a paso para superar una entrevista técnica IT: fases del proceso, evaluación técnica y cómo comunicar tu forma de pensar.',
     image: '/blog-images/blog-09.png',
     imageAlt: 'Desarrollador trabajando en código',
+    type: 'Guía',
+    readTime: 9,
   },
   {
     slug: '10-metodo-star-entrevista',
@@ -68,6 +86,8 @@ export const blogPosts = [
     excerpt: 'Aprende a usar el método STAR en entrevistas. Definición, ejemplos y cómo aplicarlo para destacar en cualquier proceso de selección.',
     image: '/blog-images/blog-10.png',
     imageAlt: 'Metodología de entrevista',
+    type: 'Guía',
+    readTime: 7,
   },
   {
     slug: '11-entrevista-tecnica-data-analyst',
@@ -75,6 +95,8 @@ export const blogPosts = [
     excerpt: 'Guía completa para la entrevista técnica de Data Analyst: herramientas clave, tipos de preguntas y cómo comunicar tus análisis.',
     image: '/blog-images/blog-11.png',
     imageAlt: 'Analista de datos trabajando',
+    type: 'Guía',
+    readTime: 8,
   },
   {
     slug: '12-prueba-tecnica-live-coding-remoto',
@@ -82,6 +104,8 @@ export const blogPosts = [
     excerpt: 'Guía para destacar en una prueba técnica de live coding en remoto: preparación, manejo de bloqueos y comunicación efectiva.',
     image: '/blog-images/blog-12.png',
     imageAlt: 'Programador en oficina moderna',
+    type: 'Guía',
+    readTime: 6,
   },
   {
     slug: '13-como-pedir-aumento-de-sueldo',
@@ -89,6 +113,8 @@ export const blogPosts = [
     excerpt: 'Aprende cómo pedir un aumento de sueldo con argumentos sólidos, el momento ideal y una estructura de conversación que funciona.',
     image: '/blog-images/blog-13.png',
     imageAlt: 'Negociación salarial profesional',
+    type: 'Artículo',
+    readTime: 6,
   },
   {
     slug: '14-argumentos-pedir-aumento-sueldo',
@@ -96,6 +122,8 @@ export const blogPosts = [
     excerpt: 'Descubrí los argumentos más sólidos para justificar un aumento: análisis de mercado, logros con KPIs y nuevas responsabilidades.',
     image: '/blog-images/blog-14.png',
     imageAlt: 'Reunión de negociación en oficina',
+    type: 'Artículo',
+    readTime: 5,
   },
   {
     slug: '15-cuanto-pedir-de-aumento-sueldo',
@@ -103,6 +131,8 @@ export const blogPosts = [
     excerpt: 'Descubrí cuánto pedir de aumento de sueldo, cómo usar la técnica del anclaje y qué beneficios no salariales podés negociar.',
     image: '/blog-images/blog-15.png',
     imageAlt: 'Discusión de salario y negociación',
+    type: 'Artículo',
+    readTime: 5,
   },
   {
     slug: '16-me-negaron-aumento-de-sueldo',
@@ -110,6 +140,8 @@ export const blogPosts = [
     excerpt: 'Qué hacer si te negaron un aumento: cómo mantener el profesionalismo, hacer las preguntas correctas y construir un plan de acción.',
     image: '/blog-images/blog-16.png',
     imageAlt: 'Profesional reflexionando en su escritorio',
+    type: 'Video',
+    readTime: 5,
   },
   {
     slug: '17-como-pedir-un-ascenso',
@@ -117,6 +149,8 @@ export const blogPosts = [
     excerpt: 'Aprende cómo pedir un ascenso de forma profesional: cómo preparar el caso, cuándo hablar y qué argumentos usar.',
     image: '/blog-images/blog-17.png',
     imageAlt: 'Líder en reunión de equipo',
+    type: 'Artículo',
+    readTime: 6,
   },
   {
     slug: '18-diferencia-ascenso-y-aumento',
@@ -124,6 +158,8 @@ export const blogPosts = [
     excerpt: 'Entendé la diferencia entre pedir un ascenso y pedir un aumento de sueldo, y cómo manejar cada conversación de forma estratégica.',
     image: '/blog-images/blog-18.png',
     imageAlt: 'Reunión de equipo en oficina',
+    type: 'Artículo',
+    readTime: 4,
   },
   {
     slug: '19-plan-de-carrera-profesional-empresa',
@@ -131,6 +167,8 @@ export const blogPosts = [
     excerpt: 'Aprende cómo construir un plan de carrera profesional con tu líder con objetivos claros y reuniones 1:1 efectivas.',
     image: '/blog-images/blog-19.png',
     imageAlt: 'Reunión de mentoría profesional',
+    type: 'Guía',
+    readTime: 8,
   },
   {
     slug: '20-pasar-a-puesto-de-liderazgo',
@@ -138,6 +176,8 @@ export const blogPosts = [
     excerpt: 'Aprende cómo pasar a un puesto de liderazgo desde un rol técnico: qué habilidades desarrollar y cómo comunicarlo en entrevistas.',
     image: '/blog-images/blog-20.png',
     imageAlt: 'Profesional en camino al liderazgo',
+    type: 'Guía',
+    readTime: 8,
   },
   {
     slug: '21-como-despedir-a-un-empleado',
@@ -145,6 +185,8 @@ export const blogPosts = [
     excerpt: 'Aprende cómo despedir a un empleado de forma respetuosa y profesional: preparación, qué decir en la reunión y manejo de emociones.',
     image: '/blog-images/blog-21.png',
     imageAlt: 'Conversación difícil en oficina',
+    type: 'Video',
+    readTime: 6,
   },
   {
     slug: '22-como-renunciar-a-un-trabajo',
@@ -152,6 +194,8 @@ export const blogPosts = [
     excerpt: 'Aprende cómo renunciar a tu trabajo de forma profesional sin quemar puentes: tiempos, qué decir y cómo manejar contraofertas.',
     image: '/blog-images/blog-22.png',
     imageAlt: 'Persona tomando decisión de carrera',
+    type: 'Artículo',
+    readTime: 5,
   },
   {
     slug: '23-como-dar-feedback-negativo',
@@ -159,6 +203,8 @@ export const blogPosts = [
     excerpt: 'Aprende cómo dar feedback negativo de forma constructiva sin desmotivar a tu equipo. El modelo SBI y cómo medir el impacto.',
     image: '/blog-images/blog-23.png',
     imageAlt: 'Feedback entre colegas en oficina',
+    type: 'Artículo',
+    readTime: 6,
   },
   {
     slug: '24-como-dar-presentacion-en-publico',
@@ -166,6 +212,8 @@ export const blogPosts = [
     excerpt: 'Aprende cómo dar una presentación exitosa frente a directivos: estructura ejecutiva, lenguaje corporal y manejo de preguntas difíciles.',
     image: '/blog-images/blog-24.png',
     imageAlt: 'Presentación profesional frente a audiencia',
+    type: 'Video',
+    readTime: 7,
   },
   {
     slug: '25-como-pedir-rotacion-interna',
@@ -173,5 +221,7 @@ export const blogPosts = [
     excerpt: 'Aprende cómo pedir una rotación interna: cómo hablar con tu jefe actual, venderte al nuevo líder y manejar la transición.',
     image: '/blog-images/blog-25.png',
     imageAlt: 'Equipo diverso en reunión colaborativa',
+    type: 'Artículo',
+    readTime: 5,
   },
 ]
