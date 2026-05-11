@@ -211,14 +211,6 @@ function HomeSkeleton() {
   )
 }
 
-function getSkillProgress(userId, skillId, techniqueCount) {
-  let done = 0
-  for (let i = 0; i < techniqueCount; i++) {
-    const key = `skill_done_${userId}_${skillId}_${i}`
-    if (localStorage.getItem(key) === '1') done++
-  }
-  return done
-}
 
 function getNextAction(interviews, scoredInterviews) {
   if (!interviews || interviews.length === 0) {
@@ -302,7 +294,27 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRec
     : (user?.email?.split('@')[0] ?? 'ahí')
 
   const [realInterviews, setRealInterviews] = useState(null)
+  const [skillProgress, setSkillProgress] = useState({})
   const { getToken } = useAuth()
+
+  useEffect(() => {
+    if (!user?.id) return
+    supabase
+      .from('skill_progress')
+      .select('skill_id, technique_idx')
+      .eq('user_id', user.id)
+      .then(({ data }) => {
+        if (!data) return
+        const map = {}
+        data.forEach(({ skill_id, technique_idx }) => {
+          if (!map[skill_id]) map[skill_id] = new Set()
+          map[skill_id].add(technique_idx)
+        })
+        const counts = {}
+        Object.entries(map).forEach(([id, set]) => { counts[id] = set.size })
+        setSkillProgress(counts)
+      })
+  }, [user?.id])
 
   useEffect(() => {
     if (mockInterviews !== undefined) return
@@ -425,9 +437,10 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRec
         </div>
         <div className="home-skills-v2-grid">
           {SKILLS_CATALOG.map((skill) => {
-            const done = getSkillProgress(user?.id || 'guest', skill.id, skill.techniques.length)
+            const done = skillProgress[skill.id] || 0
             const pct = Math.round((done / skill.techniques.length) * 100)
-            const barColor = pct === 100 ? '#22c55e' : pct >= 50 ? '#5955F6' : '#5955F6'
+            const barColor = pct === 100 ? '#22c55e' : '#5955F6'
+            const nivelLabel = done === 0 ? 'Nivel principiante' : done === 1 ? 'Nivel intermedio' : done === 2 ? 'Nivel avanzado' : 'Nivel experto'
             return (
               <button
                 key={skill.id}
@@ -438,7 +451,7 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRec
                   <img src={skill.img3d} alt={skill.shortTitle} className="home-skill-v2-img" />
                 </div>
                 <div className="home-skill-v2-name">{skill.shortTitle}</div>
-                <div className="home-skill-v2-nivel">{skill.nivel}</div>
+                <div className="home-skill-v2-nivel">{nivelLabel}</div>
                 <div className="home-skill-v2-bar-wrap">
                   <div className="home-skill-v2-bar-track">
                     <div className="home-skill-v2-bar-fill" style={{ width: `${pct}%`, background: barColor }} />

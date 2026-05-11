@@ -283,21 +283,30 @@ function AppInner() {
   if (view === 'skill') {
     const skill = skillId ? getSkillById(skillId) : null
     if (!skill) { setView('dashboard'); return null }
-    const systemPrompt = getSkillSystemPrompt(skill)
+    const { systemPrompt, techniqueIdx } = getSkillSystemPrompt(skill)
     const skillConfig = {
       isSkill: true,
       skillId: skill.id,
       skillName: skill.name,
       skillEje: skill.eje,
+      techniqueIdx,
       systemPrompt,
       language: 'Spanish',
       country: 'Argentina',
+    }
+    const handleSkillComplete = async (sid, tidx) => {
+      if (!user) return
+      await supabase.from('skill_progress').upsert(
+        { user_id: user.id, skill_id: sid, technique_idx: tidx },
+        { onConflict: 'user_id,skill_id,technique_idx' }
+      )
     }
     return (
       <InterviewSession
         config={skillConfig}
         onEnd={() => { setSkillId(null); setView('dashboard') }}
         onDashboard={() => { setSkillId(null); setView('dashboard') }}
+        onSkillComplete={handleSkillComplete}
       />
     )
   }
