@@ -90,9 +90,9 @@ export async function speakRoute(req, res) {
           model_id: 'eleven_flash_v2_5',
           language_code: languageCode,
           voice_settings: {
-            stability: isSkill ? 0.38 : 0.30,
+            stability: isSkill ? 0.22 : 0.30,
             similarity_boost: 0.75,
-            style: isSkill ? 0.55 : 0.60,
+            style: isSkill ? 0.68 : 0.60,
             use_speaker_boost: true,
             speed: isSkill ? 0.92 : 1.05,
           },
