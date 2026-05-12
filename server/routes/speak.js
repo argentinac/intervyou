@@ -13,7 +13,7 @@ const GENDER_VOICE = {
 // the lookup falls through to GENDER_VOICE (Antoni for male, Charlotte for
 // female) — both are multilingual and handle Spanish naturally.
 const LANGUAGE_VOICE = {
-  Spanish: { female: 'p18tR9wFA5Ng9WhfWI0o' },
+  Spanish: { female: 'p18tR9wFA5Ng9WhfWI0o', male: 'G3TxN1DDxQ8O3c1BV6ZK' },
 }
 
 const COUNTRY_VOICE_OVERRIDE = {
@@ -90,9 +90,9 @@ export async function speakRoute(req, res) {
           model_id: 'eleven_flash_v2_5',
           language_code: languageCode,
           voice_settings: {
-            stability: isSkill ? 0.40 : 0.45,
+            stability: isSkill ? 0.38 : 0.30,
             similarity_boost: 0.75,
-            style: isSkill ? 0.50 : 0.35,
+            style: isSkill ? 0.55 : 0.60,
             use_speaker_boost: true,
             speed: isSkill ? 0.92 : 1.05,
           },

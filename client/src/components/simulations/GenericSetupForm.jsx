@@ -16,6 +16,41 @@ const DiffIcon = ({ bars }) => (
 
 // Named icons for option chips. Add more as the catalog needs them.
 const OPTION_ICONS = {
+  time_short: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="9" /><path d="M12 7v5l2 2" />
+    </svg>
+  ),
+  time_mid: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 3" /><path d="M7 3.5l1.5 1.5" /><path d="M17 3.5l-1.5 1.5" />
+    </svg>
+  ),
+  time_long: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 3" /><path d="M5.5 5.5l1.5 1.5" /><path d="M18.5 5.5l-1.5 1.5" /><path d="M3 12h2M19 12h2" />
+    </svg>
+  ),
+  time_verylong: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 3" /><path d="M7.5 20.5l1-1.5" /><path d="M16.5 20.5l-1-1.5" />
+    </svg>
+  ),
+  resign_truth: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" />
+    </svg>
+  ),
+  resign_partial: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" /><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" /><line x1="1" y1="1" x2="23" y2="23" />
+    </svg>
+  ),
+  resign_silent: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
+    </svg>
+  ),
   male: (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="7" r="3.2" /><path d="M5 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2" />
@@ -82,6 +117,27 @@ function Question({ q, value, onChange }) {
           maxLength={60}
           style={{ width: '100%', padding: '12px 14px', borderRadius: 10, border: '1px solid #E5E7EB', fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box' }}
         />
+      </div>
+    )
+  }
+
+  if (q.type === 'tile') {
+    return (
+      <div className="sf-field">
+        <label>{q.label}</label>
+        <div className="sf-cards-row">
+          {q.options.map((o) => (
+            <RadioCard
+              key={o.value}
+              active={value === o.value}
+              label={o.label}
+              desc={o.desc}
+              icon={o.icon ? OPTION_ICONS[o.icon] : undefined}
+              onClick={() => onChange(o.value)}
+              wide
+            />
+          ))}
+        </div>
       </div>
     )
   }
@@ -183,11 +239,12 @@ function isAnswerValid(q, answers) {
   if (!q.required) return true
   if (q.type === 'shortText') return typeof v === 'string' && v.trim().length > 0
   if (q.type === 'multiselect') return Array.isArray(v) && v.length > 0
+  if (q.type === 'tile') return !!v
   return !!v
 }
 
 function buildInitialAnswers(simulation) {
-  const initial = { difficulty: 'Intermediate' }
+  const initial = {}
   const all = [
     ...(simulation.onboarding?.screen1?.questions || []),
     ...(simulation.onboarding?.screen2?.questions || []),
