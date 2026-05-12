@@ -114,4 +114,108 @@ OBJETIVO PEDAGÓGICO: que el founder aprenda a ser directo/a, honesto/a y confia
   },
 }
 
-export const OTHER_SIMULATIONS = [PITCH_VC]
+const MANEJO_ANSIEDAD = {
+  id: 'manejo_ansiedad',
+  category: 'other',
+  title: 'Manejo de ansiedad',
+  shortDescription: 'Practicá técnicas para manejar la ansiedad con un coach que te guía.',
+  icon: 'Wind',
+  durationMinutes: 10,
+  defaultLanguage: 'Spanish',
+  availableLanguages: ['Spanish'],
+  interlocutorDefaultGender: 'female',
+  interlocutorRole: 'Coach de bienestar',
+  uiCopy: {
+    interlocutorLabel: 'Tu coach',
+    sessionTitle: 'Sesión de manejo de ansiedad',
+    interlocutorContext: 'Sesión con tu coach',
+  },
+  showPhaseIndicator: false,
+  onboarding: {
+    screen1: {
+      heading: '¿Qué situación te genera ansiedad?',
+      questions: [
+        {
+          id: 'context',
+          label: '¿En qué área sentís más ansiedad?',
+          type: 'select',
+          required: true,
+          options: [
+            { value: 'social', label: 'Situaciones sociales / reuniones' },
+            { value: 'trabajo', label: 'Trabajo / rendimiento' },
+            { value: 'estudio', label: 'Exámenes / estudio' },
+            { value: 'relaciones', label: 'Relaciones / conflictos' },
+            { value: 'salud_futuro', label: 'Salud / futuro / incertidumbre' },
+          ],
+        },
+        {
+          id: 'trigger',
+          label: '¿Qué suele desencadenarla?',
+          type: 'select',
+          required: true,
+          options: [
+            { value: 'situaciones_nuevas', label: 'Situaciones nuevas o desconocidas' },
+            { value: 'miedo_error', label: 'Miedo a equivocarme o fracasar' },
+            { value: 'opinion_otros', label: 'Lo que piensan los demás de mí' },
+            { value: 'tiempo', label: 'No llegar a tiempo o no alcanzar' },
+            { value: 'no_se', label: 'No lo sé con claridad' },
+          ],
+        },
+        {
+          id: 'practiceFocus',
+          label: '¿Qué querés trabajar en esta sesión?',
+          type: 'select',
+          required: true,
+          options: [
+            { value: 'calmar_mente', label: 'Calmar la mente cuando explota' },
+            { value: 'respiracion', label: 'Técnicas de respiración y relajación' },
+            { value: 'hablar', label: 'Poner en palabras lo que siento' },
+            { value: 'pensamientos', label: 'Cambiar pensamientos negativos' },
+            { value: 'todo', label: 'Todo junto, que el coach decida' },
+          ],
+        },
+      ],
+    },
+    screen2: {
+      heading: '¿Cómo querés la sesión?',
+      questions: [
+        {
+          id: 'difficulty',
+          label: 'Nivel de dificultad',
+          type: 'difficulty',
+          required: true,
+          options: [
+            { value: 'Basic', label: 'Básico', desc: 'Coach empático, ritmo lento, sin presión.' },
+            { value: 'Intermediate', label: 'Intermedio', desc: 'Técnicas concretas y preguntas de reflexión.' },
+            { value: 'Advanced', label: 'Difícil', desc: 'Desafía patrones, empuja al cambio real.' },
+          ],
+        },
+      ],
+    },
+  },
+  internalInstructions: {
+    durationMaxMinutes: 10,
+    interventionsRange: { Basic: [5, 7], Intermediate: [7, 9], Advanced: [9, 11] },
+  },
+  systemPromptTemplate: (a) => {
+    const L = makeLabelResolver(MANEJO_ANSIEDAD)
+    return `
+Sos un/a coach de bienestar con formación en psicología cognitivo-conductual. Estás en una sesión individual con alguien que siente ansiedad en el área de ${L('context', a.context)}, desencadenada principalmente por: ${L('trigger', a.trigger)}.
+
+Lo que la persona quiere trabajar hoy: ${L('practiceFocus', a.practiceFocus)}.
+
+CÓMO TE COMPORTÁS:
+- Primero escuchás y validás. Nunca minimizás ("eso es normal", "tranquilo/a") sin antes explorar.
+- Hacés una pregunta a la vez. No bombardeás.
+- Usás técnicas reales: respiración 4-7-8, grounding 5-4-3-2-1, reencuadre cognitivo, registro de pensamientos.
+- Pedís que la persona practique las técnicas en voz alta contigo, no solo que las escuche.
+- En Básico: ritmo lento, mucha validación, guiás paso a paso sin exigir, celebrás pequeños avances.
+- En Intermedio: introducís técnicas concretas, hacés preguntas de reflexión profunda ("¿qué sería lo peor que podría pasar realmente?", "¿qué le dirías a un amigo en tu lugar?"), pedís que las apliquen.
+- En Difícil: identificás distorsiones cognitivas (catastrofización, lectura mental, todo-o-nada), las nombrás, desafiás suavemente, y pedís compromisos de acción concretos para después de la sesión.
+
+OBJETIVO PEDAGÓGICO: que la persona salga con al menos una técnica practicada y una comprensión nueva de su patrón de ansiedad.
+`.trim()
+  },
+}
+
+export const OTHER_SIMULATIONS = [PITCH_VC, MANEJO_ANSIEDAD]
