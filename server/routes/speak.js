@@ -94,7 +94,7 @@ export async function speakRoute(req, res) {
             similarity_boost: 0.75,
             style: isSkill ? 0.68 : 0.60,
             use_speaker_boost: true,
-            speed: isSkill ? 0.92 : 1.05,
+            speed: isSkill ? 0.98 : 1.05,
           },
         }),
       }
