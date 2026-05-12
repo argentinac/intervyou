@@ -255,4 +255,158 @@ function rLabelFor(questionId, value) {
   return opt ? opt.label : value
 }
 
-export const WORK_SIMULATIONS = [PEDIR_AUMENTO, RENUNCIAR]
+const REMAX_BROKER = {
+  id: 'remax_broker',
+  category: 'work',
+  title: 'Reunión con el broker de Remax',
+  shortDescription: 'Practicá cómo defender tu gestión cuando tu broker te cuestiona por no cumplir los objetivos.',
+  icon: 'Building2',
+  durationMinutes: 10,
+  defaultLanguage: 'Spanish',
+  availableLanguages: ['Spanish'],
+  interlocutorDefaultGender: 'male',
+  interlocutorRole: 'Broker de la oficina',
+  uiCopy: {
+    interlocutorLabel: 'Tu broker',
+    sessionTitle: 'Reunión con el broker',
+    interlocutorContext: 'Reunión con tu broker de Remax',
+  },
+  showPhaseIndicator: false,
+  onboarding: {
+    screen1: {
+      heading: '¿Cuál es tu situación?',
+      subheading: 'Contame lo justo para personalizar la conversación.',
+      questions: [
+        {
+          id: 'antiguedad',
+          label: '¿Cuánto tiempo llevas trabajando en Remax?',
+          type: 'select',
+          required: true,
+          options: [
+            { value: 'less6m', label: 'Menos de 6 meses' },
+            { value: '6m1y', label: '6 a 12 meses' },
+            { value: '1y3y', label: '1 a 3 años' },
+            { value: '3yplus', label: 'Más de 3 años' },
+          ],
+        },
+        {
+          id: 'ventas',
+          label: '¿Cuál es tu situación actual de ventas este trimestre?',
+          type: 'select',
+          required: true,
+          options: [
+            { value: 'cero', label: '0 operaciones cerradas' },
+            { value: 'una', label: '1 operación' },
+            { value: 'dos', label: '2 operaciones' },
+            { value: 'bajo_objetivo', label: 'Más de 2, pero bajo el objetivo' },
+          ],
+        },
+        {
+          id: 'foco',
+          label: '¿Cuál es tu principal foco de negocio?',
+          type: 'select',
+          required: true,
+          options: [
+            { value: 'residencial', label: 'Propiedades residenciales' },
+            { value: 'comercial', label: 'Propiedades comerciales' },
+            { value: 'alquileres', label: 'Alquileres' },
+            { value: 'mixto', label: 'Mixto' },
+          ],
+        },
+        {
+          id: 'obstaculo',
+          label: '¿Qué obstáculo sentís que más te frenó?',
+          type: 'select',
+          required: true,
+          options: [
+            { value: 'captaciones', label: 'Falta de captaciones' },
+            { value: 'cierre', label: 'Dificultad para cerrar' },
+            { value: 'consultas', label: 'Pocas consultas entrantes' },
+            { value: 'precios', label: 'Problemas con precios de mercado' },
+            { value: 'tiempo', label: 'Gestión del tiempo' },
+          ],
+        },
+        {
+          id: 'relacion',
+          label: '¿Cómo es tu relación actual con tu broker?',
+          type: 'select',
+          required: true,
+          options: [
+            { value: 'buena_tensa', label: 'Buena, pero tensa por los resultados' },
+            { value: 'distante', label: 'Distante, poco contacto' },
+            { value: 'conflictos', label: 'Tuve conflictos previos' },
+            { value: 'primera_vez', label: 'Es la primera reunión difícil' },
+          ],
+        },
+      ],
+    },
+    screen2: {
+      heading: '¿Cómo querés que sea la conversación?',
+      questions: [
+        {
+          id: 'objetivo',
+          label: '¿Qué querés practicar principalmente?',
+          type: 'select',
+          required: true,
+          options: [
+            { value: 'datos', label: 'Defender mi gestión con datos' },
+            { value: 'plan', label: 'Proponer un plan de acción creíble' },
+            { value: 'presion', label: 'Manejar la presión emocional' },
+            { value: 'negociar', label: 'Negociar más tiempo o recursos' },
+            { value: 'mixto', label: 'Mixto' },
+          ],
+        },
+        {
+          id: 'difficulty',
+          label: 'Nivel de dificultad',
+          type: 'difficulty',
+          required: true,
+          options: [
+            { value: 'Basic', label: 'Suave', desc: 'El broker está decepcionado pero da espacio. Tono formativo.' },
+            { value: 'Intermediate', label: 'Estándar', desc: 'Exigente y directo. Presiona con números y espera un plan concreto.' },
+            { value: 'Advanced', label: 'Intenso', desc: 'Tu continuidad en la oficina está en juego. Interrumpe, no valida nada. Salís sabiendo que si no cambiás algo, te piden que te vayas.' },
+          ],
+        },
+      ],
+    },
+  },
+  internalInstructions: {
+    durationMaxMinutes: 10,
+    interventionsRange: { Basic: [4, 5], Intermediate: [5, 6], Advanced: [6, 8] },
+  },
+  systemPromptTemplate: (a) => `
+Sos el broker de una oficina de Remax. Convocaste a esta agente a una reunión porque no está cumpliendo los objetivos del trimestre.
+
+CONTEXTO QUE CONOCÉS:
+- La agente lleva en la oficina: ${rmLabelFor('antiguedad', a.antiguedad)}.
+- Situación de ventas este trimestre: ${rmLabelFor('ventas', a.ventas)}.
+- Su foco de negocio: ${rmLabelFor('foco', a.foco)}.
+- El obstáculo que probablemente va a mencionar: ${rmLabelFor('obstaculo', a.obstaculo)} — preparate para cuestionarlo directamente.
+- Relación previa: ${rmLabelFor('relacion', a.relacion)}.
+- Lo que ella quiere practicar: ${rmLabelFor('objetivo', a.objetivo)} — no lo facilites, obligala a trabajarlo.
+
+CÓMO ARRANCÁS:
+- Saludás brevemente y vas directo al punto: los números no cierran y necesitás entender qué está pasando.
+
+CÓMO TE COMPORTÁS según dificultad:
+- En Suave: escuchás con interés, hacés preguntas abiertas, te mostrás dispuesto/a a acompañar si hay un plan claro.
+- En Estándar: sos directo/a y exigente. Pedís datos, cuestionás excusas vagas, pedís un plan concreto con fechas. No aceptás generalidades.
+- En Intenso: la reunión tiene peso existencial. Ya consideraste pedirle que se vaya y esta reunión es casi la última oportunidad. Interrumpís cuando las respuestas son vagas. Mencionás que otros agentes en situación similar no pudieron revertirlo. Usás frases como "Esto ya lo escuché antes y no cambió nada", "No sé si tiene sentido seguir invirtiendo tiempo de la oficina en esto", "Necesito saber si realmente querés estar acá o si estás esperando que yo tome la decisión por vos". No gritás ni insultás, pero el peso de la conversación es muy claro: si no hay algo concreto y convincente hoy, la continuidad está comprometida.
+
+FORMATO ESTRICTO: Solo hablás. Nunca escribas acciones, descripciones ni acotaciones entre paréntesis o corchetes — nada de "(pausa)", "[silencio incómodo]", "*suspira*" ni nada similar. Solo texto que se dice en voz alta.
+
+OBJETIVO PEDAGÓGICO: que la agente aprenda a defender su gestión con datos, a proponer un plan creíble y a sostener la presión sin derrumbarse emocionalmente.
+`.trim(),
+}
+
+function rmLabelFor(questionId, value) {
+  const q = [
+    ...REMAX_BROKER.onboarding.screen1.questions,
+    ...REMAX_BROKER.onboarding.screen2.questions,
+  ].find((q) => q.id === questionId)
+  if (!q || !q.options) return value
+  const opt = q.options.find((o) => o.value === value)
+  return opt ? opt.label : value
+}
+
+export const WORK_SIMULATIONS = [PEDIR_AUMENTO, RENUNCIAR, REMAX_BROKER]
