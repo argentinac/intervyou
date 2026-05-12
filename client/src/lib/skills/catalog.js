@@ -139,10 +139,10 @@ export const SKILLS_CATALOG = [
   {
     id: 'ansiedad',
     name: 'Manejo de ansiedad',
-    shortTitle: 'Manejo emocional',
+    shortTitle: 'Ansiedad',
     nivel: 'Nivel intermedio',
     nivelColor: '#5955F6',
-    img3d: '/3d/06_manejo_bajo_presion.png',
+    img3d: '/3d/07_ansiedad.png',
     eje: 'Manejo emocional',
     duration: '~8 min',
     description: 'Técnicas concretas para manejar los nervios antes y durante situaciones de presión.',
