@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import FeedbackSummary from './FeedbackSummary'
+import SimulationFeedback from './simulations/SimulationFeedback'
 
 const DIFFICULTY_LABEL = { Junior: 'Junior', Intermediate: 'Semi-Senior', Senior: 'Senior' }
 const TYPE_LABEL = { HR: 'RRHH', Technical: 'Técnica', 'Real Simulation': 'Simulación real', Coach: 'Coach' }
@@ -188,7 +189,7 @@ function ScoreLineChart({ points, onPointClick }) {
 
   return (
     <div style={{ position: 'relative' }}>
-      <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height: H, display: 'block' }}>
+      <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ width: '100%', height: H, display: 'block' }}>
         {gridScores.map(v => (
           <g key={v}>
             <line x1={pad.left} x2={W - pad.right} y1={yOf(v)} y2={yOf(v)} stroke="#e2e8f0" strokeWidth="1" />
@@ -304,16 +305,20 @@ function ProgressStats({ interviews, onPointClick }) {
 // ── Interview row & detail ────────────────────────────────────────────────────
 
 function InterviewRow({ interview, onClick }) {
-  const { config, completed_at, interview_feedback } = interview
-  const feedback = interview_feedback?.[0]
-  const hasFeedback = !!feedback?.score
-  const title = [config?.jobTitle, config?.companyName].filter(Boolean).join(' para ') || 'Entrevista sin título'
+  const { config, completed_at, interview_feedback, simulation_feedback, type: ivType } = interview
+  const isSimulation = ivType === 'simulation'
+  const simFb = simulation_feedback?.[0]
+  const jobFb = interview_feedback?.[0]
+  const hasFeedback = isSimulation ? (simFb?.general_score != null) : !!jobFb?.score
+  const title = isSimulation
+    ? (config?.simulationTitle || 'Simulación')
+    : ([config?.jobTitle, config?.companyName].filter(Boolean).join(' para ') || 'Entrevista sin título')
   const difficulty = DIFFICULTY_LABEL[config?.difficulty] ?? config?.difficulty
-  const type = TYPE_LABEL[config?.interviewType] ?? config?.interviewType
+  const type = isSimulation ? 'Simulación' : (TYPE_LABEL[config?.interviewType] ?? config?.interviewType)
 
   return (
     <div className={`iv-row ${hasFeedback ? 'iv-row--clickable' : 'iv-row--disabled'}`} onClick={hasFeedback ? onClick : undefined}>
-      {config?.companyName && (
+      {!isSimulation && config?.companyName && (
         <div className="iv-row-logo">
           <CompanyLogo name={config.companyName} />
         </div>
@@ -328,7 +333,8 @@ function InterviewRow({ interview, onClick }) {
         </div>
       </div>
       <div className="iv-row-right">
-        {hasFeedback && <ScoreBadge score={feedback.score} />}
+        {hasFeedback && !isSimulation && <ScoreBadge score={jobFb.score} />}
+        {hasFeedback && isSimulation && <ScoreBadge score={simFb.general_score} />}
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round">
           <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
         </svg>
@@ -379,7 +385,39 @@ function InterviewDetail({ id, onBack, onNewInterview }) {
   if (error) return <div className="iv-empty">{error}</div>
   if (!data) return <div className="iv-empty">No se encontró la entrevista.</div>
 
-  const { config, completed_at, duration_seconds, interview_feedback } = data
+  const { config, completed_at, duration_seconds, interview_feedback, simulation_feedback, type: ivType } = data
+  const isSimulation = ivType === 'simulation'
+
+  if (isSimulation) {
+    const simFbRow = simulation_feedback?.[0]
+    if (!simFbRow) {
+      return (
+        <div className="iv-detail">
+          <div className="iv-detail-topbar">
+            <button className="iv-back-btn" onClick={onBack}>← Volver a mis entrevistas</button>
+          </div>
+          <div className="iv-detail-no-feedback">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <p>Esta simulación no tiene feedback disponible.</p>
+          </div>
+        </div>
+      )
+    }
+    const simFeedback = simFbRow.raw_response ?? simFbRow
+    return (
+      <div className="iv-detail--full">
+        <SimulationFeedback
+          feedback={simFeedback}
+          config={config}
+          onRestart={onNewInterview}
+          onDashboard={onBack}
+        />
+      </div>
+    )
+  }
+
   const fbRow = interview_feedback?.[0]
   const hasFeedback = !!fbRow?.score
 

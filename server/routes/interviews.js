@@ -150,7 +150,8 @@ interviewsRouter.get('/:id', requireAuth, async (req, res) => {
     .select(`
       id, type, length, config, status, duration_seconds,
       started_at, completed_at,
-      interview_feedback ( score, headline, went_well, to_improve, suggestions, raw_response )
+      interview_feedback ( score, headline, went_well, to_improve, suggestions, raw_response ),
+      simulation_feedback ( general_score, summary, clarity_score, emotional_score, listening_score, objective_score, patterns, strengths, opportunities, next_steps, raw_response )
     `)
     .eq('id', req.params.id)
     .eq('user_id', req.user.id)
@@ -168,7 +169,8 @@ interviewsRouter.get('/', requireAuth, async (req, res) => {
     .select(`
       id, type, length, config, status, duration_seconds,
       started_at, completed_at,
-      interview_feedback ( score, headline )
+      interview_feedback ( score, headline ),
+      simulation_feedback ( general_score )
     `)
     .eq('user_id', req.user.id)
     .order('completed_at', { ascending: false })
