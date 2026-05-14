@@ -15,12 +15,16 @@ interviewsRouter.post('/', requireAuth, async (req, res) => {
   try {
     // Ensure the simulation row exists in the catalog table (idempotent upsert).
     if (isSimulation) {
-      await supabase.from('simulations').upsert({
+      const { error: simErr } = await supabase.from('simulations').upsert({
         id:       config.simulationId,
         category: config.simulationCategory || 'other',
         title:    config.simulationTitle || config.simulationId,
         active:   true,
       }, { onConflict: 'id' })
+      if (simErr) {
+        console.error('[interviews] simulations upsert failed — migration may not have been applied:', simErr.message)
+        throw new Error(`simulations upsert: ${simErr.message}`)
+      }
     }
 
     const { data: interview, error: iErr } = await supabase
