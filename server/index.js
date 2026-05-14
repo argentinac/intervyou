@@ -15,6 +15,7 @@ import { speakRoute } from './routes/speak.js'
 import { interviewsRouter } from './routes/interviews.js'
 import { logsRouter } from './routes/logs.js'
 import { paymentsRouter } from './routes/payments.js'
+import { generateSetupRoute } from './routes/generateSetup.js'
 
 const app = express()
 const upload = multer({ storage: multer.memoryStorage() })
@@ -28,6 +29,7 @@ app.post('/api/speak', speakRoute)
 app.use('/api/interviews', interviewsRouter)
 app.use('/api/logs', logsRouter)
 app.use('/api/payments', paymentsRouter)
+app.post('/api/generate-setup', generateSetupRoute)
 
 // Serve frontend in production
 const clientDist = resolve(process.cwd(), 'client/dist')

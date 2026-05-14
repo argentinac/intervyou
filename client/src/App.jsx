@@ -8,6 +8,7 @@ import Landing from './components/Landing'
 import SetupForm from './components/SetupForm'
 import VisaSetupForm from './components/VisaSetupForm'
 import GenericSetupForm from './components/simulations/GenericSetupForm'
+import CustomSituationSetup from './components/simulations/CustomSituationSetup'
 import { getSimulationById } from './lib/simulations/catalog'
 import { getSkillById, getSkillSystemPrompt } from './lib/skills/catalog'
 import InterviewSession from './components/InterviewSession'
@@ -263,6 +264,15 @@ function AppInner() {
     const simulation = simulationId ? getSimulationById(simulationId) : null
     if (!simulation) { setView('dashboard'); return null }
     if (!simulationConfig) {
+      if (simulation.type === 'custom') {
+        return (
+          <CustomSituationSetup
+            simulation={simulation}
+            onSubmit={(cfg) => setSimulationConfig({ ...cfg, simulationTitle: simulation.title })}
+            onBack={() => { setSimulationConfig(null); setSimulationId(null); setView('dashboard') }}
+          />
+        )
+      }
       return (
         <GenericSetupForm
           simulation={simulation}

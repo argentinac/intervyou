@@ -8,6 +8,7 @@ import { VISA_SIMULATIONS } from './visa'
 import { LOVE_SIMULATIONS } from './love'
 import { LEGAL_SIMULATIONS } from './legal'
 import { OTHER_SIMULATIONS } from './other'
+import { CUSTOM_SIMULATIONS } from './custom'
 
 export const ALL_SIMULATIONS = [
   ...WORK_SIMULATIONS,
@@ -16,6 +17,7 @@ export const ALL_SIMULATIONS = [
   ...LOVE_SIMULATIONS,
   ...LEGAL_SIMULATIONS,
   ...OTHER_SIMULATIONS,
+  ...CUSTOM_SIMULATIONS,
 ].filter((s) => s && s.id)
 
 export const CATEGORIES = [
