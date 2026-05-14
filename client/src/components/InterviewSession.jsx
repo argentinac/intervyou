@@ -705,9 +705,10 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
         ? (config.interlocutorGender || simulation.interlocutorDefaultGender || 'male')
         : getInterviewerGender(config.country, config.language)
   )
-  const skipPendingRef     = useRef(false)
-  const sessionEndedRef    = useRef(false)
-  const doClosingRef       = useRef(null)
+  const skipPendingRef         = useRef(false)
+  const sessionEndedRef        = useRef(false)
+  const doClosingRef           = useRef(null)
+  const userInterruptedRef     = useRef(false)
 
   const locale = COUNTRY_LOCALE[config.country] || LANG_LOCALE[config.language] || 'en-US'
   const canInterrupt = false
@@ -748,6 +749,22 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
     clearInterval(countdownTimerRef.current)
   }, [])
 
+  // Wake Lock — evita que la pantalla se apague durante la sesión
+  useEffect(() => {
+    if (!('wakeLock' in navigator)) return
+    let wakeLock = null
+    const acquire = async () => {
+      try { wakeLock = await navigator.wakeLock.request('screen') } catch {}
+    }
+    acquire()
+    const onVisibility = () => { if (document.visibilityState === 'visible') acquire() }
+    document.addEventListener('visibilitychange', onVisibility)
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibility)
+      wakeLock?.release()
+    }
+  }, [])
+
   // ── Camera toggle ─────────────────────────────────────────
   const toggleCamera = useCallback(async () => {
     if (cameraOn) {
@@ -778,11 +795,13 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
 
   // ── Play audio + auto-start mic when done ─────────────────
   const playAudio = useCallback(async (text, onPlay = null, { noMic = false } = {}) => {
+    userInterruptedRef.current = false
     setIsSpeaking(true)
     setStatusText(str.speaking[interviewerGender.current])
     await speakElevenLabs(text, config.language, config.country, interviewerGender.current, () => sessionEndedRef.current, onPlay, config.simulationId, isSkill)
     setIsSpeaking(false)
     if (sessionEndedRef.current) return
+    if (userInterruptedRef.current) return  // user already interrupted — mic is already running
     if (noMic) return
     setError(null)
     if (skipPendingRef.current) {
@@ -1328,7 +1347,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
   }
   if (introLoading) return <IntroLoading titleText={isSkill ? 'Preparando tu sesión de coaching…' : isSimulation ? 'Preparando tu simulación…' : undefined} tips={isSkill ? COACHING_TIPS : INTERVIEW_TIPS} />
 
-  const busy = isSpeaking || isProcessing
+  const busy = isProcessing
 
   return (
     <div className="meet-page">
@@ -1390,7 +1409,11 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
             <button
               className={`mic-btn ${isRecording ? 'mic-btn--active' : ''} ${busy ? 'mic-btn--disabled' : ''}`}
-              onClick={() => { if (busy) return; isRecording ? stopRecording() : startRecording() }}
+              onClick={() => {
+                if (busy) return
+                if (isSpeaking) { userInterruptedRef.current = true; stopActiveAudio(); startRecording(); return }
+                isRecording ? stopRecording() : startRecording()
+              }}
               disabled={busy}
               title={isRecording ? str.releaseHint : str.holdHint}
             >
