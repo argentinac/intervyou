@@ -152,11 +152,20 @@ function downloadFeedback(data) {
 
 function ScoreLineChart({ points, onPointClick }) {
   const [tooltip, setTooltip] = useState(null)
-  const svgRef = useRef(null)
+  const [width, setWidth] = useState(600)
+  const containerRef = useRef(null)
+
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    const ro = new ResizeObserver(([entry]) => setWidth(entry.contentRect.width))
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
 
   if (points.length < 1) return null
 
-  const W = 600, H = 220
+  const W = width, H = 220
   const pad = { top: 20, right: 24, bottom: 48, left: 44 }
   const chartW = W - pad.left - pad.right
   const chartH = H - pad.top - pad.bottom
@@ -174,22 +183,14 @@ function ScoreLineChart({ points, onPointClick }) {
   const gridScores = [0, 250, 500, 750, 1000].filter(v => v >= minS && v <= maxS)
 
   const handlePointEnter = (e, p, i) => {
-    const svgEl = svgRef.current
-    if (!svgEl) return
-    const rect = svgEl.getBoundingClientRect()
-    const svgW = rect.width
-    const scaleX = svgW / W
-    const scaleY = rect.height / H
-    const cx = xOf(i) * scaleX
-    const cy = yOf(p.score) * scaleY
-    setTooltip({ p, cx, cy })
+    setTooltip({ p, cx: xOf(i), cy: yOf(p.score) })
   }
 
   const handlePointLeave = () => setTooltip(null)
 
   return (
-    <div style={{ position: 'relative' }}>
-      <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ width: '100%', height: H, display: 'block' }}>
+    <div ref={containerRef} style={{ position: 'relative' }}>
+      <svg width={W} height={H} style={{ display: 'block' }}>
         {gridScores.map(v => (
           <g key={v}>
             <line x1={pad.left} x2={W - pad.right} y1={yOf(v)} y2={yOf(v)} stroke="#e2e8f0" strokeWidth="1" />
