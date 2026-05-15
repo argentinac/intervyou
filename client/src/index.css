@@ -5414,20 +5414,46 @@ html, body, #root, .app {
 .rpt-item-title { font-size: 14px; font-weight: 700; color: #0f172a; flex: 1; min-width: 0; }
 .rpt-item-desc  { font-size: 13px; color: #475569; line-height: 1.55; margin: 0; }
 .rpt-verbatim {
-  display: flex;
-  align-items: flex-start;
-  gap: 6px;
-  margin: 6px 0 0;
-  padding: 7px 10px;
-  background: #fef9f0;
-  border-left: 3px solid #f59e0b;
-  border-radius: 0 6px 6px 0;
-  font-size: 12px;
-  font-style: italic;
-  color: #78350f;
-  line-height: 1.5;
+  margin: 8px 0 0;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
 }
-.rpt-verbatim svg { color: #f59e0b; margin-top: 1px; }
+.rpt-verbatim-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 10px;
+  background: #f1f5f9;
+  border-bottom: 1px solid #e5e7eb;
+}
+.rpt-verbatim-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+.rpt-verbatim-question {
+  font-size: 11px;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  text-align: right;
+}
+.rpt-verbatim-text {
+  margin: 0;
+  padding: 8px 10px;
+  font-size: 12.5px;
+  font-style: italic;
+  color: #475569;
+  line-height: 1.55;
+  background: #fff;
+}
 
 /* Axis tag */
 .rpt-tag {
