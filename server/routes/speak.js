@@ -64,6 +64,14 @@ export async function speakRoute(req, res) {
     if (!text || typeof text !== 'string' || !text.trim()) {
       return res.status(400).json({ error: 'Text is required' })
     }
+    // Strip stage directions before sending to TTS: (acotación), [acotación], *acotación*
+    const cleanText = text
+      .replace(/\([^)]*\)/g, '')
+      .replace(/\[[^\]]*\]/g, '')
+      .replace(/\*[^*]+\*/g, '')
+      .replace(/\s{2,}/g, ' ')
+      .trim()
+    if (!cleanText) return res.status(400).json({ error: 'Text is empty after cleaning' })
     // When a regional override doesn't define the requested gender,
     // return null so we fall through to the next override / generic
     // gender voice — never silently swap to the opposite gender.
@@ -91,7 +99,7 @@ export async function speakRoute(req, res) {
           Accept: 'audio/mpeg',
         },
         body: JSON.stringify({
-          text,
+          text: cleanText,
           model_id: 'eleven_flash_v2_5',
           language_code: languageCode,
           voice_settings: (() => {
@@ -110,7 +118,7 @@ export async function speakRoute(req, res) {
 
     const t6 = Date.now()
     const buffer = Buffer.from(await response.arrayBuffer())
-    const tts_chars = text.length
+    const tts_chars = cleanText.length
     const tts_cost_usd = tts_chars * 0.00018 // $0.18 per 1000 chars — ElevenLabs Turbo v2.5
     res.set('Content-Type', 'audio/mpeg')
     res.set('X-T5', String(t5))
