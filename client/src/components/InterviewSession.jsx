@@ -97,8 +97,8 @@ Otherwise respond with this exact JSON structure:
     {"title": "Another strength", "description": "Specific observation. Use **bold** for key concepts.", "axis": "axis-name"}
   ],
   "toImprove": [
-    {"title": "Short improvement title", "description": "1-2 sentence specific observation on what to improve. Do NOT quote specific words. Use **bold** around the most important concept.", "axis": "one of: claridad|estructura|relevancia|consistencia|profundidad|evidencia"},
-    {"title": "Another area", "description": "Specific observation. Use **bold** for key concepts.", "axis": "axis-name"}
+    {"title": "Short improvement title", "description": "1-2 sentence specific observation on what to improve. Use **bold** around the most important concept.", "verbatim": "Exact phrase the candidate said that illustrates this issue — copy it word-for-word from the transcript (10-25 words max). Return null if no clear supporting quote exists.", "axis": "one of: claridad|estructura|relevancia|consistencia|profundidad|evidencia"},
+    {"title": "Another area", "description": "Specific observation. Use **bold** for key concepts.", "verbatim": "Exact quote from transcript or null.", "axis": "axis-name"}
   ],
   "actionPlan": [
     {"title": "Actionable short title (verb + noun)", "description": "Specific concrete action to practice. Use **bold** for the key action or concept.", "priority": "alta"},
