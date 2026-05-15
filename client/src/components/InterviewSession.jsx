@@ -131,7 +131,7 @@ function IntroLoading({ titleText, tips = INTERVIEW_TIPS }) {
     <div className="intro-loading">
       <div className="intro-loading-inner">
         <div className="intro-loading-logo">
-          <img src="/logo.png" alt="CoachToWork" style={{ height: 40, width: 'auto' }} />
+          <img src="/logo.png" alt="CoachToWork" style={{ height: 32, width: 'auto' }} />
         </div>
 
         <div className="intro-loading-spinner">
@@ -1336,7 +1336,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
       if (!feedback) {
         return (
           <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#F7F9FD', gap: 20, fontFamily: 'inherit' }}>
-            <img src="/logo.png" alt="CoachToWork" style={{ height: 36 }} />
+            <img src="/logo.png" alt="CoachToWork" style={{ height: 32 }} />
             <div className="spinner" style={{ width: 32, height: 32, border: '3px solid #E5E7EB', borderTop: '3px solid #7C3AED', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
             <div style={{ fontSize: 16, fontWeight: 600, color: '#111827' }}>Preparando tu feedback...</div>
             <div style={{ fontSize: 13, color: '#6B7280', maxWidth: 360, textAlign: 'center' }}>Estamos analizando tu conversación. Esto puede tardar unos segundos.</div>
@@ -1375,7 +1375,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
       )}
       <header className="meet-topbar">
         <div className="logo">
-          <img src="/logo.png" alt="intervyou" style={{height:44,width:'auto'}} />
+          <img src="/logo.png" alt="intervyou" style={{height:32,width:'auto'}} />
         </div>
         {isSkill
           ? <div className="meet-topbar-skill-label">Coach Guiado · {config.skillName}</div>

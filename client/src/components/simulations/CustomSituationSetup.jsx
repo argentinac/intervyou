@@ -632,7 +632,7 @@ export default function CustomSituationSetup({ simulation, onSubmit, onBack }) {
       <div className="cs-page">
         <header className="cs-header">
           <div className="cs-logo" onClick={onBack}>
-            <img src="/logo.png" alt="CoachToWork" style={{ height: 44, width: 'auto' }} />
+            <img src="/logo.png" alt="CoachToWork" style={{ height: 32, width: 'auto' }} />
           </div>
           <div className="cs-progress-wrap">
             <div className="cs-progress-bar" style={{ width: progressMap[step] || '15%' }} />

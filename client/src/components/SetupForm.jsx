@@ -66,7 +66,7 @@ const MAX_CHARS = 2000
 // ── Logo ───────────────────────────────────────────────────
 
 const IntervyouIcon = () => (
-  <img src="/logo.png" alt="intervyou" style={{height:48,width:'auto'}} />
+  <img src="/logo.png" alt="intervyou" style={{height:32,width:'auto'}} />
 )
 
 const IconSparkle = ({ size = 13 }) => (
