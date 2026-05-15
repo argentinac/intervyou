@@ -480,6 +480,17 @@ const DiffBars = ({ count, active }) => (
 
 const GENDER_OPTIONS = [
   {
+    value: 'indistinto',
+    label: 'Indistinto',
+    desc: 'Aleatorio según el contexto',
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="8" r="4" />
+        <path d="M6 20c0-3.314 2.686-6 6-6s6 2.686 6 6" strokeDasharray="3 2" />
+      </svg>
+    ),
+  },
+  {
     value: 'hombre',
     label: 'Hombre',
     desc: 'Interlocutor masculino',
@@ -498,17 +509,6 @@ const GENDER_OPTIONS = [
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="12" cy="9" r="5" />
         <path d="M12 14v6M9 17h6" />
-      </svg>
-    ),
-  },
-  {
-    value: 'indistinto',
-    label: 'Indistinto',
-    desc: 'El AI elige según el contexto',
-    icon: (
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="8" r="4" />
-        <path d="M6 20c0-3.314 2.686-6 6-6s6 2.686 6 6" strokeDasharray="3 2" />
       </svg>
     ),
   },
