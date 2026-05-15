@@ -1313,9 +1313,9 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
         { title: 'Buen razonamiento ante desafíos', description: 'Mostraste un **enfoque lógico y estructurado** al analizar los casos planteados. Identificaste bien las variables clave antes de proponer soluciones.', axis: 'profundidad' },
       ],
       toImprove: [
-        { title: 'Falta profundizar el contexto', description: 'En varias respuestas fuiste directo a la solución pero faltó explicar el **problema y el contexto previo**. Esto reduce el impacto de tus respuestas.', axis: 'estructura' },
-        { title: 'Comunicar más el impacto', description: 'Podés mejorar al **cuantificar resultados** o explicar mejor cómo tus decisiones generaron valor concreto para el negocio.', axis: 'evidencia' },
-        { title: 'Manejar mejor los tiempos', description: 'En algunas respuestas te extendiste demasiado en **detalles poco relevantes**. Priorizar la información clave hace tu discurso más efectivo.', axis: 'relevancia' },
+        { title: 'Falta profundizar el contexto', description: 'En varias respuestas fuiste directo a la solución pero faltó explicar el **problema y el contexto previo**. Esto reduce el impacto de tus respuestas.', verbatim: 'lo que hice fue implementar una caché en Redis y eso redujo la latencia, básicamente', axis: 'estructura' },
+        { title: 'Comunicar más el impacto', description: 'Podés mejorar al **cuantificar resultados** o explicar mejor cómo tus decisiones generaron valor concreto para el negocio.', verbatim: 'creo que mejoró bastante el rendimiento, no sé bien los números exactos pero anduvo mejor', axis: 'evidencia' },
+        { title: 'Manejar mejor los tiempos', description: 'En algunas respuestas te extendiste demasiado en **detalles poco relevantes**. Priorizar la información clave hace tu discurso más efectivo.', verbatim: 'y después también habría que ver el tema del monitoreo, que también lo configuramos, aunque eso fue más un tema de devops', axis: 'relevancia' },
       ],
       actionPlan: [
         { title: 'Estructurá con el método STAR', description: 'Usá **Situación, Tarea, Acción y Resultado** para dar contexto e impacto a tus experiencias en cada respuesta.', priority: 'alta' },
