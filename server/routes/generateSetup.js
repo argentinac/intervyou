@@ -16,7 +16,14 @@ export async function generateSetupRoute(req, res) {
 
 Generá:
 1. Un personaje/interlocutor adaptado (ej: "dar mala noticia a un cliente" → el interlocutor ES el cliente)
-2. 2 o 3 preguntas de opción múltiple para personalizar el contexto
+2. 2 o 3 preguntas de opción múltiple para personalizar la experiencia de simulación
+
+IMPORTANTE: cada pregunta debe capturar algo que cambie CÓMO SE COMPORTA el interlocutor durante la simulación.
+Ejemplos de preguntas válidas:
+- "¿Cómo está el interlocutor emocionalmente?" → opciones: Tranquilo y abierto / Tenso y a la defensiva / Herido y cerrado
+- "¿Cuál es la actitud del interlocutor hacia vos?" → opciones: Te tiene confianza / Está resentido / Es neutral
+- "¿Qué tan dispuesto está a escuchar?" → opciones: Muy receptivo / Resistente / Totalmente cerrado
+Evitá preguntas sobre datos de fondo que no cambiarían el comportamiento (ej: "¿cuánto tiempo lleva en la empresa?", "¿en qué rubro trabajás?").
 
 Respondé SOLO con este JSON:
 {
@@ -29,7 +36,7 @@ Respondé SOLO con este JSON:
   "questions": [
     {
       "id": "q1",
-      "label": "Pregunta breve y específica sobre el contexto",
+      "label": "Pregunta breve y específica sobre el estado o actitud del interlocutor",
       "type": "select",
       "options": [
         { "value": "a", "label": "Opción concreta" },
@@ -44,6 +51,7 @@ Respondé SOLO con este JSON:
 REGLAS ESTRICTAS:
 - 2 o 3 preguntas, nunca más
 - Cada pregunta: 3 opciones concretas + siempre "Otra" al final
+- Las opciones deben describir estados, actitudes o circunstancias que el agente usará para actuar diferente
 - Para situaciones donde tiene sentido múltiple elección, usá type "multiselect" con campo "max": 2
 - El systemPromptCore en español, persona que SE ADAPTA a lo que el usuario practique
 - voiceTone debe ser uno de: "formal" (trabajo/trámites, tono neutro), "conflict" (confrontación, tensión, enojo), "personal" (familia, pareja, amigos, emocional), "neutral" (resto)
