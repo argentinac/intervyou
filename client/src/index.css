@@ -6157,6 +6157,103 @@ html, body, #root, .app {
   white-space: nowrap;
 }
 
+/* Skills Hub */
+.skills-hub-wrap {
+  padding: 32px 36px;
+  max-width: 900px;
+}
+.skills-hub-header {
+  margin-bottom: 28px;
+}
+.skills-hub-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #111827;
+  margin: 0 0 6px;
+}
+.skills-hub-subtitle {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+}
+.skills-hub-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+.skills-hub-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  cursor: pointer;
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+.skills-hub-card:hover {
+  box-shadow: 0 4px 16px rgba(89,85,246,0.12);
+  transform: translateY(-2px);
+}
+.skills-hub-img-wrap {
+  flex-shrink: 0;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.skills-hub-img {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+}
+.skills-hub-info {
+  flex: 1;
+  min-width: 0;
+}
+.skills-hub-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 2px;
+}
+.skills-hub-nivel {
+  font-size: 11px;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+.skills-hub-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+.skills-hub-bar-track {
+  flex: 1;
+  height: 6px;
+  background: #e5e7eb;
+  border-radius: 99px;
+  overflow: hidden;
+}
+.skills-hub-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.4s ease;
+  min-width: 3px;
+}
+.skills-hub-pct {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b7280;
+  white-space: nowrap;
+}
+.skills-hub-techniques {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
 /* Recursos + Consejo grid */
 .home-recursos-tip-grid {
   display: grid;

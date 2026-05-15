@@ -10,6 +10,7 @@ import SettingsPage from './SettingsPage'
 import BlogListPage from './BlogListPage'
 import UpgradeModal from './UpgradeModal'
 import SimulationsHub from './simulations/SimulationsHub'
+import SkillsHub from './SkillsHub'
 import { INTERVIEW_TIPS } from '../data/tips'
 import { SKILLS_CATALOG } from '../lib/skills/catalog'
 import { unlockAudio } from '../audioContext'
@@ -289,7 +290,7 @@ function WeeklyScoreChart({ interviews }) {
   )
 }
 
-function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRecursos, onBlogPost, onStartSkill, onGoToProgress, onGoToSimulaciones, onStartSimulation }) {
+function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRecursos, onGoToSkills, onBlogPost, onStartSkill, onGoToProgress, onGoToSimulaciones, onStartSimulation }) {
   const firstName = fullName
     ? fullName.split(' ')[0]
     : (user?.email?.split('@')[0] ?? 'ahí')
@@ -419,7 +420,7 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRec
       <div className="home-section-block">
         <div className="home-section-header">
           <h2 className="home-section-h2">Desarrollá tus habilidades</h2>
-          <button className="home-ver-todos-btn" onClick={onGoToRecursos}>Ver todos →</button>
+          <button className="home-ver-todos-btn" onClick={onGoToSkills}>Ver todos →</button>
         </div>
         <div className="home-skills-v2-grid">
           {SKILLS_CATALOG.map((skill) => {
@@ -489,23 +490,6 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRec
             <div className="home-tip-v2-body">
               <blockquote className="home-tip-v2-text">"{DAILY_TIP}"</blockquote>
               <img src="/3d/07_planta_consejo_del_dia.png" alt="" className="home-tip-v2-img" />
-            </div>
-          </div>
-
-          {/* Tu próxima mejor acción */}
-          <div className="home-next-action-card">
-            <div className="home-next-action-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5955F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-            </div>
-            <div className="home-next-action-body">
-              <div className="home-next-action-label">Tu próxima mejor acción</div>
-              <p className="home-next-action-msg">{nextAction.msg}</p>
-              <button
-                className="home-next-action-btn"
-                onClick={nextAction.target === 'interview' ? onNewInterview : onGoToSimulaciones}
-              >
-                {nextAction.cta} →
-              </button>
             </div>
           </div>
         </div>
@@ -778,6 +762,7 @@ export default function Dashboard({ initialSection = 'home', onNewInterview, onS
             fullName={profile?.full_name}
             mockInterviews={demoIndex !== null ? DEMO_STATES[demoIndex].interviews : undefined}
             onGoToRecursos={() => setSection('recursos')}
+            onGoToSkills={() => setSection('skills')}
             onBlogPost={onBlogPost}
             onStartSkill={onStartSkill}
             onGoToProgress={() => setSection('interviews')}
@@ -787,6 +772,7 @@ export default function Dashboard({ initialSection = 'home', onNewInterview, onS
         )}
         {section === 'interviews'  && <MyInterviews onNewInterview={onNewInterview} onRepeat={onRepeatInterview} initialSelectedId={deepInterviewId} onDeepIdConsumed={() => setDeepInterviewId(null)} mockInterviews={demoIndex !== null ? DEMO_STATES[demoIndex].interviews : undefined} />}
         {section === 'recursos'    && <BlogListPage onBlogPost={onBlogPost} />}
+        {section === 'skills'      && <SkillsHub user={user} onStartSkill={(id) => { onStartSkill?.(id) }} />}
         {section === 'profile'     && <MyProfile />}
         {section === 'settings'    && <SettingsPage onSignOut={handleSignOut} />}
         {section === 'simulaciones' && (
