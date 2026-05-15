@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { unlockAudio } from '../../audioContext'
 import { generateInterlocutorName } from '../../lib/simulations/interlocutorNames'
+import { COUNTRIES_ES } from '../../lib/simulations/countries'
 
 const IntervyouIcon = () => (
   <img src="/logo.png" alt="intervyou" style={{ height: 48, width: 'auto' }} />
@@ -258,6 +259,18 @@ function buildInitialAnswers(simulation) {
 export default function GenericSetupForm({ simulation, onSubmit, onBack }) {
   const [step, setStep] = useState(1)
   const [answers, setAnswers] = useState(() => buildInitialAnswers(simulation))
+  const detectedCountryRef = useRef(null)
+
+  useEffect(() => {
+    fetch('https://ipapi.co/json/')
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.country_name && COUNTRIES_ES.includes(data.country_name)) {
+          detectedCountryRef.current = data.country_name
+        }
+      })
+      .catch(() => {})
+  }, [])
 
   const setAnswer = (id, value) => setAnswers((a) => ({ ...a, [id]: value }))
 
@@ -285,6 +298,7 @@ export default function GenericSetupForm({ simulation, onSubmit, onBack }) {
       interlocutorGender,
       interlocutorName,
       interlocutorRole: simulation.interlocutorRole || simulation.uiCopy?.interlocutorLabel,
+      country: answers.country || detectedCountryRef.current || '',
     })
   }
 

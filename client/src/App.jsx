@@ -72,6 +72,14 @@ function AppInner() {
   const [blogSlug, setBlogSlug] = useState(getBlogSlugFromUrl)
   const [pendingInterviewId, setPendingInterviewId] = useState(null)
   const pendingGuestConfigRef = useRef(null)
+  const detectedCountryRef = useRef('')
+
+  useEffect(() => {
+    fetch('https://ipapi.co/json/')
+      .then((r) => r.json())
+      .then((data) => { if (data.country_name) detectedCountryRef.current = data.country_name })
+      .catch(() => {})
+  }, [])
 
   // Auto-track every screen change
   useEffect(() => {
@@ -302,7 +310,7 @@ function AppInner() {
       techniqueIdx,
       systemPrompt,
       language: 'Spanish',
-      country: 'Argentina',
+      country: detectedCountryRef.current || 'Argentina',
     }
     const handleSkillComplete = async (sid, tidx) => {
       if (!user) return
