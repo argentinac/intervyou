@@ -324,6 +324,54 @@ const CSS = `
 }
 .cs-other-input:focus { border-color: #7C3AED; }
 
+/* ── Gender ── */
+.cs-gender-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.cs-gender-card {
+  border: 1.5px solid #E5E7EB;
+  border-radius: 14px;
+  padding: 20px 12px 16px;
+  background: #FAFAFA;
+  cursor: pointer;
+  text-align: center;
+  font-family: inherit;
+  transition: border-color 0.15s, background 0.15s, transform 0.12s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.cs-gender-card:hover {
+  border-color: #C4B5FD;
+  background: #F5F3FF;
+  transform: translateY(-2px);
+}
+.cs-gender-card--active {
+  border-color: #7C3AED;
+  background: #F5F3FF;
+}
+.cs-gender-icon {
+  color: #9CA3AF;
+  transition: color 0.15s;
+}
+.cs-gender-card--active .cs-gender-icon { color: #7C3AED; }
+.cs-gender-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  display: block;
+}
+.cs-gender-card--active .cs-gender-label { color: #5B21B6; }
+.cs-gender-desc {
+  font-size: 11px;
+  color: #9CA3AF;
+  line-height: 1.4;
+  display: block;
+}
+
 /* ── Difficulty ── */
 .cs-diff-grid {
   display: grid;
@@ -430,6 +478,42 @@ const DiffBars = ({ count, active }) => (
   </div>
 )
 
+const GENDER_OPTIONS = [
+  {
+    value: 'hombre',
+    label: 'Hombre',
+    desc: 'Interlocutor masculino',
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="10" cy="14" r="5" />
+        <path d="M19 5l-4.5 4.5M19 5h-5M19 5v5" />
+      </svg>
+    ),
+  },
+  {
+    value: 'mujer',
+    label: 'Mujer',
+    desc: 'Interlocutora femenina',
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="9" r="5" />
+        <path d="M12 14v6M9 17h6" />
+      </svg>
+    ),
+  },
+  {
+    value: 'indistinto',
+    label: 'Indistinto',
+    desc: 'El AI elige según el contexto',
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="8" r="4" />
+        <path d="M6 20c0-3.314 2.686-6 6-6s6 2.686 6 6" strokeDasharray="3 2" />
+      </svg>
+    ),
+  },
+]
+
 const DIFFICULTY_OPTIONS = [
   { value: 'Basic', label: 'Básico', desc: 'Tono receptivo y abierto', bars: 1 },
   { value: 'Intermediate', label: 'Intermedio', desc: 'Profesional y analítico', bars: 2 },
@@ -446,13 +530,14 @@ const EXAMPLES = [
 
 /* ─── Component ───────────────────────────────────────────────────────────── */
 export default function CustomSituationSetup({ simulation, onSubmit, onBack }) {
-  const [step, setStep] = useState('input') // 'input' | 'loading' | 'questions' | 'difficulty'
+  const [step, setStep] = useState('input') // 'input' | 'loading' | 'questions' | 'difficulty' | 'gender'
   const [direction, setDirection] = useState('left')
   const [situation, setSituation] = useState('')
   const [generated, setGenerated] = useState(null) // { persona, questions }
   const [qAnswers, setQAnswers] = useState({})
   const [otherText, setOtherText] = useState({})
   const [difficulty, setDifficulty] = useState('Intermediate')
+  const [gender, setGender] = useState('indistinto')
   const [error, setError] = useState(null)
   const textareaRef = useRef(null)
 
@@ -501,9 +586,12 @@ export default function CustomSituationSetup({ simulation, onSubmit, onBack }) {
     try { await navigator.mediaDevices.getUserMedia({ audio: true }) } catch { /* handled by SpeechRecognition */ }
 
     const persona = generated?.persona || {}
-    const gender = persona.gender || 'male'
+    const resolvedGender =
+      gender === 'hombre' ? 'male' :
+      gender === 'mujer' ? 'female' :
+      (persona.gender || 'male')
     const voiceTone = persona.voiceTone || 'neutral'
-    const interlocutorName = generateInterlocutorName(gender, 'Spanish')
+    const interlocutorName = generateInterlocutorName(resolvedGender, 'Spanish')
 
     const resolvedAnswers = {}
     for (const [id, val] of Object.entries(qAnswers)) {
@@ -522,7 +610,7 @@ export default function CustomSituationSetup({ simulation, onSubmit, onBack }) {
       interviewType: 'Simulation',
       language: 'Spanish',
       difficulty,
-      interlocutorGender: gender,
+      interlocutorGender: resolvedGender,
       interlocutorName,
       interlocutorRole: persona.role || 'Tu interlocutor',
       voiceTone,
@@ -532,8 +620,8 @@ export default function CustomSituationSetup({ simulation, onSubmit, onBack }) {
     })
   }
 
-  const progressMap = { input: '15%', loading: '40%', questions: '65%', difficulty: '90%' }
-  const stepNumMap = { input: '1 / 3', questions: '2 / 3', difficulty: '3 / 3' }
+  const progressMap = { input: '15%', loading: '35%', questions: '55%', difficulty: '75%', gender: '92%' }
+  const stepNumMap = { input: '1 / 4', questions: '2 / 4', difficulty: '3 / 4', gender: '4 / 4' }
 
   const animClass =
     step === 'loading' ? '' : direction === 'left' ? 'cs-step--slide-left' : 'cs-step--slide-right'
@@ -744,6 +832,38 @@ export default function CustomSituationSetup({ simulation, onSubmit, onBack }) {
 
                 <div className="cs-footer">
                   <button className="cs-btn-back" onClick={() => goTo('questions', 'right')}>← Volver</button>
+                  <button className="cs-btn-next" onClick={() => goTo('gender', 'left')}>
+                    Continuar →
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* ── STEP: GENDER ── */}
+            {step === 'gender' && (
+              <div className={`cs-step ${animClass}`} key="gender">
+                <h1 className="cs-heading">¿Género del interlocutor?</h1>
+                <p className="cs-subheading">
+                  Elegí el género de la persona con quien vas a practicar.
+                </p>
+
+                <div className="cs-gender-grid">
+                  {GENDER_OPTIONS.map((opt, i) => (
+                    <button
+                      key={opt.value}
+                      className={`cs-gender-card ${gender === opt.value ? 'cs-gender-card--active' : ''}`}
+                      onClick={() => setGender(opt.value)}
+                      style={{ animation: `cs-fade-up 0.3s ease ${i * 0.07}s both` }}
+                    >
+                      <span className="cs-gender-icon">{opt.icon}</span>
+                      <span className="cs-gender-label">{opt.label}</span>
+                      <span className="cs-gender-desc">{opt.desc}</span>
+                    </button>
+                  ))}
+                </div>
+
+                <div className="cs-footer">
+                  <button className="cs-btn-back" onClick={() => goTo('difficulty', 'right')}>← Volver</button>
                   <button className="cs-btn-next" onClick={handleSubmit}>
                     Empezar →
                   </button>
