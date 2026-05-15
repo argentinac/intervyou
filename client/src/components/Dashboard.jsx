@@ -4,6 +4,7 @@ import { usePlan } from '../contexts/PlanContext'
 import { track } from '../lib/analytics'
 import { supabase } from '../lib/supabase'
 import MyInterviews from './MyInterviews'
+import SetupForm from './SetupForm'
 import MyProfile from './MyProfile'
 import SettingsPage from './SettingsPage'
 import BlogListPage from './BlogListPage'
@@ -288,7 +289,7 @@ function WeeklyScoreChart({ interviews }) {
   )
 }
 
-function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRecursos, onBlogPost, onStartSkill, onGoToProgress, onGoToSimulaciones }) {
+function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRecursos, onBlogPost, onStartSkill, onGoToProgress, onGoToSimulaciones, onStartSimulation }) {
   const firstName = fullName
     ? fullName.split(' ')[0]
     : (user?.email?.split('@')[0] ?? 'ahí')
@@ -394,38 +395,23 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRec
           )}
         </div>
 
-        {/* Stats col */}
-        <div className="home-stats-col">
-          <div className="home-stats-col-row" onClick={onGoToProgress}>
-            <div className="home-stats-col-icon home-stats-col-icon--person">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            </div>
-            <div className="home-stats-col-info">
-              <div className="home-stats-col-val">{lastScore != null ? Math.round(lastScore) : '—'}</div>
-              <div className="home-stats-col-key">Última entrevista</div>
-            </div>
-            <span className="home-stats-col-link">Ver →</span>
+        {/* Tu Situación card */}
+        <div className="home-custom-sim-card">
+          <div className="home-custom-sim-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/><path d="M19 3v4"/><path d="M21 5h-4"/></svg>
           </div>
-          <div className="home-stats-col-row" onClick={onGoToProgress}>
-            <div className="home-stats-col-icon home-stats-col-icon--chat">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            </div>
-            <div className="home-stats-col-info">
-              <div className="home-stats-col-val">{avgScore != null ? Math.round(avgScore) : '—'}</div>
-              <div className="home-stats-col-key">Promedio general</div>
-            </div>
-            <span className="home-stats-col-link">Ver →</span>
+          <h3 className="home-custom-sim-title">Creá tu propia situación</h3>
+          <p className="home-custom-sim-desc">Practicá cualquier situación, personal o laboral, con un interlocutor adaptado a vos.</p>
+          <div className="home-custom-sim-meta">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            7 min
           </div>
-          <div className="home-stats-col-row" onClick={onGoToProgress}>
-            <div className="home-stats-col-icon home-stats-col-icon--trophy">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>
-            </div>
-            <div className="home-stats-col-info">
-              <div className="home-stats-col-val">{scoredInterviews.length}</div>
-              <div className="home-stats-col-key">Entrevistas totales</div>
-            </div>
-            <span className="home-stats-col-link">Ver →</span>
-          </div>
+          <button
+            className="home-custom-sim-btn"
+            onClick={() => onStartSimulation?.({ id: 'custom_situation', type: 'custom' })}
+          >
+            Crear situación →
+          </button>
         </div>
       </div>
 
@@ -596,10 +582,10 @@ function SimulacionesSection({
   )
 }
 
-export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRepeatInterview, onPricing, onPaymentSuccess, onPaymentError, pendingInterviewId, onPendingInterviewIdConsumed, onVisaInterview, onStartSimulation, onStartSkill }) {
+export default function Dashboard({ initialSection = 'home', onNewInterview, onStartInterview, onSignOut, onBlogPost, onRepeatInterview, onPricing, onPaymentSuccess, onPaymentError, pendingInterviewId, onPendingInterviewIdConsumed, onVisaInterview, onStartSimulation, onStartSkill }) {
   const { user, signOut } = useAuth()
   const { isPro, planStatus, showUpgradeModal, openUpgradeModal, setDemoPlan, setDemoCountry, country } = usePlan()
-  const [section, setSection] = useState('home')
+  const [section, setSection] = useState(initialSection)
   const [deepInterviewId, setDeepInterviewId] = useState(null)
 
   useEffect(() => {
@@ -643,7 +629,12 @@ export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRep
   const handleNav = (id) => {
     setSidebarOpen(false)
     track(`dashboard_nav_${id}`)
-    if (id === 'new') { onNewInterview(); return }
+    if (id === 'new') {
+      window.history.pushState({}, '', '/nueva-entrevista')
+      setSection('new')
+      return
+    }
+    if (section === 'new') window.history.pushState({}, '', '/')
     setSection(id)
   }
 
@@ -774,6 +765,12 @@ export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRep
           </div>
         )}
 
+        {section === 'new'          && (
+          <SetupForm
+            onSubmit={(cfg) => { window.history.pushState({}, '', '/'); onStartInterview(cfg) }}
+            onBack={() => { window.history.pushState({}, '', '/'); setSection('home') }}
+          />
+        )}
         {section === 'home'         && (
           <HomeSection
             onNewInterview={onNewInterview}
@@ -785,6 +782,7 @@ export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRep
             onStartSkill={onStartSkill}
             onGoToProgress={() => setSection('interviews')}
             onGoToSimulaciones={() => setSection('simulaciones')}
+            onStartSimulation={onStartSimulation}
           />
         )}
         {section === 'interviews'  && <MyInterviews onNewInterview={onNewInterview} onRepeat={onRepeatInterview} initialSelectedId={deepInterviewId} onDeepIdConsumed={() => setDeepInterviewId(null)} mockInterviews={demoIndex !== null ? DEMO_STATES[demoIndex].interviews : undefined} />}
