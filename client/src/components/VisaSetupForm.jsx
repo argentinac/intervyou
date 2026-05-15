@@ -89,7 +89,7 @@ const DiffIcon = ({ bars }) => (
 )
 
 const IntervyouIcon = () => (
-  <img src="/logo.png" alt="intervyou" style={{ height: 48, width: 'auto' }} />
+  <img src="/logo.png" alt="intervyou" style={{ height: 32, width: 'auto' }} />
 )
 
 const RadioCard = ({ active, label, desc, onClick, wide, icon, flag }) => (

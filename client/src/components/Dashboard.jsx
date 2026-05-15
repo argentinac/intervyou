@@ -8,6 +8,7 @@ import SetupForm from './SetupForm'
 import MyProfile from './MyProfile'
 import SettingsPage from './SettingsPage'
 import BlogListPage from './BlogListPage'
+import BlogPost from './BlogPost'
 import UpgradeModal from './UpgradeModal'
 import SimulationsHub from './simulations/SimulationsHub'
 import SkillsHub from './SkillsHub'
@@ -571,6 +572,7 @@ export default function Dashboard({ initialSection = 'home', onNewInterview, onS
   const { isPro, planStatus, showUpgradeModal, openUpgradeModal, setDemoPlan, setDemoCountry, country } = usePlan()
   const [section, setSection] = useState(initialSection)
   const [deepInterviewId, setDeepInterviewId] = useState(null)
+  const [blogSlug, setBlogSlug] = useState(null)
 
   useEffect(() => {
     if (pendingInterviewId) {
@@ -635,7 +637,7 @@ export default function Dashboard({ initialSection = 'home', onNewInterview, onS
         <button className="db-hamburger" onClick={() => setSidebarOpen(o => !o)} aria-label="Menú">
           <span /><span /><span />
         </button>
-        <img src="/logo.png" alt="CoachToWork" style={{ height: 28, width: 'auto' }} />
+        <img src="/logo.png" alt="CoachToWork" style={{ height: 32, width: 'auto' }} />
       </div>
       {sidebarOpen && <div className="db-overlay" onClick={() => setSidebarOpen(false)} />}
       <aside className={`db-sidebar${sidebarOpen ? ' db-sidebar--open' : ''}`}>
@@ -783,7 +785,10 @@ export default function Dashboard({ initialSection = 'home', onNewInterview, onS
             ? <BlogPost slug={blogSlug} onBack={() => setBlogSlug(null)} hideHeader loggedIn />
             : <BlogListPage onBlogPost={handleBlogPost} />
         )}
+<<<<<<< HEAD
         {section === 'skills'      && <SkillsHub user={user} onStartSkill={(id) => { onStartSkill?.(id) }} />}
+=======
+>>>>>>> 2df9f46 (fix: unificar tamaño del logo a 32px en todas las pantallas de usuario logueado)
         {section === 'profile'     && <MyProfile />}
         {section === 'settings'    && <SettingsPage onSignOut={handleSignOut} />}
         {section === 'simulaciones' && (

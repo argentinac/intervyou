@@ -4,7 +4,7 @@ import { generateInterlocutorName } from '../../lib/simulations/interlocutorName
 import { COUNTRIES_ES } from '../../lib/simulations/countries'
 
 const IntervyouIcon = () => (
-  <img src="/logo.png" alt="intervyou" style={{ height: 48, width: 'auto' }} />
+  <img src="/logo.png" alt="intervyou" style={{ height: 32, width: 'auto' }} />
 )
 
 const DiffIcon = ({ bars }) => (
