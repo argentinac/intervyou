@@ -9,6 +9,7 @@ import { track } from '../lib/analytics'
 import { supabase } from '../lib/supabase'
 import { INTERVIEW_TIPS } from '../data/tips'
 import { COACHING_TIPS } from '../data/coaching_tips'
+import { getTipsForSimulation } from '../data/simulation_tips'
 import SkillSuccess from './skills/SkillSuccess'
 import { getSkillById } from '../lib/skills/catalog'
 import { getAudioContext } from '../audioContext'
@@ -1348,7 +1349,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
     }
     return <FeedbackSummary feedback={feedback} config={config} onRestart={onEnd} onDashboard={onDashboard} />
   }
-  if (introLoading) return <IntroLoading titleText={isSkill ? 'Preparando tu sesión de coaching…' : isSimulation ? 'Preparando tu simulación…' : undefined} tips={isSkill ? COACHING_TIPS : INTERVIEW_TIPS} />
+  if (introLoading) return <IntroLoading titleText={isSkill ? 'Preparando tu sesión de coaching…' : isSimulation ? 'Preparando tu simulación…' : undefined} tips={isSkill ? COACHING_TIPS : isSimulation ? getTipsForSimulation(simulation.category) : INTERVIEW_TIPS} />
 
   const busy = isProcessing
 
