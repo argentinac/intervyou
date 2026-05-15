@@ -800,10 +800,12 @@ export default function FeedbackSummary({ feedback, config, onRestart, onDashboa
         </header>
         <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
           <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 16, padding: 32, maxWidth: 480, textAlign: 'center' }}>
-            <div style={{ fontSize: 40, marginBottom: 12 }}>⏱</div>
+            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: 12 }}>
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
             <h2 style={{ fontSize: 20, fontWeight: 700, color: '#111827', margin: 0, marginBottom: 8 }}>Entrevista muy corta</h2>
             <p style={{ fontSize: 14, color: '#6B7280', lineHeight: 1.6, margin: 0, marginBottom: 24 }}>
-              Necesitamos al menos un par de respuestas para analizar cómo te expresás. Intentá completar más preguntas la próxima vez.
+              Necesitamos al menos un par de respuestas para analizar cómo te expresás.<br />Intentá completar más preguntas la próxima vez.
             </p>
             <button
               onClick={onDashboard}
