@@ -23,6 +23,7 @@ Respondé SOLO con este JSON:
   "persona": {
     "role": "Título breve del rol (ej: Cliente enojado, Jefe directo, Colega)",
     "gender": "male",
+    "voiceTone": "neutral",
     "systemPromptCore": "3-4 oraciones en español, segunda persona singular, describiendo quién sos y cómo te comportás en esta situación específica. Empezá con 'Sos...'"
   },
   "questions": [
@@ -45,6 +46,7 @@ REGLAS ESTRICTAS:
 - Cada pregunta: 3 opciones concretas + siempre "Otra" al final
 - Para situaciones donde tiene sentido múltiple elección, usá type "multiselect" con campo "max": 2
 - El systemPromptCore en español, persona que SE ADAPTA a lo que el usuario practique
+- voiceTone debe ser uno de: "formal" (trabajo/trámites, tono neutro), "conflict" (confrontación, tensión, enojo), "personal" (familia, pareja, amigos, emocional), "neutral" (resto)
 - Solo JSON válido, sin texto extra`
 
   const anthropic = new Anthropic({ apiKey })

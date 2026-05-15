@@ -811,7 +811,7 @@ export default function Dashboard({ onNewInterview, onSignOut, onBlogPost, onRep
                   <button
                     key={i}
                     className={`demo-bar-btn ${demoIndex === i ? 'demo-bar-btn--active' : ''}`}
-                    onClick={() => { setDemoIndex(demoIndex === i ? null : i); setSection('home') }}
+                    onClick={() => setDemoIndex(demoIndex === i ? null : i)}
                   >
                     {s.label}
                   </button>

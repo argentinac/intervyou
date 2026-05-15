@@ -502,6 +502,7 @@ export default function CustomSituationSetup({ simulation, onSubmit, onBack }) {
 
     const persona = generated?.persona || {}
     const gender = persona.gender || 'male'
+    const voiceTone = persona.voiceTone || 'neutral'
     const interlocutorName = generateInterlocutorName(gender, 'Spanish')
 
     const resolvedAnswers = {}
@@ -524,6 +525,7 @@ export default function CustomSituationSetup({ simulation, onSubmit, onBack }) {
       interlocutorGender: gender,
       interlocutorName,
       interlocutorRole: persona.role || 'Tu interlocutor',
+      voiceTone,
       dynamicSituation: situation.trim(),
       dynamicPersonaCore: persona.systemPromptCore || '',
       dynamicAnswers: resolvedAnswers,

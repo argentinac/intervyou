@@ -13,12 +13,10 @@ const GENDER_VOICE = {
 // the lookup falls through to GENDER_VOICE (Antoni for male, Charlotte for
 // female) — both are multilingual and handle Spanish naturally.
 const LANGUAGE_VOICE = {
-  Spanish: { female: 'p18tR9wFA5Ng9WhfWI0o', male: 'G3TxN1DDxQ8O3c1BV6ZK' },
+  Spanish: { female: 'tRERXWzrPzFTtdfQUUbb', male: 'G3TxN1DDxQ8O3c1BV6ZK' },
 }
 
-const COUNTRY_VOICE_OVERRIDE = {
-  Argentina: { female: 'tRERXWzrPzFTtdfQUUbb' },
-}
+const COUNTRY_VOICE_OVERRIDE = {}
 
 // Country overrides for English speakers (premade voices)
 const COUNTRY_VOICE = {
@@ -53,9 +51,16 @@ const LANG_CODE_FALLBACK = {
   French: 'fr', German: 'de', Italian: 'it',
 }
 
+const VOICE_TONE_SETTINGS = {
+  formal:   { stability: 0.45, style: 0.30 }, // profesional, contenido
+  conflict: { stability: 0.15, style: 0.80 }, // tenso, emotivo
+  personal: { stability: 0.28, style: 0.62 }, // cálido, natural
+  neutral:  { stability: 0.22, style: 0.60 }, // default
+}
+
 export async function speakRoute(req, res) {
   try {
-    const { text, language, country, gender = 'female', simulationId, isSkill = false } = req.body
+    const { text, language, country, gender = 'female', simulationId, isSkill = false, voiceTone = null } = req.body
     if (!text || typeof text !== 'string' || !text.trim()) {
       return res.status(400).json({ error: 'Text is required' })
     }
@@ -89,13 +94,11 @@ export async function speakRoute(req, res) {
           text,
           model_id: 'eleven_flash_v2_5',
           language_code: languageCode,
-          voice_settings: {
-            stability: 0.22,
-            similarity_boost: 0.75,
-            style: isSkill ? 0.68 : 0.60,
-            use_speaker_boost: true,
-            speed: isSkill ? 0.98 : 1.00,
-          },
+          voice_settings: (() => {
+            if (isSkill) return { stability: 0.22, similarity_boost: 0.75, style: 0.68, use_speaker_boost: true, speed: 0.98 }
+            const tone = VOICE_TONE_SETTINGS[voiceTone] || VOICE_TONE_SETTINGS.neutral
+            return { stability: tone.stability, similarity_boost: 0.75, style: tone.style, use_speaker_boost: true, speed: 1.00 }
+          })(),
         }),
       }
     )

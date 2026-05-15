@@ -139,18 +139,17 @@ const DEMO_COUNTRIES = [
 
 function CompaniesStrip() {
   const [country, setCountry] = useState(null)
-  const [demo, setDemo] = useState(null)
 
   useEffect(() => {
     fetch('/api/payments/country')
       .then(r => r.json())
-      .then(d => setCountry(d.country || 'DEFAULT'))
-      .catch(() => setCountry('DEFAULT'))
+      .then(d => setCountry(d.country || 'US'))
+      .catch(() => setCountry('US'))
   }, [])
 
-  const active = demo || country
+  const active = country || 'US'
   const logos = COUNTRY_LOGOS[active] || COUNTRY_LOGOS.DEFAULT
-  const countryName = COUNTRY_NAMES[active] || ''
+  const countryName = COUNTRY_NAMES[active] || COUNTRY_NAMES.US
   const doubled = [...logos, ...logos, ...logos, ...logos]
 
   return (
@@ -162,19 +161,8 @@ function CompaniesStrip() {
         </h2>
         <p className="ld-section-sub">
           Entrená entrevistas, mejorá tus respuestas y aplicá con más confianza
-          {countryName ? ` a compañías líderes de ${countryName}` : ' a compañías líderes'}.
+          {` a compañías líderes de ${countryName}`}.
         </p>
-        <div className="ld-countries-demo">
-          {DEMO_COUNTRIES.map(c => (
-            <button
-              key={c.code}
-              className={`ld-country-btn${active === c.code ? ' ld-country-btn--active' : ''}`}
-              onClick={() => setDemo(c.code)}
-            >
-              {c.flag} {c.label}
-            </button>
-          ))}
-        </div>
       </FadeIn>
       <div className="ld-companies-wrap">
         <div key={active} className="ld-companies-track">
