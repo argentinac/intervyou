@@ -153,14 +153,12 @@ export default function SimulationFeedback({ feedback, config, onRestart, onDash
             <p style={{ fontSize: 14, color: '#6B7280', lineHeight: 1.6, margin: 0, marginBottom: 24 }}>
               No tenemos suficiente conversación para evaluar tu desempeño. Para recibir feedback útil, intentá una sesión un poco más extendida — al menos 4 o 5 intercambios.
             </p>
-            {onDashboard && (
-              <button
-                onClick={() => onDashboard()}
-                style={{ padding: '12px 24px', borderRadius: 10, fontSize: 14, fontWeight: 600, background: '#7C3AED', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}
-              >
-                Volver al inicio
-              </button>
-            )}
+            <button
+              onClick={() => onDashboard && onDashboard()}
+              style={{ padding: '12px 24px', borderRadius: 10, fontSize: 14, fontWeight: 600, background: '#7C3AED', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}
+            >
+              Ir a inicio
+            </button>
           </div>
         </main>
         <FeedbackFooter />
