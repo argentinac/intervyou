@@ -6604,3 +6604,23 @@ html, body, #root, .app {
   transition: background 0.15s;
 }
 .end-confirm-ok:hover { background: #DC2626; }
+
+/* Name skeleton */
+@keyframes name-shimmer {
+  0% { background-position: -200px 0; }
+  100% { background-position: 200px 0; }
+}
+.name-skeleton {
+  display: inline-block;
+  width: 90px;
+  height: 0.85em;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+  background-size: 400px 100%;
+  animation: name-shimmer 1.2s ease-in-out infinite;
+  vertical-align: middle;
+}
+.name-skeleton--sm {
+  width: 60px;
+  height: 0.75em;
+}

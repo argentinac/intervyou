@@ -26,14 +26,19 @@ class ErrorBoundary extends Component {
     super(props)
     this.state = { hasError: false }
   }
-  static getDerivedStateFromError() {
-    return { hasError: true }
+  static getDerivedStateFromError(error) {
+    console.error('ErrorBoundary caught:', error)
+    return { hasError: true, error }
+  }
+  componentDidCatch(error, info) {
+    console.error('ErrorBoundary detail:', error, info)
   }
   render() {
     if (this.state.hasError) {
       return (
         <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:'100vh', background:'#fafafa', fontFamily:'Inter,system-ui,sans-serif', gap:16, padding:24 }}>
           <p style={{ fontSize:16, color:'#374151', textAlign:'center' }}>Algo salió mal. Recargá la página para continuar.</p>
+          {this.state.error && <pre style={{ fontSize:11, color:'#ef4444', maxWidth:600, whiteSpace:'pre-wrap', textAlign:'left' }}>{this.state.error.toString()}{'\n'}{this.state.error.stack}</pre>}
           <button onClick={() => window.location.reload()} style={{ padding:'10px 24px', background:'#111827', color:'#fff', border:'none', borderRadius:10, fontSize:14, cursor:'pointer' }}>
             Recargar
           </button>
@@ -361,7 +366,6 @@ function AppInner() {
         onNewInterview={() => { setInterviewReturn('dashboard'); setView('interview') }}
         onStartInterview={(cfg) => { setInterviewConfig(cfg); setInterviewReturn('dashboard'); setView('interview') }}
         onSignOut={() => setView('landing')}
-        onBlogPost={goToBlog}
         onRepeatInterview={repeatInterview}
         onPricing={() => setView('pricing')}
         onPaymentSuccess={() => setView('payment-success')}

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { blogPosts } from '../data/blogPosts'
 
-export default function BlogPost({ slug, onBack, onTryFree }) {
+export default function BlogPost({ slug, onBack, onTryFree, hideHeader = false, loggedIn = false }) {
   const [html, setHtml] = useState('')
   const [loading, setLoading] = useState(true)
 
@@ -22,18 +22,30 @@ export default function BlogPost({ slug, onBack, onTryFree }) {
 
   return (
     <div className="bp-page">
-      <header className="bp-header">
-        <div className="bp-header-inner">
+      {!hideHeader && (
+        <header className="bp-header">
+          <div className="bp-header-inner">
+            <button className="bp-back" onClick={onBack}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+              Volver al blog
+            </button>
+            <img src="/logo.png" alt="CoachToWork" className="bp-logo" />
+            {!loggedIn && <button className="ld-btn-primary" onClick={onTryFree}>Probar gratis</button>}
+          </div>
+        </header>
+      )}
+      {hideHeader && (
+        <div style={{ padding: '16px 0 4px' }}>
           <button className="bp-back" onClick={onBack}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="15 18 9 12 15 6" />
             </svg>
-            Volver al blog
+            Volver a recursos
           </button>
-          <img src="/logo.png" alt="CoachToWork" className="bp-logo" />
-          <button className="ld-btn-primary" onClick={onTryFree}>Probar gratis</button>
         </div>
-      </header>
+      )}
 
       <main className="bp-main">
         {post && (
@@ -59,7 +71,10 @@ export default function BlogPost({ slug, onBack, onTryFree }) {
           <p className="bp-cta-tag">¿Querés practicar lo que acabás de aprender?</p>
           <h3 className="bp-cta-title">Simulá una entrevista real con IA</h3>
           <p className="bp-cta-sub">CoachToWork te da feedback personalizado para que llegues preparado a tu próxima entrevista.</p>
-          <button className="bp-cta-btn" onClick={onTryFree}>Empezar gratis →</button>
+          {loggedIn
+            ? <button className="bp-cta-btn" onClick={onBack}>Practicar ahora →</button>
+            : <button className="bp-cta-btn" onClick={onTryFree}>Empezar gratis →</button>
+          }
         </div>
       </main>
 

@@ -292,9 +292,9 @@ function WeeklyScoreChart({ interviews }) {
 }
 
 function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRecursos, onGoToSkills, onBlogPost, onStartSkill, onGoToProgress, onGoToSimulaciones, onStartSimulation }) {
-  const firstName = fullName
-    ? fullName.split(' ')[0]
-    : (user?.email?.split('@')[0] ?? 'ahí')
+  const firstName = fullName === undefined
+    ? ''
+    : (fullName ? fullName.split(' ')[0] : (user?.email?.split('@')[0] ?? 'ahí'))
 
   const [realInterviews, setRealInterviews] = useState(null)
   const [skillProgress, setSkillProgress] = useState({})
@@ -353,7 +353,7 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRec
     <div className="db-home">
       {/* Header */}
       <div className="db-welcome">
-        <h1>Hola, {firstName} 👋</h1>
+        <h1>Hola, {fullName === undefined ? <span className="name-skeleton" /> : firstName} 👋</h1>
         <p>Listo para seguir creciendo hoy.</p>
       </div>
 
@@ -587,7 +587,6 @@ export default function Dashboard({ initialSection = 'home', onNewInterview, onS
   const [demoOpen, setDemoOpen] = useState(false)
   const [paymentBannerDismissed, setPaymentBannerDismissed] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [blogSlug, setBlogSlug] = useState(null)
   const isAdmin = import.meta.env.DEV || user?.email === 'matiasabas@gmail.com'
   const showPaymentBanner = isPro && planStatus === 'past_due' && !paymentBannerDismissed
 
@@ -721,10 +720,12 @@ export default function Dashboard({ initialSection = 'home', onNewInterview, onS
           <div className="db-sidebar-divider" />
           <button className="db-sidebar-profile" onClick={() => setSection('settings')}>
             <div className="db-sidebar-profile-avatar">
-              {(profile?.full_name || user?.email || 'U')[0].toUpperCase()}
+              {profile === null ? '…' : (profile?.full_name || user?.email || 'U')[0]?.toUpperCase()}
             </div>
             <div className="db-sidebar-profile-info">
-              <span className="db-sidebar-profile-name">{profile?.full_name?.split(' ')[0] || user?.email?.split('@')[0]}</span>
+              <span className="db-sidebar-profile-name">
+                {profile === null ? <span className="name-skeleton name-skeleton--sm" /> : (profile?.full_name?.split(' ')[0] || user?.email?.split('@')[0])}
+              </span>
               <span className="db-sidebar-profile-sub">Ver perfil</span>
             </div>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: 'auto', flexShrink: 0, color: '#94a3b8' }}><polyline points="9 18 15 12 9 6"/></svg>
@@ -768,7 +769,7 @@ export default function Dashboard({ initialSection = 'home', onNewInterview, onS
           <HomeSection
             onNewInterview={onNewInterview}
             user={user}
-            fullName={profile?.full_name}
+            fullName={profile === null ? undefined : (profile?.full_name ?? null)}
             mockInterviews={demoIndex !== null ? DEMO_STATES[demoIndex].interviews : undefined}
             onGoToRecursos={() => setSection('recursos')}
             onGoToSkills={() => setSection('skills')}
@@ -785,10 +786,7 @@ export default function Dashboard({ initialSection = 'home', onNewInterview, onS
             ? <BlogPost slug={blogSlug} onBack={() => setBlogSlug(null)} hideHeader loggedIn />
             : <BlogListPage onBlogPost={handleBlogPost} />
         )}
-<<<<<<< HEAD
         {section === 'skills'      && <SkillsHub user={user} onStartSkill={(id) => { onStartSkill?.(id) }} />}
-=======
->>>>>>> 2df9f46 (fix: unificar tamaño del logo a 32px en todas las pantallas de usuario logueado)
         {section === 'profile'     && <MyProfile />}
         {section === 'settings'    && <SettingsPage onSignOut={handleSignOut} />}
         {section === 'simulaciones' && (
