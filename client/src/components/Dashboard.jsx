@@ -408,7 +408,7 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRec
           </div>
           <button
             className="home-custom-sim-btn"
-            onClick={() => onStartSimulation?.({ id: 'custom_situation', type: 'custom' })}
+            onClick={() => onStartSimulation?.('custom_situation')}
           >
             Crear situación →
           </button>
