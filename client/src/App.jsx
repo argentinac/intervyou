@@ -52,7 +52,12 @@ function getInitialView() {
   if (path === '/faq') return 'faq'
   if (path === '/payment-success') return 'payment-success'
   if (path === '/payment-error') return 'payment-error'
+  if (path === '/nueva-entrevista') return 'dashboard'
   return 'landing'
+}
+
+function getInitialDashboardSection() {
+  return window.location.pathname === '/nueva-entrevista' ? 'new' : 'home'
 }
 
 function getBlogSlugFromUrl() {
@@ -63,6 +68,7 @@ function AppInner() {
   const { user } = useAuth()
   const { plan, planStatus, isPro, startCheckout, checkoutLoading, refreshSubscription, processor } = usePlan()
   const [view, setView] = useState(getInitialView) // 'landing' | 'auth' | 'dashboard' | 'interview' | 'visa-interview' | 'simulation' | 'blog' | 'pricing' | 'payment-success' | 'payment-error' | 'terms' | 'privacy' | 'faq'
+  const [dashboardInitialSection, setDashboardInitialSection] = useState(getInitialDashboardSection)
   const [interviewConfig, setInterviewConfig] = useState(null)
   const [interviewReturn, setInterviewReturn] = useState('landing')
   const [visaConfig, setVisaConfig] = useState(null)
@@ -351,7 +357,9 @@ function AppInner() {
     if (!user) { setView('auth'); return null }
     return (
       <Dashboard
+        initialSection={dashboardInitialSection}
         onNewInterview={() => { setInterviewReturn('dashboard'); setView('interview') }}
+        onStartInterview={(cfg) => { setInterviewConfig(cfg); setInterviewReturn('dashboard'); setView('interview') }}
         onSignOut={() => setView('landing')}
         onBlogPost={goToBlog}
         onRepeatInterview={repeatInterview}
