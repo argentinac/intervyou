@@ -794,19 +794,30 @@ export default function FeedbackSummary({ feedback, config, onRestart, onDashboa
 
   if (feedback.notEnoughData) {
     return (
-      <div className="fb-page"><div className="fb-card">
-        <div className="fb-logo" onClick={onDashboard} style={onDashboard ? { cursor: 'pointer' } : undefined}><IntervyouIcon /></div>
-        <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:12, padding:'8px 0 4px' }}>
-          <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-          </svg>
-          <h2 style={{ margin:0, fontSize:20, fontWeight:700, color:'#111827', textAlign:'center' }}>Entrevista muy corta</h2>
-          <p style={{ margin:0, fontSize:14, color:'#6b7280', textAlign:'center', lineHeight:1.6 }}>
-            Necesitamos al menos un par de respuestas para analizar cómo te expresás.<br />Intentá completar más preguntas la próxima vez.
-          </p>
-        </div>
-        <div className="fb-actions"><button className="fb-restart" onClick={onRestart}>{onDashboard ? 'Nueva entrevista →' : 'Ir al inicio'}</button></div>
-      </div></div>
+      <div style={{ minHeight: '100vh', background: '#F7F9FD', display: 'flex', flexDirection: 'column', fontFamily: 'inherit' }}>
+        <header style={{ background: '#fff', borderBottom: '1px solid #E5E7EB', padding: '16px 24px' }}>
+          <img src="/logo.png" alt="CoachToWork" style={{ height: 32, width: 'auto', display: 'block' }} />
+        </header>
+        <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+          <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 16, padding: 32, maxWidth: 480, textAlign: 'center' }}>
+            <div style={{ fontSize: 40, marginBottom: 12 }}>⏱</div>
+            <h2 style={{ fontSize: 20, fontWeight: 700, color: '#111827', margin: 0, marginBottom: 8 }}>Entrevista muy corta</h2>
+            <p style={{ fontSize: 14, color: '#6B7280', lineHeight: 1.6, margin: 0, marginBottom: 24 }}>
+              Necesitamos al menos un par de respuestas para analizar cómo te expresás. Intentá completar más preguntas la próxima vez.
+            </p>
+            <button
+              onClick={onDashboard}
+              style={{ padding: '12px 24px', borderRadius: 10, fontSize: 14, fontWeight: 600, background: '#7C3AED', color: '#fff', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}
+            >
+              Ir a inicio
+            </button>
+          </div>
+        </main>
+        <footer style={{ borderTop: '1px solid #E5E7EB', padding: '16px 24px', textAlign: 'center', fontSize: 12, color: '#9CA3AF' }}>
+          <div style={{ marginBottom: 4 }}>CoachToWork — practicá conversaciones difíciles antes de tenerlas.</div>
+          <a href="https://coachtowork.io" style={{ color: '#7C3AED', textDecoration: 'none' }}>coachtowork.io</a>
+        </footer>
+      </div>
     )
   }
 
