@@ -130,7 +130,7 @@ function IntroLoading({ titleText, tips = INTERVIEW_TIPS }) {
     <div className="intro-loading">
       <div className="intro-loading-inner">
         <div className="intro-loading-logo">
-          <img src="/logo.png" alt="CoachToWork" style={{ height: 40, width: 'auto', filter: 'brightness(0) invert(1)', opacity: 0.9 }} />
+          <img src="/logo.png" alt="CoachToWork" style={{ height: 40, width: 'auto' }} />
         </div>
 
         <div className="intro-loading-spinner">
@@ -663,6 +663,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
   const [isSpeaking, setIsSpeaking] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const [sessionEnded, setSessionEnded] = useState(false)
+  const [showEndConfirm, setShowEndConfirm] = useState(false)
   const [feedback, setFeedback] = useState(null)
   const [statusText, setStatusText] = useState(() => str.connecting)
   const [error, setError] = useState(null)
@@ -810,6 +811,8 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
       return
     }
     setStatusText(str.yourTurn)
+    // Small delay so the OS audio hardware can switch from output to input cleanly
+    await new Promise(r => setTimeout(r, 200))
     startRecordingRef.current?.()
   }, [config.language, config.country, str.speaking, str.yourTurn])
 
@@ -1382,7 +1385,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
           {!isSkill && <span className="session-difficulty" data-level={config.difficulty}>{str.difficulty[config.difficulty]}</span>}
           {!isSkill && <button className="btn-demo-feedback" onClick={showDemoFeedback} title="Ver feedback de demo">Demo</button>}
           {!isSkill && <button className="btn-skip-end" onClick={skipToEnd} disabled={busy || sessionEnded || phase >= 4} title="Ir al cierre">Ir al cierre →</button>}
-          <button className="btn-end-call" onClick={endInterview}>{isSkill ? 'Terminar sesión' : str.endInterview}</button>
+          <button className="btn-end-call" onClick={() => setShowEndConfirm(true)}>{isSkill ? 'Terminar sesión' : str.endInterview}</button>
         </div>
       </header>
 
@@ -1433,6 +1436,19 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
         </div>
         <p className="mic-hint">{!isRecording && !busy ? str.holdHint : ''}</p>
       </footer>
+
+      {showEndConfirm && (
+        <div className="end-confirm-overlay" onClick={() => setShowEndConfirm(false)}>
+          <div className="end-confirm-modal" onClick={e => e.stopPropagation()}>
+            <div className="end-confirm-title">¿Seguro que querés terminar?</div>
+            <div className="end-confirm-body">Parte del contenido de la sesión puede perderse si salís ahora.</div>
+            <div className="end-confirm-actions">
+              <button className="end-confirm-cancel" onClick={() => setShowEndConfirm(false)}>Seguir entrevistando</button>
+              <button className="end-confirm-ok" onClick={() => { setShowEndConfirm(false); endInterview(); }}>Sí, terminar</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

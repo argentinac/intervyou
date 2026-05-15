@@ -279,7 +279,7 @@ html, body, #root, .app {
 /* ── Intro loading screen ── */
 .intro-loading {
   min-height: 100vh;
-  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+  background: #F7F9FD;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -289,16 +289,16 @@ html, body, #root, .app {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 32px;
+  gap: 28px;
   max-width: 480px;
   width: 100%;
   text-align: center;
 }
-.intro-loading-logo { opacity: 0.9; }
+.intro-loading-logo { opacity: 1; }
 .intro-loading-spinner {
   position: relative;
-  width: 80px;
-  height: 80px;
+  width: 64px;
+  height: 64px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -307,8 +307,8 @@ html, body, #root, .app {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  border: 3px solid transparent;
-  border-top-color: #6366f1;
+  border: 3px solid #E5E7EB;
+  border-top-color: #7C3AED;
   border-right-color: #8b5cf6;
   animation: spin 1.2s linear infinite;
 }
@@ -322,21 +322,22 @@ html, body, #root, .app {
   animation: spin 1.8s linear infinite reverse;
 }
 .intro-loading-mic {
-  color: #a78bfa;
+  color: #7C3AED;
 }
 .intro-loading-title {
   font-size: 18px;
   font-weight: 600;
-  color: #e2e8f0;
+  color: #111827;
   margin: 0;
   letter-spacing: -0.3px;
 }
 .intro-loading-tip {
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: #fff;
+  border: 1px solid #E5E7EB;
   border-radius: 16px;
   padding: 20px 24px;
   transition: opacity 0.35s ease, transform 0.35s ease;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
 }
 .intro-loading-tip--in { opacity: 1; transform: translateY(0); }
 .intro-loading-tip--out { opacity: 0; transform: translateY(8px); }
@@ -346,13 +347,13 @@ html, body, #root, .app {
   font-weight: 700;
   letter-spacing: 1px;
   text-transform: uppercase;
-  color: #818cf8;
+  color: #7C3AED;
   margin-bottom: 8px;
 }
 .intro-loading-tip p {
   margin: 0;
   font-size: 15px;
-  color: #cbd5e1;
+  color: #374151;
   line-height: 1.6;
 }
 
@@ -6402,3 +6403,66 @@ html, body, #root, .app {
   margin-top: 4px;
 }
 .skill-success-cta:hover { background: #4a46e8; }
+
+/* End interview confirmation modal */
+.end-confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.end-confirm-modal {
+  background: #fff;
+  border-radius: 16px;
+  padding: 28px 28px 24px;
+  max-width: 380px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.end-confirm-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+}
+.end-confirm-body {
+  font-size: 14px;
+  color: #6B7280;
+  line-height: 1.5;
+}
+.end-confirm-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+.end-confirm-cancel {
+  flex: 1;
+  padding: 11px 0;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 10px;
+  background: #fff;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.end-confirm-cancel:hover { background: #F9FAFB; }
+.end-confirm-ok {
+  flex: 1;
+  padding: 11px 0;
+  border: none;
+  border-radius: 10px;
+  background: #EF4444;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.end-confirm-ok:hover { background: #DC2626; }
