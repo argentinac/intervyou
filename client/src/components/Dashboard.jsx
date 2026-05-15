@@ -566,7 +566,7 @@ function SimulacionesSection({
   )
 }
 
-export default function Dashboard({ initialSection = 'home', onNewInterview, onStartInterview, onSignOut, onBlogPost, onRepeatInterview, onPricing, onPaymentSuccess, onPaymentError, pendingInterviewId, onPendingInterviewIdConsumed, onVisaInterview, onStartSimulation, onStartSkill }) {
+export default function Dashboard({ initialSection = 'home', onNewInterview, onStartInterview, onSignOut, onRepeatInterview, onPricing, onPaymentSuccess, onPaymentError, pendingInterviewId, onPendingInterviewIdConsumed, onVisaInterview, onStartSimulation, onStartSkill }) {
   const { user, signOut } = useAuth()
   const { isPro, planStatus, showUpgradeModal, openUpgradeModal, setDemoPlan, setDemoCountry, country } = usePlan()
   const [section, setSection] = useState(initialSection)
@@ -585,6 +585,7 @@ export default function Dashboard({ initialSection = 'home', onNewInterview, onS
   const [demoOpen, setDemoOpen] = useState(false)
   const [paymentBannerDismissed, setPaymentBannerDismissed] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [blogSlug, setBlogSlug] = useState(null)
   const isAdmin = import.meta.env.DEV || user?.email === 'matiasabas@gmail.com'
   const showPaymentBanner = isPro && planStatus === 'past_due' && !paymentBannerDismissed
 
@@ -612,6 +613,7 @@ export default function Dashboard({ initialSection = 'home', onNewInterview, onS
 
   const handleNav = (id) => {
     setSidebarOpen(false)
+    setBlogSlug(null)
     track(`dashboard_nav_${id}`)
     if (id === 'new') {
       window.history.pushState({}, '', '/nueva-entrevista')
@@ -620,6 +622,11 @@ export default function Dashboard({ initialSection = 'home', onNewInterview, onS
     }
     if (section === 'new') window.history.pushState({}, '', '/')
     setSection(id)
+  }
+
+  const handleBlogPost = (slug) => {
+    setBlogSlug(slug)
+    setSection('recursos')
   }
 
   return (
@@ -763,7 +770,7 @@ export default function Dashboard({ initialSection = 'home', onNewInterview, onS
             mockInterviews={demoIndex !== null ? DEMO_STATES[demoIndex].interviews : undefined}
             onGoToRecursos={() => setSection('recursos')}
             onGoToSkills={() => setSection('skills')}
-            onBlogPost={onBlogPost}
+            onBlogPost={handleBlogPost}
             onStartSkill={onStartSkill}
             onGoToProgress={() => setSection('interviews')}
             onGoToSimulaciones={() => setSection('simulaciones')}
@@ -771,7 +778,11 @@ export default function Dashboard({ initialSection = 'home', onNewInterview, onS
           />
         )}
         {section === 'interviews'  && <MyInterviews onNewInterview={onNewInterview} onRepeat={onRepeatInterview} initialSelectedId={deepInterviewId} onDeepIdConsumed={() => setDeepInterviewId(null)} mockInterviews={demoIndex !== null ? DEMO_STATES[demoIndex].interviews : undefined} />}
-        {section === 'recursos'    && <BlogListPage onBlogPost={onBlogPost} />}
+        {section === 'recursos'    && (
+          blogSlug
+            ? <BlogPost slug={blogSlug} onBack={() => setBlogSlug(null)} hideHeader loggedIn />
+            : <BlogListPage onBlogPost={handleBlogPost} />
+        )}
         {section === 'skills'      && <SkillsHub user={user} onStartSkill={(id) => { onStartSkill?.(id) }} />}
         {section === 'profile'     && <MyProfile />}
         {section === 'settings'    && <SettingsPage onSignOut={handleSignOut} />}
