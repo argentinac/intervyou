@@ -8,7 +8,7 @@ const LANGUAGE_LABELS   = { Spanish: 'Español', English: 'Inglés', Portuguese:
 function FeedbackHeader() {
   return (
     <header style={{ background: '#fff', borderBottom: '1px solid #E5E7EB', padding: '16px 24px' }}>
-      <img src="/logo.png" alt="CoachToWork" style={{ height: 32, width: 'auto', display: 'block' }} />
+      <img src="/logo.png" alt="FeelReady" style={{ height: 32, width: 'auto', display: 'block' }} />
     </header>
   )
 }
@@ -16,8 +16,8 @@ function FeedbackHeader() {
 function FeedbackFooter() {
   return (
     <footer style={{ borderTop: '1px solid #E5E7EB', padding: '16px 24px', textAlign: 'center', fontSize: 12, color: '#9CA3AF' }}>
-      <div style={{ marginBottom: 4 }}>CoachToWork — practicá conversaciones difíciles antes de tenerlas.</div>
-      <a href="https://coachtowork.io" style={{ color: '#7C3AED', textDecoration: 'none' }}>coachtowork.io</a>
+      <div style={{ marginBottom: 4 }}>FeelReady — practicá conversaciones difíciles antes de tenerlas.</div>
+      <a href="https://feelready.io" style={{ color: '#7C3AED', textDecoration: 'none' }}>feelready.io</a>
     </footer>
   )
 }

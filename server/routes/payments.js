@@ -86,11 +86,11 @@ async function getMPPlanInitPoint(period, priceARS) {
 
   const client = getMPClient()
   const planApi = new PreApprovalPlan(client)
-  const appUrl = process.env.APP_URL || 'https://coachtowork.io'
+  const appUrl = process.env.APP_URL || 'https://feelready.io'
 
   const configs = {
-    monthly:   { reason: 'CoachToWork Pro - Mensual',    auto_recurring: { frequency: 1, frequency_type: 'months', transaction_amount: priceARS, currency_id: 'ARS' } },
-    quarterly: { reason: 'CoachToWork Pro - Trimestral', auto_recurring: { frequency: 3, frequency_type: 'months', transaction_amount: priceARS, currency_id: 'ARS' } },
+    monthly:   { reason: 'FeelReady Pro - Mensual',    auto_recurring: { frequency: 1, frequency_type: 'months', transaction_amount: priceARS, currency_id: 'ARS' } },
+    quarterly: { reason: 'FeelReady Pro - Trimestral', auto_recurring: { frequency: 3, frequency_type: 'months', transaction_amount: priceARS, currency_id: 'ARS' } },
   }
 
   const result = await planApi.create({ body: { ...configs[period], back_url: `${appUrl}/payment-success` } })
@@ -133,7 +133,7 @@ paymentsRouter.post('/checkout', requireAuth, async (req, res) => {
   const userEmail = req.user.email
   const country = await getCountryFromIP(getClientIP(req))
   const useMP = MP_COUNTRIES.has(country)
-  const appUrl = process.env.APP_URL || 'https://coachtowork.io'
+  const appUrl = process.env.APP_URL || 'https://feelready.io'
   const serverUrl = process.env.SERVER_URL || appUrl
 
   if (useMP) {

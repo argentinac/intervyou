@@ -131,7 +131,7 @@ function IntroLoading({ titleText, tips = INTERVIEW_TIPS }) {
     <div className="intro-loading">
       <div className="intro-loading-inner">
         <div className="intro-loading-logo">
-          <img src="/logo.png" alt="CoachToWork" style={{ height: 32, width: 'auto' }} />
+          <img src="/logo.png" alt="FeelReady" style={{ height: 32, width: 'auto' }} />
         </div>
 
         <div className="intro-loading-spinner">
@@ -186,8 +186,8 @@ const UI_STRINGS = {
     processing:      'Processing your answer…',
     noSpeech:        "Didn't catch that. Try again.",
     speakLabel:      'Speak',
-    holdHint:        'Click to mute',
-    releaseHint:     'Click to unmute',
+    holdHint:        'Click to speak',
+    releaseHint:     'Click to mute',
     endInterview:    'End interview',
     youLabel:        'You',
     waitingAnswer:   'Waiting for your answer…',
@@ -208,8 +208,8 @@ const UI_STRINGS = {
     processing:      'Procesando tu respuesta…',
     noSpeech:        'No te escuché. Intentá de nuevo.',
     speakLabel:      'Hablar',
-    holdHint:        'Click para silenciar',
-    releaseHint:     'Click para activar',
+    holdHint:        'Click para hablar',
+    releaseHint:     'Click para silenciar',
     endInterview:    'Terminar entrevista',
     youLabel:        'Vos',
     waitingAnswer:   'Esperando tu respuesta…',
@@ -1336,7 +1336,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
       if (!feedback) {
         return (
           <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#F7F9FD', gap: 20, fontFamily: 'inherit' }}>
-            <img src="/logo.png" alt="CoachToWork" style={{ height: 32 }} />
+            <img src="/logo.png" alt="FeelReady" style={{ height: 32 }} />
             <div className="spinner" style={{ width: 32, height: 32, border: '3px solid #E5E7EB', borderTop: '3px solid #7C3AED', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
             <div style={{ fontSize: 16, fontWeight: 600, color: '#111827' }}>Preparando tu feedback...</div>
             <div style={{ fontSize: 13, color: '#6B7280', maxWidth: 360, textAlign: 'center' }}>Estamos analizando tu conversación. Esto puede tardar unos segundos.</div>

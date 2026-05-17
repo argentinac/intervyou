@@ -39,7 +39,7 @@ export default function SkillSuccess({ skill, messages, onDashboard }) {
   return (
     <div className="skill-success">
       <div className="skill-success-inner">
-        <img src="/logo.png" alt="CoachToWork" className="skill-success-logo" />
+        <img src="/logo.png" alt="FeelReady" className="skill-success-logo" />
 
         <div className="skill-success-check">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#5955F6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

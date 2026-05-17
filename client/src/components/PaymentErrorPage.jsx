@@ -98,8 +98,8 @@ export default function PaymentErrorPage({ onRetry, onHome }) {
         {/* Ayuda */}
         <div className="per-help">
           <span>¿Necesitás ayuda?</span>
-          <a href="mailto:soporte@coachtowork.com" className="per-help-link">
-            Escribinos a soporte@coachtowork.com
+          <a href="mailto:support@feelready.io" className="per-help-link">
+            Escribinos a support@feelready.io
           </a>
         </div>
 

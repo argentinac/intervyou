@@ -190,7 +190,7 @@ export default function Landing({ user, onLogin, onTryFree, onDashboard, onBlogP
       <nav className="ld-nav">
         <div className="ld-nav-inner">
           <div className="ld-nav-logo">
-            <img src="/logo.png" alt="CoachToWork" style={{ height: 36, width: 'auto' }} />
+            <img src="/logo.png" alt="FeelReady" style={{ height: 36, width: 'auto' }} />
           </div>
           <div className={`ld-nav-links ${menuOpen ? 'ld-nav-links--open' : ''}`}>
             <a href="#features">Cómo funciona</a>
@@ -357,7 +357,7 @@ export default function Landing({ user, onLogin, onTryFree, onDashboard, onBlogP
         </FadeIn>
         <div className="ld-testimonials-grid">
           {[
-            { quote: '"Practicar con CoachToWork me ayudó a ordenar mis ideas y ganar confianza. Conseguí el trabajo que quería 🙌"', name: 'Martina López', role: 'Product Manager', initials: 'ML' },
+            { quote: '"Practicar con FeelReady me ayudó a ordenar mis ideas y ganar confianza. Conseguí el trabajo que quería 🙌"', name: 'Martina López', role: 'Product Manager', initials: 'ML' },
             { quote: '"Los feedbacks son súper claros y accionables. Mejoré mucho mis respuestas y mi seguridad."', name: 'Juan Pablo Gómez', role: 'Data Analyst', initials: 'JG' },
             { quote: '"Me encantó lo realista que se siente. Es como estar en la entrevista posta, pero sin los nervios."', name: 'Camila Torres', role: 'UX Designer', initials: 'CT' },
           ].map((t, i) => (
@@ -405,7 +405,7 @@ export default function Landing({ user, onLogin, onTryFree, onDashboard, onBlogP
       <footer className="ld-footer">
         <div className="ld-footer-inner">
           <div className="ld-footer-logo">
-            <img src="/logo.png" alt="CoachToWork" style={{ height: 28, width: 'auto', filter: 'brightness(0) invert(1)', opacity: 0.7 }} />
+            <img src="/logo.png" alt="FeelReady" style={{ height: 28, width: 'auto', filter: 'brightness(0) invert(1)', opacity: 0.7 }} />
           </div>
           <div className="ld-footer-links">
             <a href="#features">Cómo funciona</a>
