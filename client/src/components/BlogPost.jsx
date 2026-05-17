@@ -31,7 +31,7 @@ export default function BlogPost({ slug, onBack, onTryFree, hideHeader = false, 
               </svg>
               Volver al blog
             </button>
-            <img src="/logo.png" alt="CoachToWork" className="bp-logo" />
+            <img src="/logo.png" alt="FeelReady" className="bp-logo" />
             {!loggedIn && <button className="ld-btn-primary" onClick={onTryFree}>Probar gratis</button>}
           </div>
         </header>
@@ -70,7 +70,7 @@ export default function BlogPost({ slug, onBack, onTryFree, hideHeader = false, 
         <div className="bp-cta-box">
           <p className="bp-cta-tag">¿Querés practicar lo que acabás de aprender?</p>
           <h3 className="bp-cta-title">Simulá una entrevista real con IA</h3>
-          <p className="bp-cta-sub">CoachToWork te da feedback personalizado para que llegues preparado a tu próxima entrevista.</p>
+          <p className="bp-cta-sub">FeelReady te da feedback personalizado para que llegues preparado a tu próxima entrevista.</p>
           {loggedIn
             ? <button className="bp-cta-btn" onClick={onBack}>Practicar ahora →</button>
             : <button className="bp-cta-btn" onClick={onTryFree}>Empezar gratis →</button>
@@ -79,7 +79,7 @@ export default function BlogPost({ slug, onBack, onTryFree, hideHeader = false, 
       </main>
 
       <footer className="bp-footer">
-        <span>© {new Date().getFullYear()} CoachToWork · </span>
+        <span>© {new Date().getFullYear()} FeelReady · </span>
         <button className="bp-footer-link" onClick={onBack}>Blog</button>
       </footer>
     </div>

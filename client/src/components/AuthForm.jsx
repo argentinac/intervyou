@@ -113,7 +113,7 @@ function RightPanel() {
             <StarIcon />
           </div>
           <div className="auth-right-card-body">
-            <p className="auth-right-card-label">Con CoachToWork podés</p>
+            <p className="auth-right-card-label">Con FeelReady podés</p>
             <ul className="auth-right-card-list">
               <li>Simular entrevistas</li>
               <li>Recibir feedback al instante</li>
@@ -191,7 +191,7 @@ export default function AuthForm({ onBack, context }) {
           {step === 'main' && (
             <>
               <div className="auth-logo">
-                <img src="/logo.png" alt="CoachToWork" />
+                <img src="/logo.png" alt="FeelReady" />
               </div>
 
               <h1 className="auth-title">{context === 'interview' ? 'Guardá tu entrevista' : 'Ingresá a tu cuenta'}</h1>
@@ -236,7 +236,7 @@ export default function AuthForm({ onBack, context }) {
           {step === 'otp-email' && (
             <>
               <div className="auth-logo">
-                <img src="/logo.png" alt="CoachToWork" />
+                <img src="/logo.png" alt="FeelReady" />
               </div>
 
               <h1 className="auth-steps-title">Ingresá tu email</h1>
@@ -263,7 +263,7 @@ export default function AuthForm({ onBack, context }) {
           {step === 'otp-code' && (
             <>
               <div className="auth-logo">
-                <img src="/logo.png" alt="CoachToWork" />
+                <img src="/logo.png" alt="FeelReady" />
               </div>
 
               <h1 className="auth-steps-title">Revisá tu email</h1>

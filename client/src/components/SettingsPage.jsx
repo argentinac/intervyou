@@ -160,7 +160,7 @@ export default function SettingsPage({ onSignOut }) {
             <div className="settings-card">
               <h3>Creá tu cuenta</h3>
               <p style={{ color: '#666', marginBottom: 16 }}>
-                Estás usando CoachToWork como invitado. Registrate para guardar tu historial, acceder a tus entrevistas y desbloquear todas las funciones.
+                Estás usando FeelReady como invitado. Registrate para guardar tu historial, acceder a tus entrevistas y desbloquear todas las funciones.
               </p>
               <button className="auth-submit" onClick={handleSignOut}>
                 Crear cuenta o iniciar sesión

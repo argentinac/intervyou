@@ -70,6 +70,12 @@ const IconFlask = () => (
   </svg>
 )
 
+const IconStar = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+  </svg>
+)
+
 const DAILY_TIP = INTERVIEW_TIPS[Math.floor(Date.now() / 86400000) % INTERVIEW_TIPS.length]
 
 const PRACTICE_TYPES = [
@@ -424,7 +430,7 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRec
           <button className="home-ver-todos-btn" onClick={onGoToSkills}>Ver todos →</button>
         </div>
         <div className="home-skills-v2-grid">
-          {SKILLS_CATALOG.map((skill) => {
+          {SKILLS_CATALOG.slice(0, 5).map((skill) => {
             const done = skillProgress[skill.id] || 0
             const pct = Math.round((done / skill.techniques.length) * 100)
             const barColor = pct === 100 ? '#22c55e' : '#5955F6'
@@ -504,7 +510,7 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRec
           </svg>
         </div>
         <div className="home-feedback-text">
-          <span>¿Tenés sugerencias para mejorar CoachToWork?</span>
+          <span>¿Tenés sugerencias para mejorar FeelReady?</span>
           <span className="home-feedback-sub">Tu opinión nos ayuda a crecer.</span>
         </div>
         <a href="https://forms.gle/WQF6jseUj8ME9nJ6A" target="_blank" rel="noopener noreferrer" className="home-feedback-btn">
@@ -610,6 +616,7 @@ export default function Dashboard({ initialSection = 'home', onNewInterview, onS
     { id: 'recursos',      label: 'Recursos',              icon: <IconBook /> },
     { id: 'profile',       label: 'Mi perfil profesional', icon: <IconUser /> },
     { id: 'simulaciones',  label: 'Simulaciones',          icon: <IconFlask /> },
+    { id: 'skills',        label: 'Entrená habilidades',   icon: <IconStar /> },
   ].filter(item => !item.adminOnly || isAdmin)
 
   const handleNav = (id) => {
@@ -636,12 +643,12 @@ export default function Dashboard({ initialSection = 'home', onNewInterview, onS
         <button className="db-hamburger" onClick={() => setSidebarOpen(o => !o)} aria-label="Menú">
           <span /><span /><span />
         </button>
-        <img src="/logo.png" alt="CoachToWork" style={{ height: 32, width: 'auto' }} />
+        <img src="/logo.png" alt="FeelReady" style={{ height: 32, width: 'auto' }} />
       </div>
       {sidebarOpen && <div className="db-overlay" onClick={() => setSidebarOpen(false)} />}
       <aside className={`db-sidebar${sidebarOpen ? ' db-sidebar--open' : ''}`}>
         <div className="db-sidebar-logo" onClick={() => user?.is_anonymous ? handleSignOut() : setSection('home')} style={{ cursor: 'pointer' }}>
-          <img src="/logo.png" alt="CoachToWork" style={{ height: 32, width: 'auto' }} />
+          <img src="/logo.png" alt="FeelReady" style={{ height: 32, width: 'auto' }} />
         </div>
 
         <nav className="db-nav">

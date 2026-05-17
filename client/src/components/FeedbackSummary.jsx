@@ -327,7 +327,7 @@ function RadarChart({ axisValues }) {
 // ── Shared sub-components ───────────────────────────────────────────────────
 
 const IntervyouIcon = () => (
-  <img src="/logo.png" alt="CoachToWork" style={{ height: 32, width: 'auto' }} />
+  <img src="/logo.png" alt="FeelReady" style={{ height: 32, width: 'auto' }} />
 )
 
 function AxisTag({ axis }) {
@@ -750,9 +750,9 @@ function NewFeedback({ feedback, config, onRestart, onDashboard, onBack }) {
 
       {/* ── Footer ── */}
       <div className="rpt-footer">
-        <img src="/logo.png" alt="CoachToWork" className="rpt-footer-logo" />
+        <img src="/logo.png" alt="FeelReady" className="rpt-footer-logo" />
         <span>Tu camino hacia tu mejor versión profesional</span>
-        <span>coachtowork.io</span>
+        <span>feelready.io</span>
       </div>
     </div>
 
@@ -765,7 +765,7 @@ function NewFeedback({ feedback, config, onRestart, onDashboard, onBack }) {
         onClick={async () => {
           if (!pageRef.current) return
           setDownloading(true)
-          const name = userName ? `Reporte-${userName.replace(/\s/g, '-')}` : 'Reporte-CoachToWork'
+          const name = userName ? `Reporte-${userName.replace(/\s/g, '-')}` : 'Reporte-FeelReady'
           await downloadReport(pageRef.current, `${name}.pdf`)
           setDownloading(false)
         }}
@@ -814,7 +814,7 @@ export default function FeedbackSummary({ feedback, config, onRestart, onDashboa
     return (
       <div style={{ minHeight: '100vh', background: '#F7F9FD', display: 'flex', flexDirection: 'column', fontFamily: 'inherit' }}>
         <header style={{ background: '#fff', borderBottom: '1px solid #E5E7EB', padding: '16px 24px' }}>
-          <img src="/logo.png" alt="CoachToWork" style={{ height: 32, width: 'auto', display: 'block' }} />
+          <img src="/logo.png" alt="FeelReady" style={{ height: 32, width: 'auto', display: 'block' }} />
         </header>
         <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
           <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 16, padding: 32, maxWidth: 480, textAlign: 'center' }}>
@@ -834,8 +834,8 @@ export default function FeedbackSummary({ feedback, config, onRestart, onDashboa
           </div>
         </main>
         <footer style={{ borderTop: '1px solid #E5E7EB', padding: '16px 24px', textAlign: 'center', fontSize: 12, color: '#9CA3AF' }}>
-          <div style={{ marginBottom: 4 }}>CoachToWork — practicá conversaciones difíciles antes de tenerlas.</div>
-          <a href="https://coachtowork.io" style={{ color: '#7C3AED', textDecoration: 'none' }}>coachtowork.io</a>
+          <div style={{ marginBottom: 4 }}>FeelReady — practicá conversaciones difíciles antes de tenerlas.</div>
+          <a href="https://feelready.io" style={{ color: '#7C3AED', textDecoration: 'none' }}>feelready.io</a>
         </footer>
       </div>
     )

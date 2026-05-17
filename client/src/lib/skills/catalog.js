@@ -117,6 +117,111 @@ Fase 4 (práctica): Pedile que cuente un logro usando el Mini-STAR, en voz alta,
   },
 ]
 
+const COMUNICACION_TECHNIQUES = [
+  {
+    name: 'La regla del 60 segundos',
+    instructions: `Técnica a trabajar: La regla del 60 segundos.
+Fase 3 (ejercicio guiado): Explicá que la mayoría de respuestas en entrevista no deberían superar los 60 segundos. La técnica es: una oración de apertura que resume el punto central, luego el desarrollo, luego cerrar. Sin rodeos, sin relleno. Dá un ejemplo hablado de una respuesta larga y cómo comprimirla.
+Fase 4 (práctica): Pedile que responda una pregunta típica de entrevista (como "¿cuál es tu mayor logro?") en menos de 60 segundos, en voz alta.`,
+  },
+  {
+    name: 'Punto-Razón-Ejemplo',
+    instructions: `Técnica a trabajar: Punto-Razón-Ejemplo (PRE).
+Fase 3 (ejercicio guiado): Explicá la estructura PRE: primero decís el Punto (tu postura o respuesta en una oración), después la Razón (por qué lo pensás), después el Ejemplo (una situación concreta que lo prueba). Es simple y funciona para casi cualquier pregunta. Dá un ejemplo hablado completo.
+Fase 4 (práctica): Proponé una pregunta como "¿qué te diferencia de otros candidatos?" y pedile que responda usando PRE en voz alta.`,
+  },
+  {
+    name: 'Eliminar el relleno',
+    instructions: `Técnica a trabajar: Detectar y eliminar el relleno verbal.
+Fase 3 (ejercicio guiado): Explicá que frases como "este...", "la verdad es que...", "o sea...", "básicamente..." dilatan la respuesta y dan sensación de inseguridad. La técnica es detectarlas, hacer una pausa en lugar de decirlas, y continuar. Dá un ejemplo hablado antes y después de limpiar el relleno.
+Fase 4 (práctica): Pedile que responda en voz alta una pregunta sencilla prestando atención a no usar muletillas. Si aparecen, se autodetectan y reinician.`,
+  },
+]
+
+const LIDERAZGO_TECHNIQUES = [
+  {
+    name: 'El nosotros inteligente',
+    instructions: `Técnica a trabajar: El nosotros inteligente.
+Fase 3 (ejercicio guiado): Explicá que en entrevistas, hablar solo en plural ("hicimos", "logramos") puede invisibilizar tu aporte. La técnica es usar "nosotros" para el contexto y la meta, y "yo" para las acciones concretas que vos tomaste. Dá un ejemplo hablado de cómo suena la diferencia.
+Fase 4 (práctica): Pedile que cuente un logro de equipo en voz alta usando el nosotros inteligente — diferenciando el contexto compartido de su contribución específica.`,
+  },
+  {
+    name: 'El rol de facilitador',
+    instructions: `Técnica a trabajar: Contar liderazgo sin sonar arrogante.
+Fase 3 (ejercicio guiado): Explicá que liderar no siempre significa mandar — muchas veces es facilitar, desbloquear, alinear. La técnica es describir situaciones donde habilitaste que el equipo funcione mejor: resolviste un conflicto, alineaste expectativas, removiste un obstáculo. Dá un ejemplo hablado.
+Fase 4 (práctica): Pedile que cuente una situación donde facilitó algo en un equipo — sin usar la palabra "líder" — y que explique el impacto concreto.`,
+  },
+  {
+    name: 'Manejo del conflicto',
+    instructions: `Técnica a trabajar: Cómo contar conflictos de equipo sin quedar mal.
+Fase 3 (ejercicio guiado): Explicá que preguntas sobre conflictos tienen trampa: quieren ver madurez, no drama. La técnica es: describir el conflicto sin atacar a nadie, explicar cómo lo encaraste de forma constructiva, y enfocarte en el resultado positivo. Dá un ejemplo hablado.
+Fase 4 (práctica): Pedile que cuente un conflicto real de equipo usando la estructura en voz alta — sin mencionar nombres ni victimizarse.`,
+  },
+]
+
+const PREGUNTAS_TECHNIQUES = [
+  {
+    name: 'Las preguntas que muestran interés real',
+    instructions: `Técnica a trabajar: Preguntas que muestran curiosidad genuina.
+Fase 3 (ejercicio guiado): Explicá que "¿tenés alguna pregunta?" al final es una oportunidad, no un trámite. Las mejores preguntas son las que muestran que investigaste y que pensás en el mediano plazo: sobre el equipo, los desafíos del rol, cómo se ve el éxito. Dá ejemplos hablados de preguntas buenas y malas.
+Fase 4 (práctica): Pedile que formule en voz alta 2 preguntas que haría al entrevistador, y que explique por qué las eligió.`,
+  },
+  {
+    name: 'La pregunta de cierre estratégico',
+    instructions: `Técnica a trabajar: La pregunta de cierre estratégico.
+Fase 3 (ejercicio guiado): Explicá que antes de cerrar la entrevista, una pregunta muy poderosa es: "¿Hay algo de mi perfil que te generó dudas o que quisieras que amplíe?". Esto da una segunda chance para aclarar objeciones. Explicá cuándo y cómo usarla sin que suene desesperada. Dá un ejemplo hablado.
+Fase 4 (práctica): Pedile que practique en voz alta cómo formularía esa pregunta de cierre en su propio estilo, natural y sin sonar ansiosa/o.`,
+  },
+  {
+    name: 'Preguntas sobre cultura y equipo',
+    instructions: `Técnica a trabajar: Preguntas sobre cultura y dinámica de equipo.
+Fase 3 (ejercicio guiado): Explicá que preguntar sobre cultura no es solo "¿cómo es el ambiente?". Las mejores preguntas revelan valores: "¿Qué hace que alguien funcione bien en este equipo?", "¿Cómo se toman decisiones cuando hay desacuerdo?", "¿Qué les gusta de trabajar acá?". Dá un ejemplo hablado de por qué esas preguntas importan.
+Fase 4 (práctica): Pedile que elija una pregunta de cultura que haría en su próxima entrevista y que explique en voz alta qué quiere aprender con ella.`,
+  },
+]
+
+const SALARIO_TECHNIQUES = [
+  {
+    name: 'El rango ancla',
+    instructions: `Técnica a trabajar: El rango ancla.
+Fase 3 (ejercicio guiado): Explicá que dar un número exacto te debilita; dar un rango con el mínimo donde realmente querés llegar es más efectivo. La técnica del rango ancla: poné tu número ideal en la parte baja del rango, así si "se encuentran en el medio" seguís ganando. Dá un ejemplo hablado de cómo sonaría.
+Fase 4 (práctica): Pedile que practique en voz alta cómo respondería "¿qué pretensiones económicas tenés?" usando el rango ancla con confianza y sin disculparse.`,
+  },
+  {
+    name: 'Investigar antes de hablar',
+    instructions: `Técnica a trabajar: Anclar en investigación de mercado.
+Fase 3 (ejercicio guiado): Explicá que el número que decís tiene que estar fundamentado, no inventado. La técnica es investigar rangos (LinkedIn Salary, Glassdoor, referencias de colegas) y mencionarlo de forma natural: "Según lo que investigué del mercado para este tipo de rol..." Eso comunica seriedad y te da respaldo. Dá un ejemplo hablado.
+Fase 4 (práctica): Pedile que formule en voz alta una respuesta sobre pretensiones salariales mencionando que su número viene de investigación de mercado.`,
+  },
+  {
+    name: 'Responder sin revelar primero',
+    instructions: `Técnica a trabajar: Responder sin revelar tu número primero.
+Fase 3 (ejercicio guiado): Explicá que si te preguntan "¿cuánto ganás ahora?" o "¿cuánto querés ganar?" antes de saber el rango de la empresa, podés devolver la pregunta: "Para asegurarme de que estemos alineados, ¿podrías compartirme el rango que tienen para este rol?" Explicá cómo hacerlo sin sonar evasivo. Dá un ejemplo hablado.
+Fase 4 (práctica): Pedile que practique en voz alta cómo respondería esa pregunta sin revelar su número primero, usando un tono seguro y profesional.`,
+  },
+]
+
+const CIERRE_TECHNIQUES = [
+  {
+    name: 'El resumen de valor',
+    instructions: `Técnica a trabajar: El resumen de valor al cierre.
+Fase 3 (ejercicio guiado): Explicá que los últimos 2 minutos de una entrevista son los más recordados. La técnica es cerrar con una oración que conecte tu perfil con la necesidad del rol: "Lo que escuché hoy me confirmó que puedo aportar X porque tengo Y. Estoy muy interesado/a." Dá un ejemplo hablado adaptado a un perfil genérico.
+Fase 4 (práctica): Pedile que elabore en voz alta su propio cierre de 2-3 oraciones que conecte lo que sabe de sí mismo/a con lo que el rol necesita.`,
+  },
+  {
+    name: 'El seguimiento post-entrevista',
+    instructions: `Técnica a trabajar: El seguimiento post-entrevista.
+Fase 3 (ejercicio guiado): Explicá que mandar un mensaje de seguimiento dentro de las 24 horas (por email o LinkedIn) es una práctica que muy pocos hacen y que diferencia. El mensaje ideal: agradecé el tiempo, mencioná algo específico de la charla, y reiterá tu interés. Dá un ejemplo hablado de cómo sonaría ese mensaje.
+Fase 4 (práctica): Pedile que redacte en voz alta el mensaje de seguimiento que mandaría después de su próxima entrevista, como si la hubiera tenido hoy.`,
+  },
+  {
+    name: 'Manejar el silencio después',
+    instructions: `Técnica a trabajar: Manejar la espera sin ansiedad.
+Fase 3 (ejercicio guiado): Explicá que la espera post-entrevista activa la ansiedad porque sentís que perdiste el control. La técnica tiene dos partes: primero, acordarte que hiciste lo que podías hacer; segundo, seguir generando opciones (otras entrevistas, contactos) para no depender de una sola respuesta. Dá un ejemplo hablado de cómo reencuadrar la espera.
+Fase 4 (práctica): Pedile que verbalice en voz alta cómo manejaría la espera después de una entrevista que fue muy bien — qué haría, qué pensaría, qué evitaría.`,
+  },
+]
+
 function buildPrompt(skillFocus, techniqueEntry) {
   const lines = techniqueEntry.instructions.split('\n')
   const fase3 = (lines[1] || '').replace('Fase 3 (ejercicio guiado): ', '')
@@ -200,6 +305,71 @@ export const SKILLS_CATALOG = [
     description: 'Dominá la estructura más usada para contar logros de forma clara, concisa y memorable.',
     techniques: STAR_TECHNIQUES,
     buildSystemPrompt: (idx) => buildPrompt('método STAR para contar logros y experiencias', STAR_TECHNIQUES[idx % STAR_TECHNIQUES.length]),
+  },
+  {
+    id: 'comunicacion',
+    name: 'Comunicación clara',
+    shortTitle: 'Comunicación',
+    nivel: 'Nivel principiante',
+    nivelColor: '#f59e0b',
+    img3d: '/3d/02_comunicacion_clara.png',
+    eje: 'Claridad',
+    duration: '~7 min',
+    description: 'Respondé de forma concisa y directa sin irse por las ramas ni perder el hilo.',
+    techniques: COMUNICACION_TECHNIQUES,
+    buildSystemPrompt: (idx) => buildPrompt('comunicación clara y concisa en entrevistas', COMUNICACION_TECHNIQUES[idx % COMUNICACION_TECHNIQUES.length]),
+  },
+  {
+    id: 'liderazgo',
+    name: 'Liderazgo y equipo',
+    shortTitle: 'Liderazgo',
+    nivel: 'Nivel intermedio',
+    nivelColor: '#5955F6',
+    img3d: '/3d/05_liderazgo.png',
+    eje: 'Trabajo en equipo',
+    duration: '~8 min',
+    description: 'Contá experiencias de equipo mostrando tu aporte sin sonar arrogante ni desaparecer en el "nosotros".',
+    techniques: LIDERAZGO_TECHNIQUES,
+    buildSystemPrompt: (idx) => buildPrompt('liderazgo y trabajo en equipo en entrevistas', LIDERAZGO_TECHNIQUES[idx % LIDERAZGO_TECHNIQUES.length]),
+  },
+  {
+    id: 'preguntas',
+    name: 'Preguntar al entrevistador',
+    shortTitle: 'Tus preguntas',
+    nivel: 'Nivel principiante',
+    nivelColor: '#f59e0b',
+    img3d: '/3d/01_monitor_recomendado.png',
+    eje: 'Estrategia',
+    duration: '~6 min',
+    description: 'Convertí el "¿tenés preguntas?" en una oportunidad para mostrar interés real y cerrar fuerte.',
+    techniques: PREGUNTAS_TECHNIQUES,
+    buildSystemPrompt: (idx) => buildPrompt('formular preguntas efectivas al entrevistador', PREGUNTAS_TECHNIQUES[idx % PREGUNTAS_TECHNIQUES.length]),
+  },
+  {
+    id: 'salario',
+    name: 'Negociación salarial',
+    shortTitle: 'Salario',
+    nivel: 'Nivel avanzado',
+    nivelColor: '#22c55e',
+    img3d: '/3d/06_manejo_bajo_presion.png',
+    eje: 'Negociación',
+    duration: '~9 min',
+    description: 'Hablá de plata con seguridad: cómo dar tu número, anclar en mercado y no ceder de más.',
+    techniques: SALARIO_TECHNIQUES,
+    buildSystemPrompt: (idx) => buildPrompt('negociación salarial en procesos de selección', SALARIO_TECHNIQUES[idx % SALARIO_TECHNIQUES.length]),
+  },
+  {
+    id: 'cierre',
+    name: 'Cerrar la entrevista',
+    shortTitle: 'El cierre',
+    nivel: 'Nivel intermedio',
+    nivelColor: '#5955F6',
+    img3d: '/3d/07_planta_consejo_del_dia.png',
+    eje: 'Estrategia',
+    duration: '~7 min',
+    description: 'Los últimos minutos importan: aprendé a cerrar dejando huella y a manejar la espera sin ansiedad.',
+    techniques: CIERRE_TECHNIQUES,
+    buildSystemPrompt: (idx) => buildPrompt('cerrar una entrevista de forma memorable', CIERRE_TECHNIQUES[idx % CIERRE_TECHNIQUES.length]),
   },
 ]
 

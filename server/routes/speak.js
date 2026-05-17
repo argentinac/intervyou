@@ -80,6 +80,7 @@ export async function speakRoute(req, res) {
       if (typeof entry === 'string') return entry
       return entry[gender] || null
     }
+    console.log('[speak] gender=%s language=%s country=%s simulationId=%s', gender, language, country, simulationId)
     const voiceId = pickByGender(SIMULATION_VOICE[simulationId])
       || pickByGender(COUNTRY_VOICE_OVERRIDE[country])
       || (COUNTRY_VOICE[country] ? COUNTRY_VOICE[country](gender) : null)
