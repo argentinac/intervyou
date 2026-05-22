@@ -72,6 +72,9 @@ export async function chatRoute(req, res) {
     res.json({ text: response.content[0].text, t3, t4, usage, llm_cost_usd })
   } catch (err) {
     console.error('Chat error:', err)
-    res.status(500).json({ error: err.message })
+    const code = err.status === 429 ? 'rate_limit'
+               : err.code === 'ETIMEDOUT' || err.message?.includes('timeout') ? 'timeout'
+               : 'server_error'
+    res.status(500).json({ error: 'llm_error', code, message: err.message })
   }
 }

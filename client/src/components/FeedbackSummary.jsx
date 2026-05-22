@@ -420,10 +420,11 @@ async function downloadReport(pageEl, fileName) {
   pdf.save(fileName)
 }
 
-function NewFeedback({ feedback, config, onRestart, onDashboard, onBack }) {
+function NewFeedback({ feedback, config, onRestart, onDashboard, onBack, saveFailed }) {
   const { user } = useAuth()
   const pageRef  = useRef(null)
   const [downloading, setDownloading] = useState(false)
+  const [pdfError, setPdfError] = useState(false)
   const userName   = formatName(user?.user_metadata?.full_name)
   const today      = formatDate(new Date())
   const interviewType  = feedback.interviewType || config?.interviewType || 'HR'
@@ -757,6 +758,17 @@ function NewFeedback({ feedback, config, onRestart, onDashboard, onBack }) {
     </div>
 
     {/* ── Actions (below footer) ── */}
+    {saveFailed && (
+      <div className="err-save-notice">
+        No pudimos guardar tu entrevista. El feedback sigue disponible en pantalla.
+      </div>
+    )}
+    {pdfError && (
+      <div className="err-pdf-notice">
+        No pudimos generar el PDF. Intentalo de nuevo.
+        <button className="err-pdf-retry" onClick={() => setPdfError(false)}>Reintentar</button>
+      </div>
+    )}
     <div className="rpt-actions-bar">
       <button
         className="rpt-btn-secondary"
@@ -765,9 +777,15 @@ function NewFeedback({ feedback, config, onRestart, onDashboard, onBack }) {
         onClick={async () => {
           if (!pageRef.current) return
           setDownloading(true)
-          const name = userName ? `Reporte-${userName.replace(/\s/g, '-')}` : 'Reporte-FeelReady'
-          await downloadReport(pageRef.current, `${name}.pdf`)
-          setDownloading(false)
+          setPdfError(false)
+          try {
+            const name = userName ? `Reporte-${userName.replace(/\s/g, '-')}` : 'Reporte-FeelReady'
+            await downloadReport(pageRef.current, `${name}.pdf`)
+          } catch {
+            setPdfError(true)
+          } finally {
+            setDownloading(false)
+          }
         }}
       >
         {downloading ? 'Generando PDF…' : 'Descargar reporte'}
@@ -782,7 +800,7 @@ function NewFeedback({ feedback, config, onRestart, onDashboard, onBack }) {
 
 // ── Main export ──────────────────────────────────────────────────────────────
 
-export default function FeedbackSummary({ feedback, config, onRestart, onDashboard, onBack }) {
+export default function FeedbackSummary({ feedback, config, onRestart, onDashboard, onBack, saveFailed }) {
   if (!feedback) {
     return (
       <div className="fb-loading">
@@ -842,7 +860,7 @@ export default function FeedbackSummary({ feedback, config, onRestart, onDashboa
   }
 
   if (Array.isArray(feedback.actionPlan)) {
-    return <NewFeedback feedback={feedback} config={config} onRestart={onRestart} onDashboard={onDashboard} onBack={onBack} />
+    return <NewFeedback feedback={feedback} config={config} onRestart={onRestart} onDashboard={onDashboard} onBack={onBack} saveFailed={saveFailed} />
   }
 
   return <LegacyFeedback feedback={feedback} onRestart={onRestart} onDashboard={onDashboard} />

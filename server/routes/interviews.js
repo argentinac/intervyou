@@ -143,7 +143,7 @@ interviewsRouter.post('/', requireAuth, async (req, res) => {
     res.json({ id: interview.id })
   } catch (err) {
     console.error('Save interview error:', err)
-    res.status(500).json({ error: err.message })
+    res.status(500).json({ error: 'save_failed', message: err.message })
   }
 })
 

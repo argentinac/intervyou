@@ -90,31 +90,44 @@ export async function speakRoute(req, res) {
     const languageCode = COUNTRY_LANG_CODE[country] || LANG_CODE_FALLBACK[language] || 'en'
 
     const t5 = Date.now()
-    const response = await fetch(
-      `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
-      {
-        method: 'POST',
-        headers: {
-          'xi-api-key': process.env.ELEVENLABS_API_KEY,
-          'Content-Type': 'application/json',
-          Accept: 'audio/mpeg',
-        },
-        body: JSON.stringify({
-          text: cleanText,
-          model_id: 'eleven_flash_v2_5',
-          language_code: languageCode,
-          voice_settings: (() => {
-            if (isSkill) return { stability: 0.22, similarity_boost: 0.75, style: 0.68, use_speaker_boost: true, speed: 0.98 }
-            const tone = VOICE_TONE_SETTINGS[voiceTone] || VOICE_TONE_SETTINGS.neutral
-            return { stability: tone.stability, similarity_boost: 0.75, style: tone.style, use_speaker_boost: true, speed: 1.00 }
-          })(),
-        }),
-      }
-    )
+    const abortCtrl = new AbortController()
+    const ttsTimeout = setTimeout(() => abortCtrl.abort(), 12000)
+    let response
+    try {
+      response = await fetch(
+        `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
+        {
+          signal: abortCtrl.signal,
+          method: 'POST',
+          headers: {
+            'xi-api-key': process.env.ELEVENLABS_API_KEY,
+            'Content-Type': 'application/json',
+            Accept: 'audio/mpeg',
+          },
+          body: JSON.stringify({
+            text: cleanText,
+            model_id: 'eleven_flash_v2_5',
+            language_code: languageCode,
+            voice_settings: (() => {
+              if (isSkill) return { stability: 0.22, similarity_boost: 0.75, style: 0.68, use_speaker_boost: true, speed: 0.98 }
+              const tone = VOICE_TONE_SETTINGS[voiceTone] || VOICE_TONE_SETTINGS.neutral
+              return { stability: tone.stability, similarity_boost: 0.75, style: tone.style, use_speaker_boost: true, speed: 1.00 }
+            })(),
+          }),
+        }
+      )
+    } catch (fetchErr) {
+      clearTimeout(ttsTimeout)
+      const code = fetchErr.name === 'AbortError' ? 'timeout' : 'server_error'
+      return res.status(503).json({ error: 'tts_unavailable', code })
+    }
+    clearTimeout(ttsTimeout)
 
     if (!response.ok) {
       const errText = await response.text()
-      throw new Error(`ElevenLabs error: ${errText}`)
+      const code = response.status === 401 || response.status === 402 ? 'quota' : 'server_error'
+      console.error('ElevenLabs error:', response.status, errText)
+      return res.status(503).json({ error: 'tts_unavailable', code })
     }
 
     const t6 = Date.now()
@@ -130,6 +143,6 @@ export async function speakRoute(req, res) {
     res.send(buffer)
   } catch (err) {
     console.error('Speak error:', err)
-    res.status(500).json({ error: err.message })
+    res.status(503).json({ error: 'tts_unavailable', code: 'server_error' })
   }
 }
