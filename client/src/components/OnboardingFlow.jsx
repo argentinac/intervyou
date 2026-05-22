@@ -70,25 +70,11 @@ const CSS = `
   align-items: center;
   gap: 8px;
 }
-.ob-mark {
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #7C3AED 0%, #4F8FFF 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 14px;
-  font-weight: 800;
-  letter-spacing: -0.01em;
+.ob-logo {
+  height: 28px;
+  width: auto;
+  display: block;
   flex-shrink: 0;
-}
-.ob-brand-name {
-  font-size: 17px;
-  font-weight: 700;
-  color: #0f172a;
-  letter-spacing: -0.02em;
 }
 .ob-dots-wrap {
   position: absolute;
@@ -719,8 +705,7 @@ function ObHeader({ step, onSkip, onBack }) {
           </button>
         )}
         <div className="ob-brand">
-          <div className="ob-mark">fr</div>
-          <span className="ob-brand-name">FeelReady</span>
+          <img src="/logo.png" alt="FeelReady" className="ob-logo" />
         </div>
       </div>
       <div className="ob-dots-wrap">
