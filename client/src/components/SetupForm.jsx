@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { unlockAudio } from '../audioContext'
+import { supabase } from '../lib/supabase'
 
 const LANG_OPTIONS = [
   { value: 'Spanish',    label: 'Español' },
@@ -108,6 +109,8 @@ export default function SetupForm({ onSubmit, onBack, initialConfig }) {
     companyName: initialConfig?.companyName ?? '',
   })
   const [generatingDesc, setGeneratingDesc] = useState(false)
+  const [dailyLimitReached, setDailyLimitReached] = useState(false)
+  const [checkingLimit, setCheckingLimit] = useState(false)
 
   const generateDescription = async () => {
     if (!form.jobTitle) return
@@ -153,6 +156,27 @@ export default function SetupForm({ onSubmit, onBack, initialConfig }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setCheckingLimit(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
+      if (token) {
+        const res = await fetch('/api/interviews/daily-count', {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        if (res.ok) {
+          const { count } = await res.json()
+          if (count >= 10) {
+            setDailyLimitReached(true)
+            setCheckingLimit(false)
+            return
+          }
+        }
+      }
+    } catch {
+      // si falla el check, dejamos pasar (no bloqueamos al usuario por error de red)
+    }
+    setCheckingLimit(false)
     unlockAudio()
     try {
       await navigator.mediaDevices.getUserMedia({ audio: true })
@@ -160,6 +184,35 @@ export default function SetupForm({ onSubmit, onBack, initialConfig }) {
       // user denied — proceed anyway, SpeechRecognition will handle the error
     }
     onSubmit(form)
+  }
+
+  if (dailyLimitReached) {
+    return (
+      <div className="sf-page">
+        <header className="sf-header">
+          <div className="sf-logo" style={{ cursor: onBack ? 'pointer' : 'default' }} onClick={onBack}>
+            <IntervyouIcon />
+          </div>
+        </header>
+        <main className="sf-main">
+          <div className="sf-card" style={{ textAlign: 'center', padding: '48px 32px' }}>
+            <div style={{ fontSize: 48, marginBottom: 16 }}>🎯</div>
+            <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 12 }}>
+              Límite diario alcanzado
+            </h2>
+            <p style={{ color: '#64748b', fontSize: 15, lineHeight: 1.6, marginBottom: 32 }}>
+              Hiciste 10 entrevistas hoy. ¡Excelente trabajo!<br />
+              Volvé mañana para seguir practicando.
+            </p>
+            {onBack && (
+              <button className="sf-next" onClick={onBack} style={{ display: 'inline-block' }}>
+                ← Volver al inicio
+              </button>
+            )}
+          </div>
+        </main>
+      </div>
+    )
   }
 
   return (
@@ -315,8 +368,8 @@ export default function SetupForm({ onSubmit, onBack, initialConfig }) {
                 <button type="button" className="sf-back" onClick={() => setStep(1)}>
                   ← Volver
                 </button>
-                <button type="submit" className="sf-next" data-track="interview_started">
-                  Empezar entrevista →
+                <button type="submit" className="sf-next" data-track="interview_started" disabled={checkingLimit}>
+                  {checkingLimit ? 'Verificando...' : 'Empezar entrevista →'}
                 </button>
               </div>
             </form>
