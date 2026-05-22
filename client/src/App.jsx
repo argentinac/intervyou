@@ -379,7 +379,7 @@ function AppInner() {
         user={user}
         initialStep={onboardingReturnStep ?? 0}
         initialPurpose={onboardingReturnPurpose}
-        onComplete={({ type, scenario, purpose }) => {
+        onComplete={({ type, scenario, purpose, purposes }) => {
           setOnboardingReturnStep(null)
           setOnboardingReturnPurpose(null)
           if (type === 'skip') {
@@ -396,7 +396,7 @@ function AppInner() {
             // "Tu situación" — CustomSituationSetup desde cero, volver vuelve aquí
             setOnboardingInitialSituation(null)
             setOnboardingReturnStep(2)
-            setOnboardingReturnPurpose(purpose)
+            setOnboardingReturnPurpose(purposes || (purpose ? [purpose] : null))
             setSimulationId('custom_situation')
             setSimulationConfig(null)
             setView('simulation')

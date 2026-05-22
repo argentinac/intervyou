@@ -40,9 +40,30 @@ const CSS = `
   min-width: 160px;
   display: flex;
   align-items: center;
+  gap: 10px;
 }
 .ob-header-side--right {
   justify-content: flex-end;
+}
+.ob-back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1.5px solid #e2e8f0;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  flex-shrink: 0;
+  font-family: inherit;
+}
+.ob-back-btn:hover {
+  border-color: #c7d2fe;
+  color: #4f46e5;
+  background: #f4f3ff;
 }
 .ob-brand {
   display: flex;
@@ -272,26 +293,6 @@ const CSS = `
   background: #fff;
   text-align: left;
 }
-.fb-prev-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-.fb-prev-tag {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: #4f46e5;
-  background: #f4f3ff;
-  padding: 4px 10px;
-  border-radius: 999px;
-}
-.fb-prev-time {
-  font-size: 12px;
-  color: #94a3b8;
-}
 .fb-prev-headline {
   font-size: 17px;
   font-weight: 600;
@@ -435,11 +436,10 @@ const CSS = `
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
+  font-size: 22px;
   flex-shrink: 0;
   transition: background 0.15s, color 0.15s;
+  line-height: 1;
 }
 .ob-scen--active .ob-scen-pic {
   background: linear-gradient(135deg, #7C3AED 0%, #4F8FFF 100%);
@@ -449,6 +449,7 @@ const CSS = `
   background: #fff;
   border: 1.5px dashed #eef0f6;
   color: #64748b;
+  font-size: 18px;
 }
 .ob-scen--custom.ob-scen--active .ob-scen-pic {
   background: linear-gradient(135deg, #7C3AED 0%, #4F8FFF 100%);
@@ -480,9 +481,6 @@ const CSS = `
 .ob-scen-meta {
   font-size: 13px;
   color: #64748b;
-  display: flex;
-  align-items: center;
-  gap: 6px;
 }
 .ob-scen-dot {
   width: 20px;
@@ -544,6 +542,18 @@ const CSS = `
   cursor: not-allowed;
   transform: none;
 }
+.ob-btn--ghost {
+  background: transparent;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 500;
+  min-width: 0;
+  padding: 10px 20px;
+}
+.ob-btn--ghost:hover {
+  color: #1e293b;
+  background: #f8f9fc;
+}
 .ob-footer-meta {
   font-size: 12.5px;
   color: #94a3b8;
@@ -589,6 +599,11 @@ const IconArrow = () => (
     <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
   </svg>
 )
+const IconArrowLeft = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
+  </svg>
+)
 const IconCheck = () => (
   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="20 6 9 17 4 12" />
@@ -605,31 +620,32 @@ const PURPOSE_OPTIONS = [
 const PURPOSE_OTHER = { id: 'other', label: 'Otro', desc: 'Algo diferente. Lo configuramos juntos.', icon: <IconDots /> }
 
 /* ─── Scenarios by purpose ──────────────────────────────────────────────── */
+// icon: emoji string, type: 'interview' | 'custom'
 const SCENARIOS = {
   work: [
-    { id: 'w1', initials: 'EN', title: 'Entrevista de trabajo',  hot: true,  type: 'interview' },
-    { id: 'w2', initials: 'AU', title: 'Pedir un aumento',       hot: false, type: 'custom' },
-    { id: 'w3', initials: 'FB', title: 'Dar feedback difícil',   hot: false, type: 'custom' },
+    { id: 'w1', icon: '🤝', title: 'Entrevista de trabajo',  hot: true,  type: 'interview' },
+    { id: 'w2', icon: '💰', title: 'Pedir un aumento',       hot: false, type: 'custom' },
+    { id: 'w3', icon: '⭐', title: 'Pedir un ascenso',       hot: false, type: 'custom' },
   ],
   life: [
-    { id: 'l1', initials: 'CO', title: 'Conversación difícil con pareja', hot: true,  type: 'custom' },
-    { id: 'l2', initials: 'FA', title: 'Hablar con un familiar',           hot: false, type: 'custom' },
-    { id: 'l3', initials: 'LI', title: 'Poner un límite',                  hot: false, type: 'custom' },
+    { id: 'l1', icon: '💬', title: 'Conversación difícil con pareja', hot: true,  type: 'custom' },
+    { id: 'l2', icon: '👨‍👩‍👧', title: 'Hablar con un familiar',          hot: false, type: 'custom' },
+    { id: 'l3', icon: '🛑', title: 'Poner un límite',                  hot: false, type: 'custom' },
   ],
   speak: [
-    { id: 's1', initials: 'PI', title: 'Pitch a inversores',    hot: true,  type: 'custom' },
-    { id: 's2', initials: 'TE', title: 'Defensa de tesis',       hot: false, type: 'custom' },
-    { id: 's3', initials: 'DI', title: 'Discurso en público',    hot: false, type: 'custom' },
+    { id: 's1', icon: '🎤', title: 'Discurso en público',    hot: true,  type: 'custom' },
+    { id: 's2', icon: '📊', title: 'Pitch a inversores',     hot: false, type: 'custom' },
+    { id: 's3', icon: '🎓', title: 'Defensa de tesis',        hot: false, type: 'custom' },
   ],
   paper: [
-    { id: 'p1', initials: 'VI', title: 'Entrevista de visa',     hot: true,  type: 'custom' },
-    { id: 'p2', initials: 'MA', title: 'Entrevista para maestría', hot: false, type: 'custom' },
-    { id: 'p3', initials: 'AS', title: 'Solicitud de asilo',     hot: false, type: 'custom' },
+    { id: 'p1', icon: '🎓', title: 'Entrevista para universidad', hot: true,  type: 'custom' },
+    { id: 'p2', icon: '🇺🇸', title: 'Entrevista de visa EE.UU.',  hot: false, type: 'custom' },
+    { id: 'p3', icon: '🏠', title: 'Solicitud de residencia',     hot: false, type: 'custom' },
   ],
   other: [
-    { id: 'o1', initials: 'NO', title: 'Dar malas noticias',          hot: true,  type: 'custom' },
-    { id: 'o2', initials: 'NE', title: 'Negociar algo importante',    hot: false, type: 'custom' },
-    { id: 'o3', initials: 'DI', title: 'Hablar con alguien difícil', hot: false, type: 'custom' },
+    { id: 'o1', icon: '😬', title: 'Dar malas noticias',          hot: true,  type: 'custom' },
+    { id: 'o2', icon: '🤝', title: 'Negociar algo importante',    hot: false, type: 'custom' },
+    { id: 'o3', icon: '😤', title: 'Hablar con alguien difícil',  hot: false, type: 'custom' },
   ],
 }
 
@@ -693,10 +709,15 @@ function FbScoreGauge({ value = 760, size = 130 }) {
 }
 
 /* ─── Header ────────────────────────────────────────────────────────────── */
-function ObHeader({ step, onSkip }) {
+function ObHeader({ step, onSkip, onBack }) {
   return (
     <header className="ob-header">
       <div className="ob-header-side">
+        {onBack && (
+          <button className="ob-back-btn" onClick={onBack} aria-label="Volver">
+            <IconArrowLeft />
+          </button>
+        )}
         <div className="ob-brand">
           <div className="ob-mark">fr</div>
           <span className="ob-brand-name">FeelReady</span>
@@ -717,8 +738,16 @@ function ObHeader({ step, onSkip }) {
 }
 
 /* ─── Screen 1 ───────────────────────────────────────────────────────────── */
-function Step1({ onContinue, onSkip }) {
-  const [picked, setPicked] = useState(null)
+function Step1({ onContinue, onSkip, initialPicked }) {
+  const [picked, setPicked] = useState(initialPicked || [])
+
+  const toggle = (id) => {
+    setPicked(prev =>
+      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+    )
+  }
+
+  const allOptions = [...PURPOSE_OPTIONS, PURPOSE_OTHER]
 
   return (
     <div className="ob-page">
@@ -729,16 +758,13 @@ function Step1({ onContinue, onSkip }) {
             ¿Para qué vas a usar{' '}
             <span className="ob-accent">FeelReady?</span>
           </h1>
-          <p className="ob-sub ob-rise ob-d-1">
-            Elegí lo que más te represente hoy. Después vas a poder explorar todo.
-          </p>
 
           <div className="ob-cards ob-rise ob-d-2">
             {PURPOSE_OPTIONS.map(opt => (
               <button
                 key={opt.id}
-                className={`ob-card${picked === opt.id ? ' ob-card--active' : ''}`}
-                onClick={() => setPicked(opt.id)}
+                className={`ob-card${picked.includes(opt.id) ? ' ob-card--active' : ''}`}
+                onClick={() => toggle(opt.id)}
               >
                 <span className="ob-card-icon">{opt.icon}</span>
                 <span className="ob-card-label">{opt.label}</span>
@@ -747,8 +773,8 @@ function Step1({ onContinue, onSkip }) {
               </button>
             ))}
             <button
-              className={`ob-card ob-card-span-2${picked === PURPOSE_OTHER.id ? ' ob-card--active' : ''}`}
-              onClick={() => setPicked(PURPOSE_OTHER.id)}
+              className={`ob-card ob-card-span-2${picked.includes(PURPOSE_OTHER.id) ? ' ob-card--active' : ''}`}
+              onClick={() => toggle(PURPOSE_OTHER.id)}
             >
               <span className="ob-card-icon">{PURPOSE_OTHER.icon}</span>
               <span className="ob-card-body">
@@ -762,7 +788,7 @@ function Step1({ onContinue, onSkip }) {
           <div className="ob-footer ob-rise ob-d-3">
             <button
               className="ob-btn ob-btn--primary"
-              disabled={!picked}
+              disabled={picked.length === 0}
               onClick={() => onContinue(picked)}
             >
               Continuar <IconArrow />
@@ -776,25 +802,18 @@ function Step1({ onContinue, onSkip }) {
 }
 
 /* ─── Screen 2 ───────────────────────────────────────────────────────────── */
-function Step2({ onContinue, onSkip }) {
+function Step2({ onContinue, onBack, onSkip }) {
   return (
     <div className="ob-page">
-      <ObHeader step={1} onSkip={onSkip} />
+      <ObHeader step={1} onSkip={onSkip} onBack={onBack} />
       <div className="ob-body">
         <div className="ob-stack ob-stack--wide">
           <h1 className="ob-title ob-rise">
             Esto es lo que vas a{' '}
             <span className="ob-accent">recibir.</span>
           </h1>
-          <p className="ob-sub ob-rise ob-d-1">
-            Un reporte completo después de cada práctica. Puntaje, 6 ejes, tus puntos fuertes y los pasos concretos.
-          </p>
 
           <div className="fb-prev ob-rise ob-d-2">
-            <div className="fb-prev-bar">
-              <span className="fb-prev-tag">Tu entrevista en pocas palabras</span>
-              <span className="fb-prev-time">hace 2 min</span>
-            </div>
             <h3 className="fb-prev-headline">
               Mostraste claridad y ejemplos concretos. Trabajá en la estructura de tus respuestas.
             </h3>
@@ -839,13 +858,13 @@ function Step2({ onContinue, onSkip }) {
 }
 
 /* ─── Screen 3 ───────────────────────────────────────────────────────────── */
-function Step3({ purpose, onFinish, onSkip }) {
-  const scenarios = SCENARIOS[purpose] || SCENARIOS.work
-  const defaultActive = scenarios[0].id
-  const [active, setActive] = useState(defaultActive)
-  const [activePurpose, setActivePurpose] = useState(purpose)
+function Step3({ purposes, onFinish, onBack, onSkip }) {
+  // Mostrar la primera categoría seleccionada, o 'work' como fallback
+  const defaultPurpose = (purposes && purposes.length > 0) ? purposes[0] : 'work'
+  const [activePurpose, setActivePurpose] = useState(defaultPurpose)
 
   const currentScenarios = SCENARIOS[activePurpose] || SCENARIOS.work
+  const [active, setActive] = useState(currentScenarios[0].id)
 
   const handleChipClick = (p) => {
     setActivePurpose(p)
@@ -867,16 +886,13 @@ function Step3({ purpose, onFinish, onSkip }) {
 
   return (
     <div className="ob-page">
-      <ObHeader step={2} onSkip={onSkip} />
+      <ObHeader step={2} onSkip={onSkip} onBack={onBack} />
       <div className="ob-body">
         <div className="ob-stack ob-stack--wide">
           <h1 className="ob-title ob-rise">
             ¿Por dónde{' '}
             <span className="ob-accent">querés empezar?</span>
           </h1>
-          <p className="ob-sub ob-rise ob-d-1">
-            Elegí un escenario y empezá. Vas a poder cambiar o crear los tuyos en cualquier momento.
-          </p>
 
           <div className="ob-chips ob-rise ob-d-2">
             {allPurposes.map(p => (
@@ -897,7 +913,7 @@ function Step3({ purpose, onFinish, onSkip }) {
                 className={`ob-scen${active === s.id ? ' ob-scen--active' : ''} ob-rise ob-d-${3 + i}`}
                 onClick={() => setActive(s.id)}
               >
-                <span className="ob-scen-pic">{s.initials}</span>
+                <span className="ob-scen-pic">{s.icon}</span>
                 <span className="ob-scen-text">
                   <span className="ob-scen-title">
                     {s.title}
@@ -922,11 +938,11 @@ function Step3({ purpose, onFinish, onSkip }) {
           </div>
 
           <div className="ob-footer ob-rise ob-d-7">
-            <button
-              className="ob-btn ob-btn--primary"
-              onClick={handleStart}
-            >
+            <button className="ob-btn ob-btn--primary" onClick={handleStart}>
               Empezar mi práctica <IconArrow />
+            </button>
+            <button className="ob-btn ob-btn--ghost" onClick={() => onFinish({ type: 'skip' })}>
+              Prefiero elegir más tarde
             </button>
             <span className="ob-footer-meta">Paso 3 de 3 · Casi listo</span>
           </div>
@@ -939,7 +955,12 @@ function Step3({ purpose, onFinish, onSkip }) {
 /* ─── Main component ─────────────────────────────────────────────────────── */
 export default function OnboardingFlow({ user, onComplete, initialStep = 0, initialPurpose = null }) {
   const [step, setStep] = useState(initialStep)
-  const [purpose, setPurpose] = useState(initialPurpose)
+  // purposes ahora es array (multi-select)
+  const [purposes, setPurposes] = useState(
+    initialPurpose
+      ? Array.isArray(initialPurpose) ? initialPurpose : [initialPurpose]
+      : []
+  )
 
   const saveToDB = async (data) => {
     if (!supabase || !user) return
@@ -953,8 +974,10 @@ export default function OnboardingFlow({ user, onComplete, initialStep = 0, init
     onComplete({ type: 'skip' })
   }
 
-  const handleStep1Continue = (pickedPurpose) => {
-    setPurpose(pickedPurpose)
+  const handleStep1Continue = (pickedPurposes) => {
+    setPurposes(pickedPurposes)
+    // Guardar propósitos inmediatamente (no esperar al final)
+    saveToDB({ onboarding_purposes: pickedPurposes })
     setStep(1)
   }
 
@@ -965,17 +988,38 @@ export default function OnboardingFlow({ user, onComplete, initialStep = 0, init
   const handleFinish = async ({ type, scenario }) => {
     await saveToDB({
       onboarding_completed_at: new Date().toISOString(),
-      onboarding_purpose: purpose,
+      onboarding_purposes: purposes,
+      onboarding_scenario: scenario ? scenario.id : null,
+      onboarding_scenario_title: scenario ? scenario.title : null,
     })
-    onComplete({ type, scenario, purpose })
+    onComplete({ type, scenario, purpose: purposes[0] || null, purposes })
   }
 
   return (
     <>
       <style>{CSS}</style>
-      {step === 0 && <Step1 onContinue={handleStep1Continue} onSkip={handleSkip} />}
-      {step === 1 && <Step2 onContinue={handleStep2Continue} onSkip={handleSkip} />}
-      {step === 2 && <Step3 purpose={purpose} onFinish={handleFinish} onSkip={handleSkip} />}
+      {step === 0 && (
+        <Step1
+          onContinue={handleStep1Continue}
+          onSkip={handleSkip}
+          initialPicked={purposes}
+        />
+      )}
+      {step === 1 && (
+        <Step2
+          onContinue={handleStep2Continue}
+          onBack={() => setStep(0)}
+          onSkip={handleSkip}
+        />
+      )}
+      {step === 2 && (
+        <Step3
+          purposes={purposes}
+          onFinish={handleFinish}
+          onBack={() => setStep(1)}
+          onSkip={handleSkip}
+        />
+      )}
     </>
   )
 }
