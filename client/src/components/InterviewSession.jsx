@@ -116,8 +116,9 @@ Otherwise respond with this exact JSON structure:
   ]
 }
 
-Rules: 2-3 items in wentWell, 2-3 items in toImprove, exactly 4 items in actionPlan (2 alta + 2 media priority).
-For qa_review: include only content questions (exclude greetings, "how are you?", closings, logistics). Rewrite each question as a short direct question in the same language as the transcript (not verbatim). Maximum 5 items in qa_review.`
+Rules:
+- 2-3 items in wentWell, 2-3 items in toImprove, exactly 4 items in actionPlan (2 alta + 2 media priority).
+- qa_review is REQUIRED. Include 1-5 content questions from the transcript (exclude greetings, "how are you?", closings, logistics). Rewrite each as a short direct question in the same language as the transcript. If there are no content questions, set qa_review to [].`
 }
 
 function IntroLoading({ titleText, tips = INTERVIEW_TIPS }) {
@@ -1389,7 +1390,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            max_tokens: 6000,
+            max_tokens: 8000,
             system: scoringSystem,
             messages: [{ role: 'user', content: scoringUserMessage }],
           }),

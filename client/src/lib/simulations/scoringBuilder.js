@@ -70,7 +70,7 @@ REGLAS:
 - strengths: máximo 3.
 - opportunities: máximo 3.
 - next_steps: máximo 4. Acciones concretas y accionables, no abstractas.
-- qa_review: incluí solo las preguntas de contenido del interlocutor (excluir saludos, cierres, cortesías vacías). Reformulá cada pregunta en forma breve y directa en el mismo idioma de la conversación. Máximo 5 items.
+- qa_review: OBLIGATORIO. Incluí las preguntas de contenido del interlocutor (excluir saludos, cierres, cortesías vacías). Reformulá cada pregunta en forma breve y directa en el mismo idioma. Máximo 5 items. Si no hay preguntas de contenido, ponés [].
 - Sin texto fuera del JSON. Sin markdown.
 `.trim()
 
