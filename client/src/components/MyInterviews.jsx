@@ -488,7 +488,7 @@ export default function MyInterviews({ onNewInterview, onRepeat, initialSelected
   }, [initialSelectedId])
 
   const loadInterviews = async () => {
-    if (mockInterviews !== undefined) { setLoading(false); return }
+    if (mockInterviews !== undefined) { setLoading(false); setLoadError(false); return }
     setLoading(true)
     setLoadError(false)
     try {
