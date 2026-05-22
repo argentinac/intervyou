@@ -529,10 +529,10 @@ const EXAMPLES = [
 ]
 
 /* ─── Component ───────────────────────────────────────────────────────────── */
-export default function CustomSituationSetup({ simulation, onSubmit, onBack }) {
+export default function CustomSituationSetup({ simulation, onSubmit, onBack, initialSituation }) {
   const [step, setStep] = useState('input') // 'input' | 'loading' | 'questions' | 'difficulty' | 'gender'
   const [direction, setDirection] = useState('left')
-  const [situation, setSituation] = useState('')
+  const [situation, setSituation] = useState(initialSituation || '')
   const [generated, setGenerated] = useState(null) // { persona, questions }
   const [qAnswers, setQAnswers] = useState({})
   const [otherText, setOtherText] = useState({})
@@ -544,6 +544,13 @@ export default function CustomSituationSetup({ simulation, onSubmit, onBack }) {
   useEffect(() => {
     if (step === 'input') textareaRef.current?.focus()
   }, [step])
+
+  // If initialSituation provided, auto-submit on mount (skip input screen)
+  useEffect(() => {
+    if (initialSituation) {
+      handleSituationSubmit()
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const goTo = (next, dir = 'left') => {
     setDirection(dir)

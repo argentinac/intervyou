@@ -20,6 +20,7 @@ import PaymentErrorPage from './components/PaymentErrorPage'
 import TermsPage from './components/TermsPage'
 import PrivacyPage from './components/PrivacyPage'
 import FaqPage from './components/FaqPage'
+import OnboardingFlow from './components/OnboardingFlow'
 
 class ErrorBoundary extends Component {
   constructor(props) {
@@ -82,6 +83,7 @@ function AppInner() {
   const [skillId, setSkillId] = useState(null)
   const [blogSlug, setBlogSlug] = useState(getBlogSlugFromUrl)
   const [pendingInterviewId, setPendingInterviewId] = useState(null)
+  const [onboardingInitialSituation, setOnboardingInitialSituation] = useState(null)
   const pendingGuestConfigRef = useRef(null)
   const detectedCountryRef = useRef('')
 
@@ -127,7 +129,9 @@ function AppInner() {
         pendingGuestConfigRef.current = null
         setView('interview')
       } else if (view !== 'interview' && view !== 'visa-interview' && view !== 'simulation' && view !== 'skill' && view !== 'blog' && view !== 'terms' && view !== 'privacy' && view !== 'faq' && view !== 'payment-success' && view !== 'payment-error') {
-        setView('dashboard')
+        const meta = user.user_metadata || {}
+        const needsOnboarding = !meta.onboarding_completed_at && !meta.onboarding_skipped_at
+        setView(needsOnboarding ? 'onboarding' : 'dashboard')
       }
     }
   }, [user])
@@ -284,11 +288,13 @@ function AppInner() {
     if (!simulation) { setView('dashboard'); return null }
     if (!simulationConfig) {
       if (simulation.type === 'custom') {
+        const initSit = onboardingInitialSituation
         return (
           <CustomSituationSetup
             simulation={simulation}
-            onSubmit={(cfg) => setSimulationConfig({ ...cfg, simulationTitle: simulation.title })}
-            onBack={() => { setSimulationConfig(null); setSimulationId(null); setView('dashboard') }}
+            initialSituation={initSit || undefined}
+            onSubmit={(cfg) => { setOnboardingInitialSituation(null); setSimulationConfig({ ...cfg, simulationTitle: simulation.title }) }}
+            onBack={() => { setOnboardingInitialSituation(null); setSimulationConfig(null); setSimulationId(null); setView('dashboard') }}
           />
         )
       }
@@ -354,6 +360,35 @@ function AppInner() {
         config={visaConfig}
         onEnd={() => { setVisaConfig(null); setView('dashboard') }}
         onDashboard={user ? (id) => { setVisaConfig(null); if (id) setPendingInterviewId(id); setView('dashboard') } : undefined}
+      />
+    )
+  }
+
+  if (view === 'onboarding') {
+    if (!user) { setView('auth'); return null }
+    const customSimulation = { id: 'custom_situation', type: 'custom', category: 'other', title: 'Tu Situación' }
+    return (
+      <OnboardingFlow
+        user={user}
+        onComplete={({ type, scenario }) => {
+          if (type === 'skip') {
+            setView('dashboard')
+          } else if (type === 'interview') {
+            setInterviewReturn('dashboard')
+            setView('interview')
+          } else if (type === 'custom' && scenario) {
+            setOnboardingInitialSituation(scenario.title)
+            setSimulationId('custom_situation')
+            setSimulationConfig(null)
+            setView('simulation')
+          } else {
+            // "Tu situación" — CustomSituationSetup from scratch
+            setOnboardingInitialSituation(null)
+            setSimulationId('custom_situation')
+            setSimulationConfig(null)
+            setView('simulation')
+          }
+        }}
       />
     )
   }
