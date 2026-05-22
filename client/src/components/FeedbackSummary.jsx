@@ -400,14 +400,14 @@ async function downloadReport(pageEl, fileName) {
   const { jsPDF }   = await import('jspdf')
 
   const canvas = await html2canvas(pageEl, {
-    scale: 2,
+    scale: 1.2,
     useCORS: true,
     allowTaint: true,
     backgroundColor: '#f5f7fb',
     logging: false,
   })
 
-  const imgData = canvas.toDataURL('image/png')
+  const imgData = canvas.toDataURL('image/jpeg', 0.88)
   const imgW = canvas.width
   const imgH = canvas.height
 
@@ -417,7 +417,7 @@ async function downloadReport(pageEl, fileName) {
     unit: 'px',
     format: [imgW / 2, imgH / 2], // half of 2x scale = actual CSS pixels
   })
-  pdf.addImage(imgData, 'PNG', 0, 0, imgW / 2, imgH / 2)
+  pdf.addImage(imgData, 'JPEG', 0, 0, imgW / 1.2, imgH / 1.2)
   pdf.save(fileName)
 }
 
@@ -788,8 +788,13 @@ function NewFeedback({ feedback, config, onRestart, onDashboard, onBack, saveFai
           setDownloading(true)
           setPdfError(false)
           try {
-            const name = userName ? `Reporte-${userName.replace(/\s/g, '-')}` : 'Reporte-FeelReady'
-            await downloadReport(pageRef.current, `${name}.pdf`)
+            const now = new Date()
+            const pad = n => String(n).padStart(2, '0')
+            const dateStr = `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}`
+            const role = config?.jobTitle ? config.jobTitle.replace(/\s+/g, '-') : null
+            const company = config?.companyName ? config.companyName.replace(/\s+/g, '-') : null
+            const parts = ['Entrevista', role, company, dateStr].filter(Boolean)
+            await downloadReport(pageRef.current, `${parts.join('_')}.pdf`)
           } catch {
             setPdfError(true)
           } finally {
