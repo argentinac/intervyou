@@ -180,12 +180,12 @@ function makeMockInterview(i, score, daysAgo) {
         qa_review: [
           {
             question: '¿Podés contarme sobre vos y tu experiencia?',
-            userAnswer: 'Soy licenciada en Comunicación y hace más de cuatro años que trabajo en marketing digital. Me especialicé en la gestión de campañas paid y en redes sociales. Me considero una persona proactiva, organizada y me gusta aprender constantemente.',
+            userAnswer: 'Soy licenciada en Comunicación y hace más de cuatro años que trabajo en marketing digital. [[Me especialicé en la gestión de campañas paid y en redes sociales.]] [[Me considero una persona proactiva, organizada y me gusta aprender constantemente.]]',
             suggestedAnswer: 'Soy licenciada en Comunicación con más de cuatro años de experiencia en marketing digital, liderando campañas de performance que aumentaron la tasa de conversión en un 35% y la comunidad en un 50%. Me especialicé en la gestión integral de campañas paid y en la creación de contenido estratégico para redes sociales. Me considero una persona proactiva, orientada a resultados y en constante aprendizaje.',
           },
           {
             question: '¿Por qué te interesa este rol?',
-            userAnswer: 'Me interesa porque es una empresa innovadora y en crecimiento. Creo que es un gran lugar para seguir desarrollándome y aportar mi experiencia en marketing digital.',
+            userAnswer: '[[Me interesa porque es una empresa innovadora y en crecimiento.]] [[Creo que es un gran lugar para seguir desarrollándome]] y aportar mi experiencia en marketing digital.',
             suggestedAnswer: 'Me interesa este rol porque combina innovación, crecimiento sostenido y foco en resultados. Identifico una oportunidad clara para aportar mi experiencia en campañas digitales y analítica, ayudando a impulsar resultados medibles y fortalecer la marca. Además, el perfil de la empresa se alinea con mi trayectoria y mis objetivos de desarrollo profesional.',
           },
           {

@@ -2,6 +2,51 @@ import { useState, useCallback, useEffect } from 'react'
 
 const TRUNCATE_LEN = 280
 
+function truncateAnnotated(text, maxLen) {
+  let plain = ''
+  let result = ''
+  let i = 0
+  while (i < text.length && plain.length < maxLen) {
+    if (text.slice(i, i + 2) === '[[') {
+      const end = text.indexOf(']]', i + 2)
+      if (end === -1) { result += text.slice(i); break }
+      const inner = text.slice(i + 2, end)
+      const remaining = maxLen - plain.length
+      if (inner.length <= remaining) {
+        result += '[[' + inner + ']]'
+        plain += inner
+        i = end + 2
+      } else {
+        result += '[[' + inner.slice(0, remaining) + ']]'
+        plain += inner.slice(0, remaining)
+        break
+      }
+    } else {
+      result += text[i]
+      plain += text[i]
+      i++
+    }
+  }
+  return plain.length < text.replace(/\[\[(.+?)\]\]/gs, '$1').length ? result + '…' : result
+}
+
+function AnnotatedText({ text }) {
+  const parts = text.split(/\[\[(.+?)\]\]/gs)
+  return (
+    <>
+      {parts.map((part, i) =>
+        i % 2 === 1 ? (
+          <mark key={i} style={{ background: '#FEE2E2', color: '#991B1B', borderRadius: 3, padding: '0 2px' }}>
+            {part}
+          </mark>
+        ) : (
+          <span key={i}>{part}</span>
+        )
+      )}
+    </>
+  )
+}
+
 function CopyIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -105,7 +150,7 @@ function FullAnswerDrawer({ items, openIndex, activeTab, onClose, onTabChange })
         {/* Body */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '20px 24px' }}>
           <p style={{ margin: 0, fontSize: 14, color: '#374151', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
-            {text}
+            {activeTab === 'user' ? <AnnotatedText text={text} /> : text}
           </p>
         </div>
 
@@ -118,10 +163,11 @@ function FullAnswerDrawer({ items, openIndex, activeTab, onClose, onTabChange })
 
 function DrawerCopyButton({ text }) {
   const [copied, setCopied] = useState(false)
+  const cleanText = text.replace(/\[\[(.+?)\]\]/gs, '$1')
 
   const handleCopy = useCallback(async () => {
     try {
-      await navigator.clipboard.writeText(text)
+      await navigator.clipboard.writeText(cleanText)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch {
@@ -168,7 +214,8 @@ function QARow({ item, index, total, onOpenDrawer }) {
     }
   }, [showToast])
 
-  const userTruncated = item.userAnswer.length > TRUNCATE_LEN
+  const userPlain = item.userAnswer.replace(/\[\[(.+?)\]\]/gs, '$1')
+  const userTruncated = userPlain.length > TRUNCATE_LEN
   const suggestedTruncated = item.suggestedAnswer.length > TRUNCATE_LEN
 
   return (
@@ -202,7 +249,7 @@ function QARow({ item, index, total, onOpenDrawer }) {
               Tu respuesta
             </p>
             <p style={{ margin: 0, fontSize: 13, color: '#374151', lineHeight: 1.6 }}>
-              {userTruncated ? item.userAnswer.slice(0, TRUNCATE_LEN) + '…' : item.userAnswer}
+              <AnnotatedText text={userTruncated ? truncateAnnotated(item.userAnswer, TRUNCATE_LEN) : item.userAnswer} />
             </p>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
               {userTruncated && (
@@ -218,7 +265,7 @@ function QARow({ item, index, total, onOpenDrawer }) {
                 </button>
               )}
               <button
-                onClick={() => copyText(item.userAnswer)}
+                onClick={() => copyText(item.userAnswer.replace(/\[\[(.+?)\]\]/gs, '$1'))}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 5,
                   padding: '5px 10px', borderRadius: 6, fontSize: 12, fontWeight: 500,

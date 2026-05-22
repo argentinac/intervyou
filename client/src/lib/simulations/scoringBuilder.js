@@ -59,7 +59,7 @@ Devolvé JSON válido con esta forma exacta:
   "qa_review": [
     {
       "question": "¿Pregunta reformulada de forma corta y directa?",
-      "userAnswer": "Transcripción exacta de lo que dijo la persona, con puntuación y mayúsculas correctas — sin cambiar el contenido ni el significado.",
+      "userAnswer": "Transcripción exacta de lo que dijo la persona, con puntuación y mayúsculas correctas. Envolvé las partes débiles o mejorables con [[doble corchete]] — frases vagas, genéricas, demasiado cortas o que pierden una oportunidad. Sin cambiar el contenido.",
       "suggestedAnswer": "Una respuesta ideal de 2-4 párrafos para esa pregunta considerando el contexto de la simulación, el escenario y los objetivos del usuario."
     }
   ]
