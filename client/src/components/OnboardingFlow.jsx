@@ -422,10 +422,8 @@ const CSS = `
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
   flex-shrink: 0;
   transition: background 0.15s, color 0.15s;
-  line-height: 1;
 }
 .ob-scen--active .ob-scen-pic {
   background: linear-gradient(135deg, #7C3AED 0%, #4F8FFF 100%);
@@ -435,7 +433,6 @@ const CSS = `
   background: #fff;
   border: 1.5px dashed #eef0f6;
   color: #64748b;
-  font-size: 18px;
 }
 .ob-scen--custom.ob-scen--active .ob-scen-pic {
   background: linear-gradient(135deg, #7C3AED 0%, #4F8FFF 100%);
@@ -528,17 +525,17 @@ const CSS = `
   cursor: not-allowed;
   transform: none;
 }
-.ob-btn--ghost {
-  background: transparent;
-  color: #64748b;
-  font-size: 14px;
+.ob-btn--secondary {
+  background: #fff;
+  color: #334155;
+  border: 1.5px solid #e2e8f0 !important;
+  font-size: 15px;
   font-weight: 500;
-  min-width: 0;
-  padding: 10px 20px;
 }
-.ob-btn--ghost:hover {
-  color: #1e293b;
-  background: #f8f9fc;
+.ob-btn--secondary:hover {
+  border-color: #c7d2fe !important;
+  color: #4f46e5;
+  background: #f4f3ff;
 }
 .ob-footer-meta {
   font-size: 12.5px;
@@ -605,33 +602,113 @@ const PURPOSE_OPTIONS = [
 ]
 const PURPOSE_OTHER = { id: 'other', label: 'Otro', desc: 'Algo diferente. Lo configuramos juntos.', icon: <IconDots /> }
 
+/* ─── Scenario icons (SVG) ──────────────────────────────────────────────── */
+const SvgHandshake = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20.42 4.58a5.4 5.4 0 0 0-7.65 0l-.77.78-.77-.78a5.4 5.4 0 0 0-7.65 7.65l8.42 8.42 8.42-8.42a5.4 5.4 0 0 0 0-7.65z" />
+  </svg>
+)
+const SvgTrendUp = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" /><polyline points="17 6 23 6 23 12" />
+  </svg>
+)
+const SvgAward = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="8" r="6" /><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11" />
+  </svg>
+)
+const SvgMessageHeart = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    <path d="M12 9c-.5-1-1.8-1.5-2.8-.8a2 2 0 0 0 0 3.1L12 13l2.8-1.7a2 2 0 0 0 0-3.1C13.8 7.5 12.5 8 12 9z" />
+  </svg>
+)
+const SvgUsers = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
+    <path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
+  </svg>
+)
+const SvgShield = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+  </svg>
+)
+const SvgMic = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z" />
+    <path d="M19 10v2a7 7 0 0 1-14 0v-2" /><line x1="12" y1="19" x2="12" y2="22" />
+  </svg>
+)
+const SvgBarChart = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" />
+    <line x1="2" y1="20" x2="22" y2="20" />
+  </svg>
+)
+const SvgGradCap = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22 10v6M2 10l10-5 10 5-10 5z" /><path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5" />
+  </svg>
+)
+const SvgPassport = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="2" width="18" height="20" rx="2" />
+    <circle cx="12" cy="11" r="3" />
+    <line x1="8" y1="17" x2="16" y2="17" />
+    <line x1="9" y1="7" x2="15" y2="7" />
+  </svg>
+)
+const SvgGlobe = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <line x1="2" y1="12" x2="22" y2="12" />
+    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+  </svg>
+)
+const SvgAlertCircle = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
+  </svg>
+)
+const SvgScale = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="12" y1="3" x2="12" y2="21" /><path d="M3 9l9-6 9 6" /><path d="M3 9l4 9H3" /><path d="M21 9l-4 9h4" />
+  </svg>
+)
+const SvgZap = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+  </svg>
+)
+
 /* ─── Scenarios by purpose ──────────────────────────────────────────────── */
-// icon: emoji string, type: 'interview' | 'custom'
 const SCENARIOS = {
   work: [
-    { id: 'w1', icon: '🤝', title: 'Entrevista de trabajo',  hot: true,  type: 'interview' },
-    { id: 'w2', icon: '💰', title: 'Pedir un aumento',       hot: false, type: 'custom' },
-    { id: 'w3', icon: '⭐', title: 'Pedir un ascenso',       hot: false, type: 'custom' },
+    { id: 'w1', icon: <SvgHandshake />, title: 'Entrevista de trabajo',  hot: true,  type: 'interview' },
+    { id: 'w2', icon: <SvgTrendUp />,   title: 'Pedir un aumento',       hot: false, type: 'custom' },
+    { id: 'w3', icon: <SvgAward />,     title: 'Pedir un ascenso',       hot: false, type: 'custom' },
   ],
   life: [
-    { id: 'l1', icon: '💬', title: 'Conversación difícil con pareja', hot: true,  type: 'custom' },
-    { id: 'l2', icon: '👨‍👩‍👧', title: 'Hablar con un familiar',          hot: false, type: 'custom' },
-    { id: 'l3', icon: '🛑', title: 'Poner un límite',                  hot: false, type: 'custom' },
+    { id: 'l1', icon: <SvgMessageHeart />, title: 'Conversación difícil con pareja', hot: true,  type: 'custom' },
+    { id: 'l2', icon: <SvgUsers />,        title: 'Hablar con un familiar',           hot: false, type: 'custom' },
+    { id: 'l3', icon: <SvgShield />,       title: 'Poner un límite',                  hot: false, type: 'custom' },
   ],
   speak: [
-    { id: 's1', icon: '🎤', title: 'Discurso en público',    hot: true,  type: 'custom' },
-    { id: 's2', icon: '📊', title: 'Pitch a inversores',     hot: false, type: 'custom' },
-    { id: 's3', icon: '🎓', title: 'Defensa de tesis',        hot: false, type: 'custom' },
+    { id: 's1', icon: <SvgMic />,      title: 'Discurso en público',    hot: true,  type: 'custom' },
+    { id: 's2', icon: <SvgBarChart />, title: 'Pitch a inversores',     hot: false, type: 'custom' },
+    { id: 's3', icon: <SvgGradCap />, title: 'Defensa de tesis',        hot: false, type: 'custom' },
   ],
   paper: [
-    { id: 'p1', icon: '🎓', title: 'Entrevista para universidad', hot: true,  type: 'custom' },
-    { id: 'p2', icon: '🇺🇸', title: 'Entrevista de visa EE.UU.',  hot: false, type: 'custom' },
-    { id: 'p3', icon: '🏠', title: 'Solicitud de residencia',     hot: false, type: 'custom' },
+    { id: 'p1', icon: <SvgGradCap />,  title: 'Entrevista para universidad', hot: true,  type: 'custom' },
+    { id: 'p2', icon: <SvgPassport />, title: 'Entrevista de visa EE.UU.',   hot: false, type: 'custom' },
+    { id: 'p3', icon: <SvgGlobe />,    title: 'Solicitud de residencia',     hot: false, type: 'custom' },
   ],
   other: [
-    { id: 'o1', icon: '😬', title: 'Dar malas noticias',          hot: true,  type: 'custom' },
-    { id: 'o2', icon: '🤝', title: 'Negociar algo importante',    hot: false, type: 'custom' },
-    { id: 'o3', icon: '😤', title: 'Hablar con alguien difícil',  hot: false, type: 'custom' },
+    { id: 'o1', icon: <SvgAlertCircle />, title: 'Dar malas noticias',          hot: true,  type: 'custom' },
+    { id: 'o2', icon: <SvgScale />,       title: 'Negociar algo importante',    hot: false, type: 'custom' },
+    { id: 'o3', icon: <SvgZap />,         title: 'Hablar con alguien difícil',  hot: false, type: 'custom' },
   ],
 }
 
@@ -926,7 +1003,7 @@ function Step3({ purposes, onFinish, onBack, onSkip }) {
             <button className="ob-btn ob-btn--primary" onClick={handleStart}>
               Empezar mi práctica <IconArrow />
             </button>
-            <button className="ob-btn ob-btn--ghost" onClick={() => onFinish({ type: 'skip' })}>
+            <button className="ob-btn ob-btn--secondary" onClick={() => onFinish({ type: 'skip' })}>
               Prefiero elegir más tarde
             </button>
             <span className="ob-footer-meta">Paso 3 de 3 · Casi listo</span>
