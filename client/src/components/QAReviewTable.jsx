@@ -53,7 +53,7 @@ function GreenText({ text }) {
     <>
       {parts.map((part, i) =>
         i % 2 === 1 ? (
-          <span key={i} style={{ borderBottom: '2px solid #16A34A', color: '#15803D', fontWeight: 500 }}>
+          <span key={i} style={{ textDecoration: 'underline', textDecorationColor: '#16A34A', textDecorationThickness: 2, textUnderlineOffset: 3, color: '#15803D', fontWeight: 500 }}>
             {part}
           </span>
         ) : (
