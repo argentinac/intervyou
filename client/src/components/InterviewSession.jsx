@@ -106,10 +106,18 @@ Otherwise respond with this exact JSON structure:
     {"title": "Third action", "description": "Specific suggestion. Use **bold** for key concepts.", "priority": "media"},
     {"title": "Fourth action", "description": "Specific suggestion. Use **bold** for key concepts.", "priority": "media"}
   ],
-  "nextStep": "One sentence: the single most important thing the candidate should practice before their next interview. Use **bold** for the key concept."
+  "nextStep": "One sentence: the single most important thing the candidate should practice before their next interview. Use **bold** for the key concept.",
+  "qa_review": [
+    {
+      "question": "¿Cuál fue tu mayor logro laboral?",
+      "userAnswer": "Exact transcription of what the candidate said, cleaned up with proper punctuation, capitalization and quotes where appropriate — do NOT change the content or meaning.",
+      "suggestedAnswer": "A perfect 2-4 paragraph answer for this specific question given the role, company, and interview type context. Use natural language. For behavioral questions, follow STAR structure (context, action, result)."
+    }
+  ]
 }
 
-Rules: 2-3 items in wentWell, 2-3 items in toImprove, exactly 4 items in actionPlan (2 alta + 2 media priority).`
+Rules: 2-3 items in wentWell, 2-3 items in toImprove, exactly 4 items in actionPlan (2 alta + 2 media priority).
+For qa_review: include only content questions (exclude greetings, "how are you?", closings, logistics). Rewrite each question as a short direct question in the same language as the transcript (not verbatim). Maximum 5 items in qa_review.`
 }
 
 function IntroLoading({ titleText, tips = INTERVIEW_TIPS }) {

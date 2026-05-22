@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import { useAuth } from '../contexts/AuthContext'
+import QAReviewTable from './QAReviewTable'
 
 const KNOWN_DOMAINS = {
   'tiendanube': 'tiendanube.com',
@@ -704,6 +705,14 @@ function NewFeedback({ feedback, config, onRestart, onDashboard, onBack, saveFai
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* ── Q&A Review ── */}
+        {Array.isArray(feedback.qa_review) && feedback.qa_review.length > 0 && (
+          <div className="rpt-card" style={{ padding: 24, marginBottom: 16 }}>
+            <p className="rpt-card-label" style={{ marginBottom: 16 }}>REVISIÓN DE RESPUESTAS</p>
+            <QAReviewTable qaReview={feedback.qa_review} />
           </div>
         )}
 

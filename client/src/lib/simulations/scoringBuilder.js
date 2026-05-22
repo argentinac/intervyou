@@ -55,7 +55,14 @@ Devolvé JSON válido con esta forma exacta:
   "patterns": ["<chip 1>", "<chip 2>", ...],
   "strengths": [{"title": "<corto>", "description": "<1 oración>"}, ...],
   "opportunities": [{"title": "<corto>", "description": "<1 oración>"}, ...],
-  "next_steps": ["<acción concreta 1>", "<acción concreta 2>", ...]
+  "next_steps": ["<acción concreta 1>", "<acción concreta 2>", ...],
+  "qa_review": [
+    {
+      "question": "¿Pregunta reformulada de forma corta y directa?",
+      "userAnswer": "Transcripción exacta de lo que dijo la persona, con puntuación y mayúsculas correctas — sin cambiar el contenido ni el significado.",
+      "suggestedAnswer": "Una respuesta ideal de 2-4 párrafos para esa pregunta considerando el contexto de la simulación, el escenario y los objetivos del usuario."
+    }
+  ]
 }
 
 REGLAS:
@@ -63,6 +70,7 @@ REGLAS:
 - strengths: máximo 3.
 - opportunities: máximo 3.
 - next_steps: máximo 4. Acciones concretas y accionables, no abstractas.
+- qa_review: incluí solo las preguntas de contenido del interlocutor (excluir saludos, cierres, cortesías vacías). Reformulá cada pregunta en forma breve y directa en el mismo idioma de la conversación. Máximo 5 items.
 - Sin texto fuera del JSON. Sin markdown.
 `.trim()
 

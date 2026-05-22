@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import { track } from '../../lib/analytics'
 import { getSimulationById } from '../../lib/simulations/catalog'
+import QAReviewTable from '../QAReviewTable'
 
 const DIFFICULTY_LABELS = { Basic: 'Básico', Intermediate: 'Intermedio', Advanced: 'Difícil' }
 const LANGUAGE_LABELS   = { Spanish: 'Español', English: 'Inglés', Portuguese: 'Portugués' }
@@ -113,6 +114,7 @@ export default function SimulationFeedback({ feedback, config, onRestart, onDash
   const strengths = Array.isArray(fb.strengths) ? fb.strengths : []
   const opportunities = Array.isArray(fb.opportunities) ? fb.opportunities : []
   const nextSteps = Array.isArray(fb.next_steps || fb.nextSteps) ? (fb.next_steps || fb.nextSteps) : []
+  const qaReview = Array.isArray(fb.qa_review || fb.qaReview) ? (fb.qa_review || fb.qaReview) : []
 
   const handleDownload = async () => {
     track('simulation_feedback_pdf_downloaded', { simulation_id: simulation?.id })
@@ -239,6 +241,13 @@ export default function SimulationFeedback({ feedback, config, onRestart, onDash
                 <li key={i} style={{ fontSize: 14, color: '#111827', lineHeight: 1.6, marginBottom: 6 }}>{step}</li>
               ))}
             </ol>
+          </Section>
+        )}
+
+        {/* Revisión de respuestas */}
+        {qaReview.length > 0 && (
+          <Section title="Revisión de respuestas">
+            <QAReviewTable qaReview={qaReview} />
           </Section>
         )}
 
