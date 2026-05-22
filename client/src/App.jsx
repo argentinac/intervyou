@@ -84,6 +84,8 @@ function AppInner() {
   const [blogSlug, setBlogSlug] = useState(getBlogSlugFromUrl)
   const [pendingInterviewId, setPendingInterviewId] = useState(null)
   const [onboardingInitialSituation, setOnboardingInitialSituation] = useState(null)
+  const [onboardingReturnStep, setOnboardingReturnStep] = useState(null) // null = fresh, 2 = volver al paso de escenarios
+  const [onboardingReturnPurpose, setOnboardingReturnPurpose] = useState(null)
   const pendingGuestConfigRef = useRef(null)
   const detectedCountryRef = useRef('')
 
@@ -294,7 +296,13 @@ function AppInner() {
             simulation={simulation}
             initialSituation={initSit || undefined}
             onSubmit={(cfg) => { setOnboardingInitialSituation(null); setSimulationConfig({ ...cfg, simulationTitle: simulation.title }) }}
-            onBack={() => { setOnboardingInitialSituation(null); setSimulationConfig(null); setSimulationId(null); setView('dashboard') }}
+            onBack={() => {
+              const returnToOnboarding = onboardingReturnStep !== null
+              setOnboardingInitialSituation(null)
+              setSimulationConfig(null)
+              setSimulationId(null)
+              setView(returnToOnboarding ? 'onboarding' : 'dashboard')
+            }}
           />
         )
       }
@@ -366,11 +374,14 @@ function AppInner() {
 
   if (view === 'onboarding') {
     if (!user) { setView('auth'); return null }
-    const customSimulation = { id: 'custom_situation', type: 'custom', category: 'other', title: 'Tu Situación' }
     return (
       <OnboardingFlow
         user={user}
-        onComplete={({ type, scenario }) => {
+        initialStep={onboardingReturnStep ?? 0}
+        initialPurpose={onboardingReturnPurpose}
+        onComplete={({ type, scenario, purpose }) => {
+          setOnboardingReturnStep(null)
+          setOnboardingReturnPurpose(null)
           if (type === 'skip') {
             setView('dashboard')
           } else if (type === 'interview') {
@@ -382,8 +393,10 @@ function AppInner() {
             setSimulationConfig(null)
             setView('simulation')
           } else {
-            // "Tu situación" — CustomSituationSetup from scratch
+            // "Tu situación" — CustomSituationSetup desde cero, volver vuelve aquí
             setOnboardingInitialSituation(null)
+            setOnboardingReturnStep(2)
+            setOnboardingReturnPurpose(purpose)
             setSimulationId('custom_situation')
             setSimulationConfig(null)
             setView('simulation')

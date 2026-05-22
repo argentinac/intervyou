@@ -937,9 +937,9 @@ function Step3({ purpose, onFinish, onSkip }) {
 }
 
 /* ─── Main component ─────────────────────────────────────────────────────── */
-export default function OnboardingFlow({ user, onComplete }) {
-  const [step, setStep] = useState(0)
-  const [purpose, setPurpose] = useState(null)
+export default function OnboardingFlow({ user, onComplete, initialStep = 0, initialPurpose = null }) {
+  const [step, setStep] = useState(initialStep)
+  const [purpose, setPurpose] = useState(initialPurpose)
 
   const saveToDB = async (data) => {
     if (!supabase || !user) return
