@@ -344,13 +344,14 @@ function InterviewRow({ interview, onClick }) {
   )
 }
 
-function InterviewDetail({ id, onBack, onNewInterview }) {
+function InterviewDetail({ id, mockData, onBack, onNewInterview }) {
   const { getToken } = useAuth()
-  const [data, setData] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [data, setData] = useState(mockData || null)
+  const [loading, setLoading] = useState(!mockData)
   const [error, setError] = useState(null)
 
   useEffect(() => {
+    if (mockData) return
     async function load() {
       try {
         const token = await getToken()
@@ -371,7 +372,7 @@ function InterviewDetail({ id, onBack, onNewInterview }) {
       }
     }
     load()
-  }, [id])
+  }, [id, mockData])
 
   if (loading) return (
     <div className="iv-page">
@@ -508,6 +509,10 @@ export default function MyInterviews({ onNewInterview, onRepeat, initialSelected
   useEffect(() => { loadInterviews() }, [mockInterviews]) // eslint-disable-line
 
   if (selectedId) {
+    const mockData = interviews.find(iv => iv.id === selectedId)
+    if (mockData?.id?.toString().startsWith('mock-')) {
+      return <InterviewDetail id={selectedId} mockData={mockData} onBack={() => setSelectedId(null)} onNewInterview={onNewInterview} />
+    }
     return <InterviewDetail id={selectedId} onBack={() => setSelectedId(null)} onNewInterview={onNewInterview} />
   }
 
