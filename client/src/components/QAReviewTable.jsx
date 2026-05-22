@@ -301,7 +301,7 @@ function QARow({ item, index, total, onOpenDrawer }) {
               Respuesta sugerida
             </p>
             <p style={{ margin: 0, fontSize: 13, color: '#374151', lineHeight: 1.6, flex: 1 }}>
-              <GreenText text={suggestedTruncated ? item.suggestedAnswer.replace(/\(\((.+?)\)\)/gs, '$1').slice(0, TRUNCATE_LEN) + '…' : item.suggestedAnswer} />
+              <GreenText text={suggestedTruncated ? item.suggestedAnswer.slice(0, TRUNCATE_LEN) + '…' : item.suggestedAnswer} />
             </p>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 10 }}>
               {suggestedTruncated ? (
