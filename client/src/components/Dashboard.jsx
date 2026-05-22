@@ -156,9 +156,45 @@ function makeMockInterview(i, score, daysAgo) {
     interview_feedback: score != null ? [{
       score,
       headline: 'Buen desempeño general con áreas de mejora identificadas.',
-      went_well: ['Comunicación clara', 'Ejemplos concretos'],
-      to_improve: ['Profundidad técnica', 'Manejo del tiempo'],
-      suggestions: ['Practicá el método STAR', 'Investigá más sobre la empresa'],
+      raw_response: {
+        notEnoughData: false,
+        score,
+        headline: 'Buen desempeño general con áreas de mejora identificadas.',
+        executiveSummary: 'Mostraste **buenas habilidades de comunicación** y ejemplos concretos. Podés mejorar la **profundidad técnica** y el manejo del tiempo en tus respuestas.',
+        axes: { clarity: 78, structure: 72, roleRelevance: 68, narrativeCoherence: 75, reflectionDepth: 65, concreteEvidence: 70 },
+        wentWell: [
+          { title: 'Comunicación clara', description: 'Tus respuestas fueron **fáciles de seguir** y bien organizadas.', axis: 'claridad' },
+          { title: 'Ejemplos concretos', description: 'Usaste **situaciones reales** para ilustrar tu experiencia.', axis: 'evidencia' },
+        ],
+        toImprove: [
+          { title: 'Profundidad técnica', description: 'Podés desarrollar más los **detalles técnicos** de tus respuestas.', verbatim: null, verbatimQuestion: null, axis: 'profundidad' },
+          { title: 'Manejo del tiempo', description: 'Algunas respuestas fueron muy largas; intentá ser más **conciso**.', verbatim: null, verbatimQuestion: null, axis: 'estructura' },
+        ],
+        actionPlan: [
+          { title: 'Practicá el método STAR', description: 'Usá **Situación → Tarea → Acción → Resultado** en cada respuesta conductual.', priority: 'alta' },
+          { title: 'Investigá la empresa', description: 'Leé sobre los **valores y productos** de la empresa antes de la entrevista.', priority: 'alta' },
+          { title: 'Cronometrá tus respuestas', description: 'Apuntá a **2-3 minutos** por respuesta para mantener el interés del entrevistador.', priority: 'media' },
+          { title: 'Preparate 3 logros clave', description: 'Tené listos **ejemplos cuantificados** que demuestren impacto real.', priority: 'media' },
+        ],
+        nextStep: 'Preparate **3 logros concretos con métricas** antes de tu próxima entrevista.',
+        qa_review: [
+          {
+            question: '¿Podés contarme sobre vos y tu experiencia?',
+            userAnswer: 'Soy licenciada en Comunicación y hace más de cuatro años que trabajo en marketing digital. Me especialicé en la gestión de campañas paid y en redes sociales. Me considero una persona proactiva, organizada y me gusta aprender constantemente.',
+            suggestedAnswer: 'Soy licenciada en Comunicación con más de cuatro años de experiencia en marketing digital, liderando campañas de performance que aumentaron la tasa de conversión en un 35% y la comunidad en un 50%. Me especialicé en la gestión integral de campañas paid y en la creación de contenido estratégico para redes sociales. Me considero una persona proactiva, orientada a resultados y en constante aprendizaje.',
+          },
+          {
+            question: '¿Por qué te interesa este rol?',
+            userAnswer: 'Me interesa porque es una empresa innovadora y en crecimiento. Creo que es un gran lugar para seguir desarrollándome y aportar mi experiencia en marketing digital.',
+            suggestedAnswer: 'Me interesa este rol porque combina innovación, crecimiento sostenido y foco en resultados. Identifico una oportunidad clara para aportar mi experiencia en campañas digitales y analítica, ayudando a impulsar resultados medibles y fortalecer la marca. Además, el perfil de la empresa se alinea con mi trayectoria y mis objetivos de desarrollo profesional.',
+          },
+          {
+            question: '¿Cuál fue una situación difícil en el trabajo y cómo la resolviste?',
+            userAnswer: 'Hubo un desacuerdo con un compañero sobre la prioridad de tareas. Hablamos, escuchamos cada uno el punto del otro y acordamos un plan. Al final se resolvió y cumplimos con los objetivos.',
+            suggestedAnswer: 'En un proyecto, hubo un desacuerdo con un compañero sobre la priorización de tareas. Organicé una reunión para alinear objetivos, entendí la perspectiva de cada uno y propuse una solución basada en impacto y recursos disponibles. Acordamos un plan conjunto y logramos entregar los resultados a tiempo mientras mejoramos la dinámica de colaboración del equipo.',
+          },
+        ],
+      },
     }] : [],
   }
 }
