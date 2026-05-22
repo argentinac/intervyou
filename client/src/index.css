@@ -5536,7 +5536,7 @@ html, body, #root, .app {
   flex-shrink: 0;
 }
 .rpt-action-item-title { font-size: 14px; font-weight: 700; color: #0f172a; margin: 0; line-height: 1.35; }
-.rpt-action-item-desc  { font-size: 12px; font-weight: 600; color: #334155; line-height: 1.55; margin: 0; flex: 1; }
+.rpt-action-item-desc  { font-size: 12px; font-weight: 400; color: #334155; line-height: 1.55; margin: 0; flex: 1; }
 .rpt-priority { margin-top: auto; }
 .rpt-priority-badge {
   font-size: 11px;

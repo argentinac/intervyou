@@ -197,16 +197,16 @@ function DrawerCopyButton({ text }) {
       <button
         onClick={handleCopy}
         style={{
-          display: 'flex', alignItems: 'center', gap: 6,
-          padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: 500,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          width: 32, height: 32, borderRadius: 8,
           background: copied ? '#F0FDF4' : '#fff',
-          color: copied ? '#15803D' : '#374151',
+          color: copied ? '#15803D' : '#6B7280',
           border: `1px solid ${copied ? '#86EFAC' : '#E5E7EB'}`,
-          cursor: 'pointer', transition: 'all 0.15s', fontFamily: 'inherit',
+          cursor: 'pointer', transition: 'all 0.15s',
         }}
+        title={copied ? 'Copiado' : 'Copiar'}
       >
         <CopyIcon />
-        {copied ? 'Copiado' : 'Copiar'}
       </button>
     </div>
   )
@@ -261,71 +261,71 @@ function QARow({ item, index, total, onOpenDrawer }) {
         {/* Two columns on desktop, stacked on mobile */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 12 }}>
           {/* Tu respuesta */}
-          <div style={{ background: '#F9FAFB', borderRadius: 8, padding: 14 }}>
+          <div style={{ background: '#F9FAFB', borderRadius: 8, padding: 14, display: 'flex', flexDirection: 'column' }}>
             <p style={{ margin: '0 0 8px', fontSize: 11, fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               Tu respuesta
             </p>
-            <p style={{ margin: 0, fontSize: 13, color: '#374151', lineHeight: 1.6 }}>
+            <p style={{ margin: 0, fontSize: 13, color: '#374151', lineHeight: 1.6, flex: 1 }}>
               <AnnotatedText text={userTruncated ? truncateAnnotated(item.userAnswer, TRUNCATE_LEN) : item.userAnswer} />
             </p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
-              {userTruncated && (
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 10 }}>
+              {userTruncated ? (
                 <button
                   onClick={() => onOpenDrawer(index, 'user')}
                   style={{
                     background: 'none', border: 'none', cursor: 'pointer', padding: 0,
                     fontSize: 12, color: '#7C3AED', fontWeight: 500, fontFamily: 'inherit',
-                    display: 'flex', alignItems: 'center', gap: 4,
                   }}
                 >
                   Ver respuesta completa →
                 </button>
-              )}
+              ) : <span />}
               <button
                 onClick={() => copyText(item.userAnswer.replace(/\[\[(.+?)\]\]/gs, '$1'))}
                 style={{
-                  display: 'flex', alignItems: 'center', gap: 5,
-                  padding: '5px 10px', borderRadius: 6, fontSize: 12, fontWeight: 500,
-                  background: '#fff', color: '#6B7280', border: '1px solid #E5E7EB',
-                  cursor: 'pointer', fontFamily: 'inherit',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  width: 28, height: 28, borderRadius: 6,
+                  background: '#fff', color: '#9CA3AF', border: '1px solid #E5E7EB',
+                  cursor: 'pointer', flexShrink: 0,
                 }}
+                title="Copiar"
               >
-                <CopyIcon /> Copiar
+                <CopyIcon />
               </button>
             </div>
           </div>
 
           {/* Respuesta sugerida */}
-          <div style={{ background: '#F5F3FF', borderRadius: 8, padding: 14 }}>
+          <div style={{ background: '#F5F3FF', borderRadius: 8, padding: 14, display: 'flex', flexDirection: 'column' }}>
             <p style={{ margin: '0 0 8px', fontSize: 11, fontWeight: 600, color: '#7C3AED', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               Respuesta sugerida
             </p>
-            <p style={{ margin: 0, fontSize: 13, color: '#374151', lineHeight: 1.6 }}>
-              <GreenText text={suggestedTruncated ? item.suggestedAnswer.slice(0, TRUNCATE_LEN) + '…' : item.suggestedAnswer} />
+            <p style={{ margin: 0, fontSize: 13, color: '#374151', lineHeight: 1.6, flex: 1 }}>
+              <GreenText text={suggestedTruncated ? item.suggestedAnswer.replace(/\(\((.+?)\)\)/gs, '$1').slice(0, TRUNCATE_LEN) + '…' : item.suggestedAnswer} />
             </p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
-              {suggestedTruncated && (
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 10 }}>
+              {suggestedTruncated ? (
                 <button
                   onClick={() => onOpenDrawer(index, 'suggested')}
                   style={{
                     background: 'none', border: 'none', cursor: 'pointer', padding: 0,
                     fontSize: 12, color: '#7C3AED', fontWeight: 500, fontFamily: 'inherit',
-                    display: 'flex', alignItems: 'center', gap: 4,
                   }}
                 >
                   Ver respuesta completa →
                 </button>
-              )}
+              ) : <span />}
               <button
                 onClick={() => copyText(item.suggestedAnswer.replace(/\(\((.+?)\)\)/gs, '$1'))}
                 style={{
-                  display: 'flex', alignItems: 'center', gap: 5,
-                  padding: '5px 10px', borderRadius: 6, fontSize: 12, fontWeight: 500,
-                  background: '#fff', color: '#6B7280', border: '1px solid #DDD6FE',
-                  cursor: 'pointer', fontFamily: 'inherit',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  width: 28, height: 28, borderRadius: 6,
+                  background: '#fff', color: '#9CA3AF', border: '1px solid #DDD6FE',
+                  cursor: 'pointer', flexShrink: 0,
                 }}
+                title="Copiar"
               >
-                <CopyIcon /> Copiar
+                <CopyIcon />
               </button>
             </div>
           </div>
