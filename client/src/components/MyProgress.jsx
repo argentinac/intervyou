@@ -163,13 +163,17 @@ export default function MyProgress({ onInterviewClick }) {
   const { getToken } = useAuth()
   const [points, setPoints] = useState([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
 
-  useEffect(() => {
-    async function load() {
+  const loadData = async () => {
+    setLoading(true)
+    setLoadError(false)
+    try {
       const token = await getToken()
       const res = await fetch('/api/interviews', {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       })
+      if (!res.ok) throw new Error('fetch failed')
       const list = await res.json()
       const scored = (Array.isArray(list) ? list : [])
         .filter(iv => iv.interview_feedback?.[0]?.score != null)
@@ -184,10 +188,14 @@ export default function MyProgress({ onInterviewClick }) {
         }))
         .reverse()
       setPoints(scored)
+    } catch {
+      setLoadError(true)
+    } finally {
       setLoading(false)
     }
-    load()
-  }, [])
+  }
+
+  useEffect(() => { loadData() }, []) // eslint-disable-line
 
   const avg = points.length ? Math.round(points.reduce((s, p) => s + p.score, 0) / points.length) : null
   const best = points.length ? Math.round(Math.max(...points.map(p => p.score))) : null
@@ -210,9 +218,21 @@ export default function MyProgress({ onInterviewClick }) {
         </div>
       )}
 
-      {!loading && points.length === 0 && <EmptyProgress />}
+      {!loading && loadError && (
+        <div className="iv-empty">
+          <div className="iv-empty-icon">
+            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+          </div>
+          <h3>No pudimos cargar tu progreso</h3>
+          <p>Revisá tu conexión e intentá de nuevo.</p>
+          <button className="db-btn-primary" onClick={loadData}>Reintentar</button>
+        </div>
+      )}
+      {!loading && !loadError && points.length === 0 && <EmptyProgress />}
 
-      {!loading && points.length > 0 && (
+      {!loading && !loadError && points.length > 0 && (
         <>
           <div className="prog-stats">
             <div className="prog-stat-card">

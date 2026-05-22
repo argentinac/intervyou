@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { unlockAudio } from '../../audioContext'
+import { supabase } from '../../lib/supabase'
 import { generateInterlocutorName } from '../../lib/simulations/interlocutorNames'
 import { COUNTRIES_ES } from '../../lib/simulations/countries'
 
@@ -260,6 +261,8 @@ export default function GenericSetupForm({ simulation, onSubmit, onBack }) {
   const [step, setStep] = useState(1)
   const [answers, setAnswers] = useState(() => buildInitialAnswers(simulation))
   const detectedCountryRef = useRef(null)
+  const [dailyLimitReached, setDailyLimitReached] = useState(false)
+  const [checkingLimit, setCheckingLimit] = useState(false)
 
   useEffect(() => {
     fetch('https://ipapi.co/json/')
@@ -280,6 +283,27 @@ export default function GenericSetupForm({ simulation, onSubmit, onBack }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setCheckingLimit(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
+      if (token) {
+        const res = await fetch('/api/interviews/daily-count', {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        if (res.ok) {
+          const { count } = await res.json()
+          if (count >= 10) {
+            setDailyLimitReached(true)
+            setCheckingLimit(false)
+            return
+          }
+        }
+      }
+    } catch {
+      // si falla el check, dejamos pasar
+    }
+    setCheckingLimit(false)
     unlockAudio()
     try {
       await navigator.mediaDevices.getUserMedia({ audio: true })
@@ -300,6 +324,35 @@ export default function GenericSetupForm({ simulation, onSubmit, onBack }) {
       interlocutorRole: simulation.interlocutorRole || simulation.uiCopy?.interlocutorLabel,
       country: answers.country || detectedCountryRef.current || '',
     })
+  }
+
+  if (dailyLimitReached) {
+    return (
+      <div className="sf-page">
+        <header className="sf-header">
+          <div className="sf-logo" style={{ cursor: onBack ? 'pointer' : 'default' }} onClick={onBack}>
+            <IntervyouIcon />
+          </div>
+        </header>
+        <main className="sf-main">
+          <div className="sf-card" style={{ textAlign: 'center', padding: '48px 32px' }}>
+            <div style={{ fontSize: 48, marginBottom: 16 }}>🎯</div>
+            <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 12 }}>
+              Límite diario alcanzado
+            </h2>
+            <p style={{ color: '#64748b', fontSize: 15, lineHeight: 1.6, marginBottom: 32 }}>
+              Hiciste 10 entrevistas hoy. ¡Excelente trabajo!<br />
+              Volvé mañana para seguir practicando.
+            </p>
+            {onBack && (
+              <button className="sf-next" onClick={onBack} style={{ display: 'inline-block' }}>
+                ← Volver al inicio
+              </button>
+            )}
+          </div>
+        </main>
+      </div>
+    )
   }
 
   return (
@@ -348,10 +401,10 @@ export default function GenericSetupForm({ simulation, onSubmit, onBack }) {
                 <button
                   type="submit"
                   className="sf-next"
-                  disabled={!screen2Valid}
+                  disabled={!screen2Valid || checkingLimit}
                   data-track={`simulation_started_${simulation.id}`}
                 >
-                  Empezar →
+                  {checkingLimit ? 'Verificando...' : 'Empezar →'}
                 </button>
               )}
             </div>

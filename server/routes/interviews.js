@@ -143,8 +143,24 @@ interviewsRouter.post('/', requireAuth, async (req, res) => {
     res.json({ id: interview.id })
   } catch (err) {
     console.error('Save interview error:', err)
-    res.status(500).json({ error: err.message })
+    res.status(500).json({ error: 'save_failed', message: err.message })
   }
+})
+
+// Count interviews completed today by current user
+interviewsRouter.get('/daily-count', requireAuth, async (req, res) => {
+  const userId = req.user.id
+  const todayStart = new Date()
+  todayStart.setHours(0, 0, 0, 0)
+
+  const { count, error } = await supabase
+    .from('interviews')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', userId)
+    .gte('completed_at', todayStart.toISOString())
+
+  if (error) return res.status(500).json({ error: error.message })
+  res.json({ count: count ?? 0 })
 })
 
 // Get single interview with full feedback

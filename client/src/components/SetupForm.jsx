@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { unlockAudio } from '../audioContext'
+import { supabase } from '../lib/supabase'
 
 const LANG_OPTIONS = [
   { value: 'Spanish',    label: 'Español' },
@@ -108,6 +109,12 @@ export default function SetupForm({ onSubmit, onBack, initialConfig }) {
     companyName: initialConfig?.companyName ?? '',
   })
   const [generatingDesc, setGeneratingDesc] = useState(false)
+  const [dailyLimitReached, setDailyLimitReached] = useState(false)
+  const [checkingLimit, setCheckingLimit] = useState(false)
+  const [micBlocked, setMicBlocked] = useState(false)
+  const [fieldErrors, setFieldErrors] = useState({})
+
+  const sttSupported = !!(window.SpeechRecognition || window.webkitSpeechRecognition)
 
   const generateDescription = async () => {
     if (!form.jobTitle) return
@@ -151,19 +158,91 @@ export default function SetupForm({ onSubmit, onBack, initialConfig }) {
 
   const step1Valid = form.country && form.jobTitle && form.jobDescription.trim()
 
+  const validateStep1 = () => {
+    const errs = {}
+    if (!form.country) errs.country = 'Seleccioná un país.'
+    if (!form.jobTitle.trim()) errs.jobTitle = 'Ingresá el nombre del puesto.'
+    if (!form.jobDescription.trim()) errs.jobDescription = 'Agregá una descripción del puesto.'
+    setFieldErrors(errs)
+    return Object.keys(errs).length === 0
+  }
+
+  const handleStep1Continue = () => {
+    if (!validateStep1()) return
+    setStep(2)
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setCheckingLimit(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
+      if (token) {
+        const res = await fetch('/api/interviews/daily-count', {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        if (res.ok) {
+          const { count } = await res.json()
+          if (count >= 10) {
+            setDailyLimitReached(true)
+            setCheckingLimit(false)
+            return
+          }
+        }
+      }
+    } catch {
+      // si falla el check, dejamos pasar (no bloqueamos al usuario por error de red)
+    }
+    setCheckingLimit(false)
     unlockAudio()
     try {
       await navigator.mediaDevices.getUserMedia({ audio: true })
+      setMicBlocked(false)
     } catch {
-      // user denied — proceed anyway, SpeechRecognition will handle the error
+      setMicBlocked(true)
+      return
     }
     onSubmit(form)
   }
 
+  if (dailyLimitReached) {
+    return (
+      <div className="sf-page">
+        <header className="sf-header">
+          <div className="sf-logo" style={{ cursor: onBack ? 'pointer' : 'default' }} onClick={onBack}>
+            <IntervyouIcon />
+          </div>
+        </header>
+        <main className="sf-main">
+          <div className="sf-card" style={{ textAlign: 'center', padding: '48px 32px' }}>
+            <div style={{ fontSize: 48, marginBottom: 16 }}>🎯</div>
+            <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 12 }}>
+              Límite diario alcanzado
+            </h2>
+            <p style={{ color: '#64748b', fontSize: 15, lineHeight: 1.6, marginBottom: 32 }}>
+              Hiciste 10 entrevistas hoy. ¡Excelente trabajo!<br />
+              Volvé mañana para seguir practicando.
+            </p>
+            {onBack && (
+              <button className="sf-next" onClick={onBack} style={{ display: 'inline-block' }}>
+                ← Volver al inicio
+              </button>
+            )}
+          </div>
+        </main>
+      </div>
+    )
+  }
+
   return (
     <div className="sf-page">
+      {!sttSupported && (
+        <div className="err-banner">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Este navegador no soporta reconocimiento de voz. Usá <strong>Chrome</strong> o <strong>Edge</strong>.
+        </div>
+      )}
       {/* Header */}
       <header className="sf-header">
         <div className="sf-logo" style={{cursor: onBack ? 'pointer' : 'default'}} onClick={onBack}>
@@ -190,10 +269,11 @@ export default function SetupForm({ onSubmit, onBack, initialConfig }) {
                 <div className="sf-row">
                   <div className="sf-field">
                     <label>País</label>
-                    <select value={form.country} onChange={set('country')}>
+                    <select value={form.country} onChange={(e) => { set('country')(e); setFieldErrors(f => ({ ...f, country: '' })) }}>
                       <option value="">Seleccioná…</option>
                       {COUNTRIES.map((c) => <option key={c}>{c}</option>)}
                     </select>
+                    {fieldErrors.country && <span className="err-field">{fieldErrors.country}</span>}
                   </div>
                   <div className="sf-field">
                     <label>Idioma</label>
@@ -212,7 +292,8 @@ export default function SetupForm({ onSubmit, onBack, initialConfig }) {
                   </div>
                   <div className="sf-field">
                     <label>Rol / Puesto</label>
-                    <input value={form.jobTitle} onChange={set('jobTitle')} placeholder="Ej: Product Manager" />
+                    <input value={form.jobTitle} onChange={(e) => { set('jobTitle')(e); setFieldErrors(f => ({ ...f, jobTitle: '' })) }} placeholder="Ej: Product Manager" />
+                    {fieldErrors.jobTitle && <span className="err-field">{fieldErrors.jobTitle}</span>}
                   </div>
                 </div>
 
@@ -238,12 +319,14 @@ export default function SetupForm({ onSubmit, onBack, initialConfig }) {
                       onChange={(e) => {
                         const val = e.target.value.slice(0, MAX_CHARS)
                         setForm((f) => ({ ...f, jobDescription: val }))
+                        setFieldErrors(f => ({ ...f, jobDescription: '' }))
                       }}
                       placeholder="Pegá la descripción o resumí las responsabilidades principales…"
                       rows={5}
                     />
                     <span className="sf-counter">{form.jobDescription.length}/{MAX_CHARS}</span>
                   </div>
+                  {fieldErrors.jobDescription && <span className="err-field">{fieldErrors.jobDescription}</span>}
                 </div>
               </div>
 
@@ -259,8 +342,7 @@ export default function SetupForm({ onSubmit, onBack, initialConfig }) {
                 <button
                   type="button"
                   className="sf-next"
-                  onClick={() => setStep(2)}
-                  disabled={!step1Valid}
+                  onClick={handleStep1Continue}
                   data-track="setup_step1_continued"
                 >
                   Continuar →
@@ -311,12 +393,21 @@ export default function SetupForm({ onSubmit, onBack, initialConfig }) {
 
               </div>
 
+              {micBlocked && (
+                <div className="err-mic-block">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+                  <div>
+                    <strong>Tu micrófono no está disponible.</strong> Revisá los permisos del navegador.
+                    <p className="err-mic-hint">En Chrome: hacé clic en el candado 🔒 de la barra de direcciones → Micrófono → Permitir, y luego recargá la página.</p>
+                  </div>
+                </div>
+              )}
               <div className="sf-footer">
                 <button type="button" className="sf-back" onClick={() => setStep(1)}>
                   ← Volver
                 </button>
-                <button type="submit" className="sf-next" data-track="interview_started">
-                  Empezar entrevista →
+                <button type="submit" className="sf-next" data-track="interview_started" disabled={checkingLimit || micBlocked || !sttSupported}>
+                  {checkingLimit ? 'Verificando...' : 'Empezar entrevista →'}
                 </button>
               </div>
             </form>

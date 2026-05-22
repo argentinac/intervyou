@@ -669,6 +669,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
   const [statusText, setStatusText] = useState(() => str.connecting)
   const [error, setError] = useState(null)
   const [introLoading, setIntroLoading] = useState(true)
+  const [isMuted, setIsMuted] = useState(false)
 
   const interviewerLabel = isSkill
     ? 'Coach Guiado'
@@ -686,6 +687,12 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
   const [cameraOn, setCameraOn] = useState(false)
   const [inactivityWarning, setInactivityWarning] = useState(false)
   const [warnCountdown, setWarnCountdown] = useState(WARN_SECS)
+  const [toast, setToast] = useState(null)
+  const [micDisconnected, setMicDisconnected] = useState(false)
+  const [isOffline, setIsOffline] = useState(!navigator.onLine)
+  const [claudeRetryFn, setClaudeRetryFn] = useState(null)
+  const [saveFailed, setSaveFailed] = useState(false)
+  const toastTimerRef = useRef(null)
 
   const inactivityTimerRef = useRef(null)
   const countdownTimerRef  = useRef(null)
@@ -711,12 +718,25 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
   const sessionEndedRef        = useRef(false)
   const doClosingRef           = useRef(null)
   const userInterruptedRef     = useRef(false)
+  const isMutedRef             = useRef(false)
+  const isSpeakingRef          = useRef(false)
+  const isProcessingRef        = useRef(false)
+  const isRecordingRef         = useRef(false)
+  const manuallyStoppedRef     = useRef(false)
+  const micStreamRef           = useRef(null)
+  const analyserRef            = useRef(null)
+  const bargeInIntervalRef     = useRef(null)
+  const bargeInCountRef        = useRef(0)
 
   const locale = COUNTRY_LOCALE[config.country] || LANG_LOCALE[config.language] || 'en-US'
   const canInterrupt = false
 
   useEffect(() => { messagesRef.current = messages }, [messages])
   useEffect(() => { sessionEndedRef.current = sessionEnded }, [sessionEnded])
+  useEffect(() => { isMutedRef.current = isMuted }, [isMuted])
+  useEffect(() => { isSpeakingRef.current = isSpeaking }, [isSpeaking])
+  useEffect(() => { isProcessingRef.current = isProcessing }, [isProcessing])
+  useEffect(() => { isRecordingRef.current = isRecording }, [isRecording])
 
   // ── Inactivity timer ──────────────────────────────────────
   const resetInactivity = useCallback(() => {
@@ -767,6 +787,25 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
     }
   }, [])
 
+  // ── Toast helper ──────────────────────────────────────────
+  const showToast = useCallback((msg) => {
+    setToast(msg)
+    clearTimeout(toastTimerRef.current)
+    toastTimerRef.current = setTimeout(() => setToast(null), 4500)
+  }, [])
+
+  // ── Offline detection ─────────────────────────────────────
+  useEffect(() => {
+    const goOffline = () => setIsOffline(true)
+    const goOnline  = () => setIsOffline(false)
+    window.addEventListener('offline', goOffline)
+    window.addEventListener('online',  goOnline)
+    return () => {
+      window.removeEventListener('offline', goOffline)
+      window.removeEventListener('online',  goOnline)
+    }
+  }, [])
+
   // ── Camera toggle ─────────────────────────────────────────
   const toggleCamera = useCallback(async () => {
     if (cameraOn) {
@@ -795,13 +834,73 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
 
   const startRecordingRef = useRef(null)
 
+  // ── Barge-in: energy-based mic monitoring during AI speech ──
+  const stopBargeIn = useCallback(() => {
+    clearInterval(bargeInIntervalRef.current)
+    bargeInCountRef.current = 0
+  }, [])
+
+  const openMicForBargein = useCallback(async () => {
+    if (analyserRef.current) return
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: { echoCancellation: true, noiseSuppression: true },
+      })
+      micStreamRef.current = stream
+      const ctx = getAudioContext()
+      const src = ctx.createMediaStreamSource(stream)
+      const analyser = ctx.createAnalyser()
+      analyser.fftSize = 512
+      src.connect(analyser)
+      analyserRef.current = analyser
+    } catch {
+      // no mic access — barge-in won't work, session continues fine
+    }
+  }, [])
+
+  const startBargeIn = useCallback(() => {
+    if (!analyserRef.current || isMutedRef.current) return
+    bargeInCountRef.current = 0
+    const data = new Float32Array(analyserRef.current.frequencyBinCount)
+    bargeInIntervalRef.current = setInterval(() => {
+      if (!isSpeakingRef.current) { stopBargeIn(); return }
+      analyserRef.current.getFloatTimeDomainData(data)
+      const rms = Math.sqrt(data.reduce((s, x) => s + x * x, 0) / data.length)
+      if (rms > 0.035) {
+        if (++bargeInCountRef.current >= 4) {  // ~400ms of sustained voice energy
+          stopBargeIn()
+          userInterruptedRef.current = true
+          isSpeakingRef.current = false
+          stopActiveAudio()
+          setIsSpeaking(false)
+          startRecordingRef.current?.()
+        }
+      } else {
+        bargeInCountRef.current = 0
+      }
+    }, 100)
+  }, [stopBargeIn])
+
   // ── Play audio + auto-start mic when done ─────────────────
   const playAudio = useCallback(async (text, onPlay = null, { noMic = false } = {}) => {
     userInterruptedRef.current = false
     setIsSpeaking(true)
+    isSpeakingRef.current = true
     setStatusText(str.speaking[interviewerGender.current])
-    await speakElevenLabs(text, config.language, config.country, interviewerGender.current, () => sessionEndedRef.current, onPlay, config.simulationId, isSkill, config.voiceTone || null)
+
+    if (!noMic) {
+      await openMicForBargein()
+      startBargeIn()
+    }
+
+    try {
+      await speakElevenLabs(text, config.language, config.country, interviewerGender.current, () => sessionEndedRef.current, onPlay, config.simulationId, isSkill, config.voiceTone || null)
+    } catch {
+      showToast('No pudimos generar el audio. Podés leer la pregunta en pantalla.')
+    }
+    stopBargeIn()
     setIsSpeaking(false)
+    isSpeakingRef.current = false
     if (sessionEndedRef.current) return
     if (userInterruptedRef.current) return  // user already interrupted — mic is already running
     if (noMic) return
@@ -815,24 +914,40 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
     // Small delay so the OS audio hardware can switch from output to input cleanly
     await new Promise(r => setTimeout(r, 200))
     startRecordingRef.current?.()
-  }, [config.language, config.country, str.speaking, str.yourTurn])
+  }, [config.language, config.country, str.speaking, str.yourTurn, openMicForBargein, startBargeIn, stopBargeIn])
 
   // ── Ask Claude (main conversation) ────────────────────────
-  const askClaude = useCallback(async (updatedMessages) => {
+  const askClaude = useCallback(async (updatedMessages, { isRetry = false } = {}) => {
     setIsProcessing(true)
+    isProcessingRef.current = true
     setStatusText(str.thinking[interviewerGender.current])
-    const res = await fetch('/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        system: isSkill
-          ? config.systemPrompt
-          : isSimulation
-            ? buildSystemPrompt(simulation, config)
-            : SYSTEM_PROMPT({ ...config, gender: interviewerGender.current }),
-        messages: updatedMessages,
-      }),
-    })
+
+    const ctrl = new AbortController()
+    const slowTimer = setTimeout(() => {
+      setStatusText('Está tardando más de lo esperado. Reintentando…')
+    }, 20000)
+    const hardTimer = setTimeout(() => ctrl.abort(), 42000)
+
+    let res
+    try {
+      res = await fetch('/api/chat', {
+        signal: ctrl.signal,
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system: isSkill
+            ? config.systemPrompt
+            : isSimulation
+              ? buildSystemPrompt(simulation, config)
+              : SYSTEM_PROMPT({ ...config, gender: interviewerGender.current }),
+          messages: updatedMessages,
+        }),
+      })
+    } finally {
+      clearTimeout(slowTimer)
+      clearTimeout(hardTimer)
+    }
+
     if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.error || 'Request failed') }
     const data = await res.json()
     if (data.t3 && data.t4) timingsRef.current = {
@@ -846,6 +961,8 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
       llm_tokens_cache_write: data.usage?.cache_creation_input_tokens ?? null,
     }
     setIsProcessing(false)
+    isProcessingRef.current = false
+    setClaudeRetryFn(null)
     return data.text
   }, [config])
 
@@ -974,11 +1091,15 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // ── Hold to speak: start ───────────────────────────────────
+  // ── Mic: start ────────────────────────────────────────────
   const startRecording = useCallback(() => {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition
     if (!SR) { setError('El reconocimiento de voz requiere Chrome o Edge.'); return }
 
+    // Avoid double-starting
+    if (isRecordingRef.current) return
+
+    manuallyStoppedRef.current = false
     isInterruptingRef.current = false
     interimTextRef.current = ''
 
@@ -987,7 +1108,9 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
     recognition.continuous = true
     recognition.interimResults = true
 
-    const SILENCE_MS = 1200
+    // Longer silence window in conversational mode for natural pauses
+    const SILENCE_MS = isMutedRef.current ? 1200 : 1800
+
     recognition.onresult = (event) => {
       interimTextRef.current = Array.from(event.results).map((r) => r[0].transcript).join(' ').trim()
       clearTimeout(silenceTimerRef.current)
@@ -1001,38 +1124,74 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
       if (isInterruptingRef.current) return  // interrupt flow owns this
 
       const text = interimTextRef.current.trim()
-      setIsRecording(false)
-      if (!text) { setStatusText(str.noSpeech); return }
 
-      timingsRef.current = { t0_ms: Date.now() }
-
-      setIsProcessing(true)
-      setStatusText(str.processing)
-      try {
-        await processTurn(text, messagesRef.current)
-      } catch (err) {
-        setError(str.processingError)
-        setIsProcessing(false)
-        setStatusText(str.waitingAnswer)
-        console.error(err)
+      if (!text) {
+        // Conversational: restart silently without changing visual state (avoids mic flicker)
+        if (!isMutedRef.current && !sessionEndedRef.current && !isSpeakingRef.current && !isProcessingRef.current && !manuallyStoppedRef.current) {
+          interimTextRef.current = ''
+          isRecordingRef.current = false  // reset so startRecording doesn't bail, but keep isRecording=true visually
+          await new Promise(r => setTimeout(r, 80))
+          startRecordingRef.current?.()
+          return
+        }
+        setIsRecording(false)
+        isRecordingRef.current = false
+        setStatusText(str.noSpeech)
+        return
       }
+
+      setIsRecording(false)
+      isRecordingRef.current = false
+      timingsRef.current = { t0_ms: Date.now() }
+      setIsProcessing(true)
+      isProcessingRef.current = true
+      setStatusText(str.processing)
+      const doTurn = async () => {
+        setClaudeRetryFn(null)
+        try {
+          await processTurn(text, messagesRef.current)
+        } catch (err) {
+          setIsProcessing(false)
+          isProcessingRef.current = false
+          setStatusText(str.waitingAnswer)
+          console.error(err)
+          if (err.name === 'AbortError' || err.message?.includes('timeout')) {
+            setError('Hubo un problema con la conexión.')
+          } else {
+            setError('Hubo un problema con la respuesta.')
+          }
+          setClaudeRetryFn(() => doTurn)
+        }
+      }
+      await doTurn()
     }
 
     recognition.onerror = (e) => {
       clearInterruptTimer()
-      setIsRecording(false)
       if (e.error === 'no-speech' || e.error === 'aborted') {
+        // Conversational: restart silently without visual flicker
+        if (!isMutedRef.current && !sessionEndedRef.current && !isSpeakingRef.current && !isProcessingRef.current && !manuallyStoppedRef.current) {
+          interimTextRef.current = ''
+          isRecordingRef.current = false
+          setTimeout(() => startRecordingRef.current?.(), 80)
+          return
+        }
+        setIsRecording(false)
+        isRecordingRef.current = false
         setStatusText(str.noSpeech)
         return
       }
+      setIsRecording(false)
+      isRecordingRef.current = false
       if (e.error === 'not-allowed') setError(str.micError)
-      else if (e.error === 'network') setError(str.networkError)
-      else setError(str.micGenericError)
+      else if (e.error === 'network') setMicDisconnected(true)
+      else setMicDisconnected(true)
     }
 
     recognition.start()
     recognitionRef.current = recognition
     setIsRecording(true)
+    isRecordingRef.current = true
     setError(null)
     setStatusText(str.recording)
 
@@ -1097,6 +1256,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
 
   // ── Mic: stop ─────────────────────────────────────────────
   const stopRecording = useCallback(() => {
+    manuallyStoppedRef.current = true  // prevent auto-restart in conversational mode
     clearInterruptTimer()
     clearTimeout(silenceTimerRef.current)
     recognitionRef.current?.stop()
@@ -1149,6 +1309,10 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
     window.speechSynthesis.cancel()
     stopActiveAudio()
     clearInterruptTimer()
+    stopBargeIn()
+    micStreamRef.current?.getTracks().forEach(t => t.stop())
+    micStreamRef.current = null
+    analyserRef.current = null
     recognitionRef.current?.stop()
     recognitionRef.current = null
     setSessionEnded(true)
@@ -1273,6 +1437,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
         }
       } catch (saveErr) {
         console.warn('Could not save interview:', saveErr)
+        setSaveFailed(true)
       }
 
       if (!navigated) setFeedback(enrichedFeedback)
@@ -1347,7 +1512,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
       track('simulation_feedback_viewed', { simulation_id: simulation.id, general_score: feedback.general_score })
       return <SimulationFeedback feedback={feedback} config={config} onRestart={onEnd} onDashboard={onDashboard} />
     }
-    return <FeedbackSummary feedback={feedback} config={config} onRestart={onEnd} onDashboard={onDashboard} />
+    return <FeedbackSummary feedback={feedback} config={config} onRestart={onEnd} onDashboard={onDashboard} saveFailed={saveFailed} />
   }
   if (introLoading) return <IntroLoading titleText={isSkill ? 'Preparando tu sesión de coaching…' : isSimulation ? 'Preparando tu simulación…' : undefined} tips={isSkill ? COACHING_TIPS : isSimulation ? getTipsForSimulation(simulation.category) : INTERVIEW_TIPS} />
 
@@ -1355,6 +1520,33 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
 
   return (
     <div className="meet-page">
+      {isOffline && (
+        <div className="err-offline-bar">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.56 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+          Sin conexión a internet. La entrevista se pausó.
+        </div>
+      )}
+      {toast && (
+        <div className="err-toast">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          {toast}
+        </div>
+      )}
+      {micDisconnected && !sessionEnded && (
+        <div className="err-mic-overlay">
+          <div className="err-mic-card">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+            <p>El micrófono se desconectó. Tocá para retomar.</p>
+            <button className="err-mic-retry-btn" onClick={() => {
+              setMicDisconnected(false)
+              setError(null)
+              setTimeout(() => startRecordingRef.current?.(), 150)
+            }}>
+              Retomar →
+            </button>
+          </div>
+        </div>
+      )}
       {inactivityWarning && !sessionEnded && (
         <div className="inactivity-overlay">
           <div className="inactivity-modal">
@@ -1406,27 +1598,70 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
 
       <footer className="meet-footer">
         {error
-          ? <div className="error-banner">{error}</div>
+          ? (
+            <div className="error-banner">
+              {error}
+              {claudeRetryFn && (
+                <button className="err-retry-btn" onClick={() => claudeRetryFn()}>Reintentar</button>
+              )}
+            </div>
+          )
           : <p className="meet-status">{statusText}</p>
         }
         <div className="footer-controls">
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
             <button
-              className={`mic-btn ${isRecording ? 'mic-btn--active' : ''} ${busy ? 'mic-btn--disabled' : ''}`}
+              className={`mic-btn ${isMuted ? 'mic-btn--muted' : isRecording ? 'mic-btn--active' : ''}`}
               onClick={() => {
-                if (busy) return
-                if (isSpeaking) { userInterruptedRef.current = true; stopActiveAudio(); startRecording(); return }
-                isRecording ? stopRecording() : startRecording()
+                if (isSpeaking) {
+                  stopBargeIn()
+                  userInterruptedRef.current = true
+                  isSpeakingRef.current = false
+                  stopActiveAudio()
+                  setIsSpeaking(false)
+                  startRecording()
+                  return
+                }
+                if (isMuted) {
+                  setIsMuted(false)
+                  isMutedRef.current = false
+                  manuallyStoppedRef.current = false
+                  if (!isRecording && !isProcessing && !sessionEndedRef.current) {
+                    setTimeout(() => startRecordingRef.current?.(), 100)
+                  }
+                  return
+                }
+                if (isRecording) { stopRecording(); return }
+                if (!busy) { manuallyStoppedRef.current = false; startRecording() }
               }}
-              disabled={busy}
-              title={isRecording ? str.releaseHint : str.holdHint}
+              title={isMuted ? 'Activar micrófono' : isRecording ? 'Silenciar' : isSpeaking ? 'Interrumpir' : 'Silenciar'}
             >
-              {isRecording ? <IconStop /> : <IconMicOn />}
+              {isMuted ? <IconMicOff /> : isRecording ? <IconStop /> : <IconMicOn />}
             </button>
-            <span className="mic-label mic-label--idle">
-              {str.speakLabel ?? 'Hablar'}
+            <span className={`mic-label ${isMuted ? 'mic-label--muted' : isRecording ? 'mic-label--live' : 'mic-label--idle'}`}>
+              {isMuted ? 'Muteado' : isRecording ? 'Escuchando' : isSpeaking ? 'Interrumpir' : 'Listo'}
             </span>
           </div>
+          <button
+            className={`cam-btn ${isMuted ? 'mic-btn--muted cam-btn--mute' : 'cam-btn--on'}`}
+            onClick={() => {
+              const nowMuted = !isMuted
+              setIsMuted(nowMuted)
+              isMutedRef.current = nowMuted
+              if (nowMuted) {
+                manuallyStoppedRef.current = true
+                if (isRecording) stopRecording()
+              } else {
+                manuallyStoppedRef.current = false
+                if (!isRecording && !isProcessing && !isSpeaking && !sessionEndedRef.current) {
+                  setTimeout(() => startRecordingRef.current?.(), 100)
+                }
+              }
+            }}
+            title={isMuted ? 'Activar micrófono' : 'Mutear micrófono'}
+          >
+            {isMuted ? <IconMicOff /> : <IconMicOn />}
+          </button>
           <button
             className={`cam-btn ${cameraOn ? 'cam-btn--on' : 'cam-btn--off'}`}
             onClick={toggleCamera}
@@ -1435,7 +1670,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
             {cameraOn ? <IconCamOn /> : <IconCamOff />}
           </button>
         </div>
-        <p className="mic-hint">{!isRecording && !busy ? str.holdHint : ''}</p>
+        <p className="mic-hint">{isSpeaking && !isMuted ? 'Clickeá para interrumpir' : ''}</p>
       </footer>
 
       {showEndConfirm && (

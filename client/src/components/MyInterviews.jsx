@@ -474,6 +474,7 @@ export default function MyInterviews({ onNewInterview, onRepeat, initialSelected
   const { getToken } = useAuth()
   const [realInterviews, setRealInterviews] = useState([])
   const [loading, setLoading] = useState(mockInterviews !== undefined ? false : true)
+  const [loadError, setLoadError] = useState(false)
   const [selectedId, setSelectedId] = useState(initialSelectedId || null)
 
   const interviews = mockInterviews !== undefined ? mockInterviews : realInterviews
@@ -485,19 +486,26 @@ export default function MyInterviews({ onNewInterview, onRepeat, initialSelected
     }
   }, [initialSelectedId])
 
-  useEffect(() => {
+  const loadInterviews = async () => {
     if (mockInterviews !== undefined) { setLoading(false); return }
-    async function load() {
+    setLoading(true)
+    setLoadError(false)
+    try {
       const token = await getToken()
       const res = await fetch('/api/interviews', {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       })
+      if (!res.ok) throw new Error('fetch failed')
       const json = await res.json()
       setRealInterviews(Array.isArray(json) ? json : [])
+    } catch {
+      setLoadError(true)
+    } finally {
       setLoading(false)
     }
-    load()
-  }, [mockInterviews])
+  }
+
+  useEffect(() => { loadInterviews() }, [mockInterviews]) // eslint-disable-line
 
   if (selectedId) {
     return <InterviewDetail id={selectedId} onBack={() => setSelectedId(null)} onNewInterview={onNewInterview} />
@@ -517,7 +525,19 @@ export default function MyInterviews({ onNewInterview, onRepeat, initialSelected
         </div>
       )}
 
-      {!loading && interviews.length === 0 && (
+      {!loading && loadError && (
+        <div className="iv-empty">
+          <div className="iv-empty-icon">
+            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+          </div>
+          <h3>No pudimos cargar tus entrevistas</h3>
+          <p>Revisá tu conexión e intentá de nuevo.</p>
+          <button className="db-btn-primary" onClick={loadInterviews}>Reintentar</button>
+        </div>
+      )}
+      {!loading && !loadError && interviews.length === 0 && (
         <div className="iv-empty">
           <div className="iv-empty-icon">
             <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -532,7 +552,7 @@ export default function MyInterviews({ onNewInterview, onRepeat, initialSelected
         </div>
       )}
 
-      {!loading && interviews.length > 0 && (
+      {!loading && !loadError && interviews.length > 0 && (
         <>
           <ProgressStats interviews={interviews} onPointClick={(id) => setSelectedId(id)} />
           <div className="iv-list">
