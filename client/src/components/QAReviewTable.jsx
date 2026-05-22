@@ -47,6 +47,23 @@ function AnnotatedText({ text }) {
   )
 }
 
+function GreenText({ text }) {
+  const parts = text.split(/\(\((.+?)\)\)/gs)
+  return (
+    <>
+      {parts.map((part, i) =>
+        i % 2 === 1 ? (
+          <span key={i} style={{ borderBottom: '2px solid #16A34A', color: '#15803D', fontWeight: 500 }}>
+            {part}
+          </span>
+        ) : (
+          <span key={i}>{part}</span>
+        )
+      )}
+    </>
+  )
+}
+
 function CopyIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -150,7 +167,7 @@ function FullAnswerDrawer({ items, openIndex, activeTab, onClose, onTabChange })
         {/* Body */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '20px 24px' }}>
           <p style={{ margin: 0, fontSize: 14, color: '#374151', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
-            {activeTab === 'user' ? <AnnotatedText text={text} /> : text}
+            {activeTab === 'user' ? <AnnotatedText text={text} /> : <GreenText text={text} />}
           </p>
         </div>
 
@@ -163,7 +180,7 @@ function FullAnswerDrawer({ items, openIndex, activeTab, onClose, onTabChange })
 
 function DrawerCopyButton({ text }) {
   const [copied, setCopied] = useState(false)
-  const cleanText = text.replace(/\[\[(.+?)\]\]/gs, '$1')
+  const cleanText = text.replace(/\[\[(.+?)\]\]/gs, '$1').replace(/\(\((.+?)\)\)/gs, '$1')
 
   const handleCopy = useCallback(async () => {
     try {
@@ -284,7 +301,7 @@ function QARow({ item, index, total, onOpenDrawer }) {
               Respuesta sugerida
             </p>
             <p style={{ margin: 0, fontSize: 13, color: '#374151', lineHeight: 1.6 }}>
-              {suggestedTruncated ? item.suggestedAnswer.slice(0, TRUNCATE_LEN) + '…' : item.suggestedAnswer}
+              <GreenText text={suggestedTruncated ? item.suggestedAnswer.slice(0, TRUNCATE_LEN) + '…' : item.suggestedAnswer} />
             </p>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
               {suggestedTruncated && (
@@ -300,7 +317,7 @@ function QARow({ item, index, total, onOpenDrawer }) {
                 </button>
               )}
               <button
-                onClick={() => copyText(item.suggestedAnswer)}
+                onClick={() => copyText(item.suggestedAnswer.replace(/\(\((.+?)\)\)/gs, '$1'))}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 5,
                   padding: '5px 10px', borderRadius: 6, fontSize: 12, fontWeight: 500,

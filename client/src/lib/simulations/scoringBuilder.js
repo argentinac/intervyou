@@ -60,7 +60,7 @@ Devolvé JSON válido con esta forma exacta:
     {
       "question": "¿Pregunta reformulada de forma corta y directa?",
       "userAnswer": "Transcripción exacta de lo que dijo la persona, con puntuación y mayúsculas correctas. Envolvé las partes débiles o mejorables con [[doble corchete]] — frases vagas, genéricas, demasiado cortas o que pierden una oportunidad. Sin cambiar el contenido.",
-      "suggestedAnswer": "Una respuesta ideal de 2-4 párrafos para esa pregunta considerando el contexto de la simulación, el escenario y los objetivos del usuario."
+      "suggestedAnswer": "Una respuesta ideal de 2-4 párrafos para esa pregunta considerando el contexto de la simulación. Envolvé con ((doble paréntesis)) las partes que mejoran o reemplazan directamente las [[partes débiles]] del userAnswer — para que el lector pueda conectar visualmente rojo → verde."
     }
   ]
 }

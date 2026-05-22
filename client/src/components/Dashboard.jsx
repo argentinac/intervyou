@@ -181,12 +181,12 @@ function makeMockInterview(i, score, daysAgo) {
           {
             question: '¿Podés contarme sobre vos y tu experiencia?',
             userAnswer: 'Soy licenciada en Comunicación y hace más de cuatro años que trabajo en marketing digital. [[Me especialicé en la gestión de campañas paid y en redes sociales.]] [[Me considero una persona proactiva, organizada y me gusta aprender constantemente.]]',
-            suggestedAnswer: 'Soy licenciada en Comunicación con más de cuatro años de experiencia en marketing digital, liderando campañas de performance que aumentaron la tasa de conversión en un 35% y la comunidad en un 50%. Me especialicé en la gestión integral de campañas paid y en la creación de contenido estratégico para redes sociales. Me considero una persona proactiva, orientada a resultados y en constante aprendizaje.',
+            suggestedAnswer: 'Soy licenciada en Comunicación con más de cuatro años de experiencia en marketing digital. ((Lideré campañas de performance que aumentaron la tasa de conversión en un 35% y la comunidad en un 50%, gestionando presupuestos y equipos multidisciplinarios.)) ((Me defino como una profesional orientada a resultados, con iniciativa para proponer mejoras y capacidad para adaptarme a entornos cambiantes.)) Estoy en búsqueda activa de nuevos desafíos donde pueda seguir generando impacto.',
           },
           {
             question: '¿Por qué te interesa este rol?',
             userAnswer: '[[Me interesa porque es una empresa innovadora y en crecimiento.]] [[Creo que es un gran lugar para seguir desarrollándome]] y aportar mi experiencia en marketing digital.',
-            suggestedAnswer: 'Me interesa este rol porque combina innovación, crecimiento sostenido y foco en resultados. Identifico una oportunidad clara para aportar mi experiencia en campañas digitales y analítica, ayudando a impulsar resultados medibles y fortalecer la marca. Además, el perfil de la empresa se alinea con mi trayectoria y mis objetivos de desarrollo profesional.',
+            suggestedAnswer: '((Me atrae específicamente el foco de la empresa en la expansión de mercado y su cultura data-driven, que es exactamente el entorno donde mejor me desarrollo.)) Identifico una oportunidad concreta para aplicar mi experiencia en campañas de performance y analítica para impulsar resultados medibles. ((Además, la combinación de escala y velocidad de crecimiento me parece un desafío profesional muy valioso en esta etapa de mi carrera.))',
           },
           {
             question: '¿Cuál fue una situación difícil en el trabajo y cómo la resolviste?',

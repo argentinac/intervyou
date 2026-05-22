@@ -111,7 +111,7 @@ Otherwise respond with this exact JSON structure:
     {
       "question": "¿Cuál fue tu mayor logro laboral?",
       "userAnswer": "Exact transcription of what the candidate said, cleaned up with proper punctuation and capitalization. Wrap weak or improvable parts with [[double brackets]] — e.g. phrases that are vague, generic, too short, or miss an opportunity. Do NOT change the content.",
-      "suggestedAnswer": "A perfect 2-4 paragraph answer for this specific question given the role, company, and interview type context. Use natural language. For behavioral questions, follow STAR structure (context, action, result)."
+      "suggestedAnswer": "A perfect 2-4 paragraph answer for this specific question given the role, company, and interview type context. Use natural language. For behavioral questions, follow STAR structure (context, action, result). Wrap the parts that directly improve or replace the [[weak parts]] from userAnswer with ((double parentheses)) — so the reader can visually connect red → green."
     }
   ]
 }
