@@ -806,6 +806,7 @@ export default function Dashboard({ initialSection = 'home', onNewInterview, onS
           <SetupForm
             onSubmit={(cfg) => { window.history.pushState({}, '', '/'); onStartInterview(cfg) }}
             onBack={() => { window.history.pushState({}, '', '/'); setSection('home') }}
+            hideHeader
           />
         )}
         {section === 'home'         && (

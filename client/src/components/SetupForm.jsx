@@ -97,7 +97,7 @@ const RadioCard = ({ active, label, desc, onClick, wide, icon }) => (
 
 // ── Main ───────────────────────────────────────────────────
 
-export default function SetupForm({ onSubmit, onBack, initialConfig }) {
+export default function SetupForm({ onSubmit, onBack, initialConfig, hideHeader }) {
   const [step, setStep] = useState(1)
   const [form, setForm] = useState({
     country: initialConfig?.country ?? '',
@@ -209,11 +209,13 @@ export default function SetupForm({ onSubmit, onBack, initialConfig }) {
   if (dailyLimitReached) {
     return (
       <div className="sf-page">
+        {!hideHeader && (
         <header className="sf-header">
           <div className="sf-logo" style={{ cursor: onBack ? 'pointer' : 'default' }} onClick={onBack}>
             <IntervyouIcon />
           </div>
         </header>
+      )}
         <main className="sf-main">
           <div className="sf-card" style={{ textAlign: 'center', padding: '48px 32px' }}>
             <div style={{ fontSize: 48, marginBottom: 16 }}>🎯</div>
@@ -245,9 +247,11 @@ export default function SetupForm({ onSubmit, onBack, initialConfig }) {
       )}
       {/* Header */}
       <header className="sf-header">
-        <div className="sf-logo" style={{cursor: onBack ? 'pointer' : 'default'}} onClick={onBack}>
-          <IntervyouIcon />
-        </div>
+        {!hideHeader && (
+          <div className="sf-logo" style={{cursor: onBack ? 'pointer' : 'default'}} onClick={onBack}>
+            <IntervyouIcon />
+          </div>
+        )}
         <div className="sf-progress">
           <div className="sf-progress-bar" style={{ width: step === 1 ? '50%' : '100%' }} />
         </div>
