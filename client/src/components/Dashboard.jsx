@@ -811,7 +811,7 @@ export default function Dashboard({ initialSection = 'home', onNewInterview, onS
         )}
         {section === 'home'         && (
           <HomeSection
-            onNewInterview={onNewInterview}
+            onNewInterview={() => handleNav('new')}
             user={user}
             fullName={profile === null ? undefined : (profile?.full_name ?? null)}
             mockInterviews={demoIndex !== null ? DEMO_STATES[demoIndex].interviews : undefined}
@@ -824,7 +824,7 @@ export default function Dashboard({ initialSection = 'home', onNewInterview, onS
             onStartSimulation={onStartSimulation}
           />
         )}
-        {section === 'interviews'  && <MyInterviews onNewInterview={onNewInterview} onRepeat={onRepeatInterview} initialSelectedId={deepInterviewId} onDeepIdConsumed={() => setDeepInterviewId(null)} mockInterviews={demoIndex !== null ? DEMO_STATES[demoIndex].interviews : undefined} />}
+        {section === 'interviews'  && <MyInterviews onNewInterview={() => handleNav('new')} onRepeat={onRepeatInterview} initialSelectedId={deepInterviewId} onDeepIdConsumed={() => setDeepInterviewId(null)} mockInterviews={demoIndex !== null ? DEMO_STATES[demoIndex].interviews : undefined} />}
         {section === 'recursos'    && (
           blogSlug
             ? <BlogPost slug={blogSlug} onBack={() => setBlogSlug(null)} hideHeader loggedIn />
