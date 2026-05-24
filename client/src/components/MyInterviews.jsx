@@ -312,7 +312,9 @@ function InterviewRow({ interview, onClick }) {
   const jobFb = interview_feedback?.[0]
   const hasFeedback = isSimulation ? (simFb?.general_score != null) : !!jobFb?.score
   const title = isSimulation
-    ? (config?.simulationTitle || 'Simulación')
+    ? (config?.dynamicSituation
+        ? (config.dynamicSituation.length > 60 ? config.dynamicSituation.slice(0, 60) + '…' : config.dynamicSituation)
+        : (config?.simulationTitle || 'Simulación'))
     : ([config?.jobTitle, config?.companyName].filter(Boolean).join(' para ') || 'Entrevista sin título')
   const difficulty = DIFFICULTY_LABEL[config?.difficulty] ?? config?.difficulty
   const type = isSimulation ? 'Simulación' : (TYPE_LABEL[config?.interviewType] ?? config?.interviewType)

@@ -400,14 +400,14 @@ async function downloadReport(pageEl, fileName) {
   const { jsPDF }   = await import('jspdf')
 
   const canvas = await html2canvas(pageEl, {
-    scale: 1.2,
+    scale: 2,
     useCORS: true,
     allowTaint: true,
     backgroundColor: '#f5f7fb',
     logging: false,
   })
 
-  const imgData = canvas.toDataURL('image/jpeg', 0.88)
+  const imgData = canvas.toDataURL('image/png')
   const imgW = canvas.width
   const imgH = canvas.height
 
@@ -415,9 +415,9 @@ async function downloadReport(pageEl, fileName) {
   const pdf = new jsPDF({
     orientation: imgW > imgH ? 'landscape' : 'portrait',
     unit: 'px',
-    format: [imgW / 2, imgH / 2], // half of 2x scale = actual CSS pixels
+    format: [imgW / 2, imgH / 2],
   })
-  pdf.addImage(imgData, 'JPEG', 0, 0, imgW / 1.2, imgH / 1.2)
+  pdf.addImage(imgData, 'PNG', 0, 0, imgW / 2, imgH / 2)
   pdf.save(fileName)
 }
 

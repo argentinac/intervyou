@@ -133,7 +133,9 @@ export default function SimulationFeedback({ feedback, config, onRestart, onDash
         format: [imgW / 2, imgH / 2],
       })
       pdf.addImage(imgData, 'PNG', 0, 0, imgW / 2, imgH / 2)
-      pdf.save(`simulacion-${simulation?.id || 'feedback'}.pdf`)
+      const rawName = config?.dynamicSituation || simulation?.title || 'simulacion'
+      const safeName = rawName.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '').slice(0, 50)
+      pdf.save(`${safeName}.pdf`)
     } catch {
       window.print()
     }
@@ -174,8 +176,11 @@ export default function SimulationFeedback({ feedback, config, onRestart, onDash
       <div ref={containerRef} style={{ maxWidth: 720, margin: '0 auto', width: '100%', padding: '24px 16px', flex: 1 }}>
         {/* Contexto */}
         <Section title="Contexto">
-          <ContextRow label="Simulación" value={simulation?.title} />
-          <ContextRow label="Categoría" value={simulation?.uiCopy?.interlocutorContext} />
+          {config?.dynamicSituation
+            ? <ContextRow label="Tu situación" value={config.dynamicSituation} />
+            : <ContextRow label="Simulación" value={simulation?.title} />
+          }
+          {!config?.dynamicSituation && <ContextRow label="Categoría" value={simulation?.uiCopy?.interlocutorContext} />}
           <ContextRow label="Dificultad" value={DIFFICULTY_LABELS[config?.difficulty] || config?.difficulty} />
           <ContextRow label="Idioma" value={LANGUAGE_LABELS[config?.language] || config?.language} />
         </Section>
@@ -251,34 +256,35 @@ export default function SimulationFeedback({ feedback, config, onRestart, onDash
           </Section>
         )}
 
-        {/* CTAs */}
-        <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 24, flexWrap: 'wrap' }}>
-          <button
-            onClick={handleDownload}
-            style={{
-              padding: '12px 24px', borderRadius: 10, fontSize: 14, fontWeight: 600,
-              background: '#7C3AED', color: '#fff', border: 'none', cursor: 'pointer',
-              fontFamily: 'inherit',
-            }}
-            data-track="simulation_feedback_pdf_button_clicked"
-          >
-            Descargar PDF
-          </button>
-          {onDashboard && (
-            <button
-              onClick={() => onDashboard()}
-              style={{
-                padding: '12px 24px', borderRadius: 10, fontSize: 14, fontWeight: 600,
-                background: '#fff', color: '#374151', border: '1px solid #E5E7EB', cursor: 'pointer',
-                fontFamily: 'inherit',
-              }}
-            >
-              Volver al inicio
-            </button>
-          )}
-        </div>
       </div>
       <FeedbackFooter />
+
+      {/* CTAs — fuera del containerRef para que no aparezcan en el PDF */}
+      <div style={{ display: 'flex', gap: 12, justifyContent: 'center', padding: '24px 16px', flexWrap: 'wrap' }}>
+        <button
+          onClick={handleDownload}
+          style={{
+            padding: '12px 24px', borderRadius: 10, fontSize: 14, fontWeight: 600,
+            background: '#7C3AED', color: '#fff', border: 'none', cursor: 'pointer',
+            fontFamily: 'inherit',
+          }}
+          data-track="simulation_feedback_pdf_button_clicked"
+        >
+          Descargar PDF
+        </button>
+        {onDashboard && (
+          <button
+            onClick={() => onDashboard()}
+            style={{
+              padding: '12px 24px', borderRadius: 10, fontSize: 14, fontWeight: 600,
+              background: '#fff', color: '#374151', border: '1px solid #E5E7EB', cursor: 'pointer',
+              fontFamily: 'inherit',
+            }}
+          >
+            Volver al inicio
+          </button>
+        )}
+      </div>
     </div>
   )
 }
