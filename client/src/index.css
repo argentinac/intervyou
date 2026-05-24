@@ -599,17 +599,20 @@ html, body, #root, .app {
   background: #22c55e !important;
   border-color: #16a34a !important;
   color: #fff !important;
-  transform: scale(1.08);
-  box-shadow: 0 0 0 0 rgba(34,197,94,.5);
-  animation: mic-btn-pulse 2s infinite;
 }
-.mic-btn--disabled { opacity: .4; cursor: not-allowed; }
-.mic-btn--muted { background: #fef2f2 !important; border-color: #fecaca !important; color: #dc2626 !important; }
+.mic-btn--disabled  { opacity: .4; cursor: not-allowed; }
+.mic-btn--muted     { background: #fef2f2 !important; border-color: #fecaca !important; color: #dc2626 !important; }
+.mic-btn--interrupt { background: #fef2f2 !important; border-color: #fca5a5 !important; color: #dc2626 !important; }
 
 @keyframes mic-btn-pulse {
   0%   { box-shadow: 0 0 0 0 rgba(34,197,94,.5); }
   70%  { box-shadow: 0 0 0 14px rgba(34,197,94,0); }
   100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+}
+@keyframes mic-btn-interrupt {
+  0%   { box-shadow: 0 0 0 0 rgba(220,38,38,.4); }
+  70%  { box-shadow: 0 0 0 10px rgba(220,38,38,0); }
+  100% { box-shadow: 0 0 0 0 rgba(220,38,38,0); }
 }
 
 .mic-label {
@@ -620,9 +623,10 @@ html, body, #root, .app {
   height: 14px;
   line-height: 14px;
 }
-.mic-label--live   { color: #16a34a; }
-.mic-label--idle   { color: #9ca3af; }
-.mic-label--muted  { color: #dc2626; }
+.mic-label--live      { color: #16a34a; }
+.mic-label--idle      { color: #9ca3af; }
+.mic-label--muted     { color: #16a34a; }
+.mic-label--interrupt { color: #dc2626; }
 
 .mic-hint {
   font-size: 11px;
@@ -646,9 +650,53 @@ html, body, #root, .app {
   transition: background .2s;
   box-shadow: 0 1px 4px rgba(0,0,0,.08);
 }
-.cam-btn--on   { background: #f0fdf4; border-color: #bbf7d0; color: #16a34a; }
-.cam-btn--mute { background: #fef2f2; border-color: #fecaca; color: #dc2626; }
-.cam-btn:hover { background: #f9fafb; }
+.cam-btn--on       { background: #f0fdf4; border-color: #bbf7d0; color: #16a34a; }
+.cam-btn--off      { background: #fff; border-color: #e5e7eb; color: #9ca3af; }
+.cam-btn--mute     { background: #fef2f2; border-color: #fecaca; color: #dc2626; }
+.cam-btn--settings { background: #fff; border-color: #e5e7eb; color: #6b7280; }
+.cam-btn--settings:hover { background: #f3f4f6; border-color: #d1d5db; color: #374151; }
+.cam-btn:hover     { background: #f9fafb; }
+
+/* ── Device modal ─────────────────────────────────────────── */
+.device-modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.35);
+  display: flex; align-items: center; justify-content: center; z-index: 9999;
+}
+.device-modal {
+  background: #fff; border-radius: 16px; padding: 24px;
+  width: 360px; max-width: calc(100vw - 32px);
+  box-shadow: 0 8px 32px rgba(0,0,0,.18);
+  display: flex; flex-direction: column; gap: 20px;
+}
+.device-modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.device-modal-title { font-size: 16px; font-weight: 700; color: #111827; }
+.device-modal-close {
+  background: none; border: none; cursor: pointer;
+  color: #9ca3af; font-size: 16px; padding: 4px;
+  line-height: 1; border-radius: 6px;
+}
+.device-modal-close:hover { color: #374151; background: #f3f4f6; }
+.device-modal-section { display: flex; flex-direction: column; gap: 6px; }
+.device-modal-label { font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: .5px; }
+.device-modal-select {
+  border: 1.5px solid #e5e7eb; border-radius: 8px; padding: 8px 12px;
+  font-size: 14px; color: #111827; background: #fff; cursor: pointer;
+  outline: none; width: 100%;
+}
+.device-modal-select:focus { border-color: #a78bfa; }
+.device-modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+.device-modal-cancel {
+  padding: 8px 16px; border-radius: 8px; border: 1.5px solid #e5e7eb;
+  background: #fff; color: #374151; font-size: 14px; cursor: pointer;
+}
+.device-modal-cancel:hover { background: #f9fafb; }
+.device-modal-save {
+  padding: 8px 20px; border-radius: 8px; border: none;
+  background: #7c3aed; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer;
+}
+.device-modal-save:hover { background: #6d28d9; }
 
 .error-banner {
   background: #fef2f2;
