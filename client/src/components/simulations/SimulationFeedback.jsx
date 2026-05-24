@@ -98,7 +98,7 @@ function ContextRow({ label, value }) {
   )
 }
 
-export default function SimulationFeedback({ feedback, config, onRestart, onDashboard, embedded }) {
+export default function SimulationFeedback({ feedback, config, onRestart, onDashboard, embedded, backLabel = '← Volver al inicio' }) {
   const simulation = getSimulationById(config?.simulationId) || null
 
   const fb = feedback?.simulationFeedback || feedback || {}
@@ -153,7 +153,7 @@ export default function SimulationFeedback({ feedback, config, onRestart, onDash
       {!embedded && <FeedbackHeader />}
       {embedded && onDashboard && (
         <div className="iv-detail-topbar" style={{ padding: '12px 24px' }}>
-          <button className="iv-back-btn" onClick={() => onDashboard()}>← Volver al inicio</button>
+          <button className="iv-back-btn" onClick={() => onDashboard()}>{backLabel}</button>
         </div>
       )}
       <div className="sim-fb-container" style={{ maxWidth: 720, margin: '0 auto', width: '100%', padding: '24px 16px', flex: 1 }}>

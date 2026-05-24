@@ -418,6 +418,7 @@ function InterviewDetail({ id, mockData, onBack, onNewInterview }) {
           onRestart={onNewInterview}
           onDashboard={onBack}
           embedded
+          backLabel="← Mis prácticas"
         />
       </div>
     )
@@ -470,6 +471,7 @@ function InterviewDetail({ id, mockData, onBack, onNewInterview }) {
         onDashboard={onBack}
         onBack={onBack}
         embedded
+        backLabel="← Mis prácticas"
       />
     </div>
   )

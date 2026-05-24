@@ -396,7 +396,7 @@ function LegacyFeedback({ feedback, onRestart, onDashboard }) {
 // ── New V2 report ───────────────────────────────────────────────────────────
 
 
-function NewFeedback({ feedback, config, onRestart, onDashboard, onBack, saveFailed, embedded }) {
+function NewFeedback({ feedback, config, onRestart, onDashboard, onBack, saveFailed, embedded, backLabel = '← Volver al inicio' }) {
   const { user } = useAuth()
   const userName   = formatName(user?.user_metadata?.full_name)
   const today      = formatDate(new Date())
@@ -428,7 +428,7 @@ function NewFeedback({ feedback, config, onRestart, onDashboard, onBack, saveFai
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           {onBack && (
             <button onClick={onBack} className="rpt-back-btn">
-              ← Volver al inicio
+              {backLabel}
             </button>
           )}
           {!embedded && (
@@ -739,7 +739,7 @@ function NewFeedback({ feedback, config, onRestart, onDashboard, onBack, saveFai
 
 // ── Main export ──────────────────────────────────────────────────────────────
 
-export default function FeedbackSummary({ feedback, config, onRestart, onDashboard, onBack, saveFailed, embedded }) {
+export default function FeedbackSummary({ feedback, config, onRestart, onDashboard, onBack, saveFailed, embedded, backLabel = '← Volver al inicio' }) {
   if (!feedback) {
     return (
       <div className="fb-loading">
@@ -799,7 +799,7 @@ export default function FeedbackSummary({ feedback, config, onRestart, onDashboa
   }
 
   if (Array.isArray(feedback.actionPlan)) {
-    return <NewFeedback feedback={feedback} config={config} onRestart={onRestart} onDashboard={onDashboard} onBack={onBack} saveFailed={saveFailed} embedded={embedded} />
+    return <NewFeedback feedback={feedback} config={config} onRestart={onRestart} onDashboard={onDashboard} onBack={onBack} saveFailed={saveFailed} embedded={embedded} backLabel={backLabel} />
   }
 
   return <LegacyFeedback feedback={feedback} onRestart={onRestart} onDashboard={onDashboard} />
