@@ -9,6 +9,7 @@ dotenv.config({ path: resolve(__dirname, '../.env'), override: true })
 import express from 'express'
 import cors from 'cors'
 import multer from 'multer'
+import { rateLimit } from 'express-rate-limit'
 import { transcribeRoute } from './routes/transcribe.js'
 import { chatRoute } from './routes/chat.js'
 import { speakRoute } from './routes/speak.js'
@@ -23,9 +24,27 @@ const upload = multer({ storage: multer.memoryStorage() })
 app.use(cors())
 app.use(express.json())
 
+// 60 requests/min per IP — ~1 req/s, enough for a full interview turn
+const chatLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'rate_limit', message: 'Too many requests, please slow down.' },
+})
+
+// 120 requests/min per IP — speak is called more often (each AI turn + skill audio)
+const speakLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 120,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'rate_limit', message: 'Too many requests, please slow down.' },
+})
+
 app.post('/api/transcribe', upload.single('audio'), transcribeRoute)
-app.post('/api/chat', chatRoute)
-app.post('/api/speak', speakRoute)
+app.post('/api/chat', chatLimiter, chatRoute)
+app.post('/api/speak', speakLimiter, speakRoute)
 app.use('/api/interviews', interviewsRouter)
 app.use('/api/logs', logsRouter)
 app.use('/api/payments', paymentsRouter)
