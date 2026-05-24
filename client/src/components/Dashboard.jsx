@@ -442,7 +442,7 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRec
         {/* Tu Situación card */}
         <div className="home-custom-sim-card">
           <div className="home-custom-sim-icon">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/><path d="M19 3v4"/><path d="M21 5h-4"/></svg>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
           </div>
           <h3 className="home-custom-sim-title">Creá tu propia situación</h3>
           <p className="home-custom-sim-desc">Practicá cualquier situación, personal o laboral, con un interlocutor adaptado a vos.</p>
@@ -763,7 +763,9 @@ export default function Dashboard({ initialSection = 'home', onNewInterview, onS
           <div className="db-sidebar-divider" />
           <button className="db-sidebar-profile" onClick={() => setSection('settings')}>
             <div className="db-sidebar-profile-avatar">
-              {profile === null ? '…' : (profile?.full_name || user?.email || 'U')[0]?.toUpperCase()}
+              {user?.user_metadata?.avatar_url
+                ? <img src={user.user_metadata.avatar_url} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} referrerPolicy="no-referrer" />
+                : profile === null ? '…' : (profile?.full_name || user?.email || 'U')[0]?.toUpperCase()}
             </div>
             <div className="db-sidebar-profile-info">
               <span className="db-sidebar-profile-name">
