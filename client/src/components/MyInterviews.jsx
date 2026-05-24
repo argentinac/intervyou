@@ -417,6 +417,7 @@ function InterviewDetail({ id, mockData, onBack, onNewInterview }) {
           config={config}
           onRestart={onNewInterview}
           onDashboard={onBack}
+          embedded
         />
       </div>
     )
@@ -468,6 +469,7 @@ function InterviewDetail({ id, mockData, onBack, onNewInterview }) {
         onRestart={onNewInterview}
         onDashboard={onBack}
         onBack={onBack}
+        embedded
       />
     </div>
   )

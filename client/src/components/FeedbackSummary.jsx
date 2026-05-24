@@ -396,7 +396,7 @@ function LegacyFeedback({ feedback, onRestart, onDashboard }) {
 // ── New V2 report ───────────────────────────────────────────────────────────
 
 
-function NewFeedback({ feedback, config, onRestart, onDashboard, onBack, saveFailed }) {
+function NewFeedback({ feedback, config, onRestart, onDashboard, onBack, saveFailed, embedded }) {
   const { user } = useAuth()
   const userName   = formatName(user?.user_metadata?.full_name)
   const today      = formatDate(new Date())
@@ -428,12 +428,14 @@ function NewFeedback({ feedback, config, onRestart, onDashboard, onBack, saveFai
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           {onBack && (
             <button onClick={onBack} className="rpt-back-btn">
-              ← Volver
+              ← Volver a mis entrevistas
             </button>
           )}
-          <div className="rpt-header-logo" onClick={onDashboard} style={onDashboard ? { cursor: 'pointer' } : undefined}>
-            <IntervyouIcon />
-          </div>
+          {!embedded && (
+            <div className="rpt-header-logo" onClick={onDashboard} style={onDashboard ? { cursor: 'pointer' } : undefined}>
+              <IntervyouIcon />
+            </div>
+          )}
         </div>
         <div className="rpt-header-right">
           <span className="rpt-header-label">REPORTE DE ENTREVISTA</span>
@@ -737,7 +739,7 @@ function NewFeedback({ feedback, config, onRestart, onDashboard, onBack, saveFai
 
 // ── Main export ──────────────────────────────────────────────────────────────
 
-export default function FeedbackSummary({ feedback, config, onRestart, onDashboard, onBack, saveFailed }) {
+export default function FeedbackSummary({ feedback, config, onRestart, onDashboard, onBack, saveFailed, embedded }) {
   if (!feedback) {
     return (
       <div className="fb-loading">
@@ -797,7 +799,7 @@ export default function FeedbackSummary({ feedback, config, onRestart, onDashboa
   }
 
   if (Array.isArray(feedback.actionPlan)) {
-    return <NewFeedback feedback={feedback} config={config} onRestart={onRestart} onDashboard={onDashboard} onBack={onBack} saveFailed={saveFailed} />
+    return <NewFeedback feedback={feedback} config={config} onRestart={onRestart} onDashboard={onDashboard} onBack={onBack} saveFailed={saveFailed} embedded={embedded} />
   }
 
   return <LegacyFeedback feedback={feedback} onRestart={onRestart} onDashboard={onDashboard} />

@@ -98,7 +98,7 @@ function ContextRow({ label, value }) {
   )
 }
 
-export default function SimulationFeedback({ feedback, config, onRestart, onDashboard }) {
+export default function SimulationFeedback({ feedback, config, onRestart, onDashboard, embedded }) {
   const simulation = getSimulationById(config?.simulationId) || null
 
   const fb = feedback?.simulationFeedback || feedback || {}
@@ -149,8 +149,13 @@ export default function SimulationFeedback({ feedback, config, onRestart, onDash
   }
 
   return (
-    <div className="sim-fb-page" style={{ minHeight: '100vh', background: '#F7F9FD', display: 'flex', flexDirection: 'column', fontFamily: 'inherit' }}>
-      <FeedbackHeader />
+    <div className="sim-fb-page" style={{ background: '#F7F9FD', display: 'flex', flexDirection: 'column', fontFamily: 'inherit' }}>
+      {!embedded && <FeedbackHeader />}
+      {embedded && onDashboard && (
+        <div className="iv-detail-topbar" style={{ padding: '12px 24px' }}>
+          <button className="iv-back-btn" onClick={() => onDashboard()}>← Volver a mis entrevistas</button>
+        </div>
+      )}
       <div className="sim-fb-container" style={{ maxWidth: 720, margin: '0 auto', width: '100%', padding: '24px 16px', flex: 1 }}>
         {/* Contexto */}
         <Section title="Contexto">
@@ -237,32 +242,34 @@ export default function SimulationFeedback({ feedback, config, onRestart, onDash
       </div>
       <FeedbackFooter />
 
-      {/* CTAs — ocultos en impresión via .sim-fb-ctas */}
-      <div className="sim-fb-ctas" style={{ display: 'flex', gap: 12, justifyContent: 'center', padding: '24px 16px', flexWrap: 'wrap' }}>
-        <button
-          onClick={handleDownload}
-          style={{
-            padding: '12px 24px', borderRadius: 10, fontSize: 14, fontWeight: 600,
-            background: '#7C3AED', color: '#fff', border: 'none', cursor: 'pointer',
-            fontFamily: 'inherit',
-          }}
-          data-track="simulation_feedback_pdf_button_clicked"
-        >
-          Descargar PDF
-        </button>
-        {onDashboard && (
+      {/* CTAs — solo visibles en modo standalone (no dentro del dashboard) */}
+      {!embedded && (
+        <div className="sim-fb-ctas" style={{ display: 'flex', gap: 12, justifyContent: 'center', padding: '24px 16px', flexWrap: 'wrap' }}>
           <button
-            onClick={() => onDashboard()}
+            onClick={handleDownload}
             style={{
               padding: '12px 24px', borderRadius: 10, fontSize: 14, fontWeight: 600,
-              background: '#fff', color: '#374151', border: '1px solid #E5E7EB', cursor: 'pointer',
+              background: '#7C3AED', color: '#fff', border: 'none', cursor: 'pointer',
               fontFamily: 'inherit',
             }}
+            data-track="simulation_feedback_pdf_button_clicked"
           >
-            Volver al inicio
+            Descargar PDF
           </button>
-        )}
-      </div>
+          {onDashboard && (
+            <button
+              onClick={() => onDashboard()}
+              style={{
+                padding: '12px 24px', borderRadius: 10, fontSize: 14, fontWeight: 600,
+                background: '#fff', color: '#374151', border: '1px solid #E5E7EB', cursor: 'pointer',
+                fontFamily: 'inherit',
+              }}
+            >
+              Volver al inicio
+            </button>
+          )}
+        </div>
+      )}
     </div>
   )
 }
