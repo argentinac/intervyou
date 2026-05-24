@@ -1,4 +1,3 @@
-import { useRef } from 'react'
 import { track } from '../../lib/analytics'
 import { getSimulationById } from '../../lib/simulations/catalog'
 import QAReviewTable from '../QAReviewTable'
@@ -8,7 +7,7 @@ const LANGUAGE_LABELS   = { Spanish: 'Español', English: 'Inglés', Portuguese:
 
 function FeedbackHeader() {
   return (
-    <header style={{ background: '#fff', borderBottom: '1px solid #E5E7EB', padding: '16px 24px' }}>
+    <header className="sim-fb-header" style={{ background: '#fff', borderBottom: '1px solid #E5E7EB', padding: '16px 24px' }}>
       <img src="/logo.png" alt="FeelReady" style={{ height: 32, width: 'auto', display: 'block' }} />
     </header>
   )
@@ -16,7 +15,7 @@ function FeedbackHeader() {
 
 function FeedbackFooter() {
   return (
-    <footer style={{ borderTop: '1px solid #E5E7EB', padding: '16px 24px', textAlign: 'center', fontSize: 12, color: '#9CA3AF' }}>
+    <footer className="sim-fb-footer" style={{ borderTop: '1px solid #E5E7EB', padding: '16px 24px', textAlign: 'center', fontSize: 12, color: '#9CA3AF' }}>
       <div style={{ marginBottom: 4 }}>FeelReady — practicá conversaciones difíciles antes de tenerlas.</div>
       <a href="https://feelready.io" style={{ color: '#7C3AED', textDecoration: 'none' }}>feelready.io</a>
     </footer>
@@ -70,7 +69,7 @@ function DimensionBar({ label, score, hint }) {
 
 function Section({ title, children }) {
   return (
-    <section style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 16, padding: 24, marginBottom: 16 }}>
+    <section className="sim-fb-section" style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 16, padding: 24, marginBottom: 16 }}>
       <h2 style={{ fontSize: 16, fontWeight: 700, color: '#111827', margin: 0, marginBottom: 16 }}>{title}</h2>
       {children}
     </section>
@@ -100,7 +99,6 @@ function ContextRow({ label, value }) {
 }
 
 export default function SimulationFeedback({ feedback, config, onRestart, onDashboard }) {
-  const containerRef = useRef(null)
   const simulation = getSimulationById(config?.simulationId) || null
 
   const fb = feedback?.simulationFeedback || feedback || {}
@@ -116,29 +114,9 @@ export default function SimulationFeedback({ feedback, config, onRestart, onDash
   const nextSteps = Array.isArray(fb.next_steps || fb.nextSteps) ? (fb.next_steps || fb.nextSteps) : []
   const qaReview = Array.isArray(fb.qa_review || fb.qaReview) ? (fb.qa_review || fb.qaReview) : []
 
-  const handleDownload = async () => {
+  const handleDownload = () => {
     track('simulation_feedback_pdf_downloaded', { simulation_id: simulation?.id })
-    try {
-      const html2canvas = (await import('html2canvas')).default
-      const { jsPDF } = await import('jspdf')
-      const canvas = await html2canvas(containerRef.current, {
-        scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#F7F9FD', logging: false,
-      })
-      const imgData = canvas.toDataURL('image/png')
-      const imgW = canvas.width
-      const imgH = canvas.height
-      const pdf = new jsPDF({
-        orientation: imgW > imgH ? 'landscape' : 'portrait',
-        unit: 'px',
-        format: [imgW / 2, imgH / 2],
-      })
-      pdf.addImage(imgData, 'PNG', 0, 0, imgW / 2, imgH / 2)
-      const rawName = config?.dynamicSituation || simulation?.title || 'simulacion'
-      const safeName = rawName.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '').slice(0, 50)
-      pdf.save(`${safeName}.pdf`)
-    } catch {
-      window.print()
-    }
+    window.print()
   }
 
   // Empty / not-enough-data state
@@ -171,9 +149,9 @@ export default function SimulationFeedback({ feedback, config, onRestart, onDash
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F7F9FD', display: 'flex', flexDirection: 'column', fontFamily: 'inherit' }}>
+    <div className="sim-fb-page" style={{ minHeight: '100vh', background: '#F7F9FD', display: 'flex', flexDirection: 'column', fontFamily: 'inherit' }}>
       <FeedbackHeader />
-      <div ref={containerRef} style={{ maxWidth: 720, margin: '0 auto', width: '100%', padding: '24px 16px', flex: 1 }}>
+      <div className="sim-fb-container" style={{ maxWidth: 720, margin: '0 auto', width: '100%', padding: '24px 16px', flex: 1 }}>
         {/* Contexto */}
         <Section title="Contexto">
           {config?.dynamicSituation
@@ -259,8 +237,8 @@ export default function SimulationFeedback({ feedback, config, onRestart, onDash
       </div>
       <FeedbackFooter />
 
-      {/* CTAs — fuera del containerRef para que no aparezcan en el PDF */}
-      <div style={{ display: 'flex', gap: 12, justifyContent: 'center', padding: '24px 16px', flexWrap: 'wrap' }}>
+      {/* CTAs — ocultos en impresión via .sim-fb-ctas */}
+      <div className="sim-fb-ctas" style={{ display: 'flex', gap: 12, justifyContent: 'center', padding: '24px 16px', flexWrap: 'wrap' }}>
         <button
           onClick={handleDownload}
           style={{

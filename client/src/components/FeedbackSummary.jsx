@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import QAReviewTable from './QAReviewTable'
 
@@ -395,37 +395,12 @@ function LegacyFeedback({ feedback, onRestart, onDashboard }) {
 
 // ── New V2 report ───────────────────────────────────────────────────────────
 
-async function downloadReport(pageEl, fileName) {
-  const html2canvas = (await import('html2canvas')).default
-  const { jsPDF }   = await import('jspdf')
-
-  const canvas = await html2canvas(pageEl, {
-    scale: 2,
-    useCORS: true,
-    allowTaint: true,
-    backgroundColor: '#f5f7fb',
-    logging: false,
-  })
-
-  const imgData = canvas.toDataURL('image/png')
-  const imgW = canvas.width
-  const imgH = canvas.height
-
-  // Single page sized to fit the full content (no A4 splitting)
-  const pdf = new jsPDF({
-    orientation: imgW > imgH ? 'landscape' : 'portrait',
-    unit: 'px',
-    format: [imgW / 2, imgH / 2],
-  })
-  pdf.addImage(imgData, 'PNG', 0, 0, imgW / 2, imgH / 2)
-  pdf.save(fileName)
+function downloadReport() {
+  window.print()
 }
 
 function NewFeedback({ feedback, config, onRestart, onDashboard, onBack, saveFailed }) {
   const { user } = useAuth()
-  const pageRef  = useRef(null)
-  const [downloading, setDownloading] = useState(false)
-  const [pdfError, setPdfError] = useState(false)
   const userName   = formatName(user?.user_metadata?.full_name)
   const today      = formatDate(new Date())
   const interviewType  = feedback.interviewType || config?.interviewType || 'HR'
@@ -449,7 +424,7 @@ function NewFeedback({ feedback, config, onRestart, onDashboard, onBack, saveFai
 
   return (
   <>
-    <div className="rpt-page" ref={pageRef}>
+    <div className="rpt-page">
 
       {/* ── Header ── */}
       <div className="rpt-header">
@@ -772,37 +747,13 @@ function NewFeedback({ feedback, config, onRestart, onDashboard, onBack, saveFai
         No pudimos guardar tu entrevista. El feedback sigue disponible en pantalla.
       </div>
     )}
-    {pdfError && (
-      <div className="err-pdf-notice">
-        No pudimos generar el PDF. Intentalo de nuevo.
-        <button className="err-pdf-retry" onClick={() => setPdfError(false)}>Reintentar</button>
-      </div>
-    )}
     <div className="rpt-actions-bar">
       <button
         className="rpt-btn-secondary"
-        disabled={downloading}
         data-track="feedback_downloaded"
-        onClick={async () => {
-          if (!pageRef.current) return
-          setDownloading(true)
-          setPdfError(false)
-          try {
-            const now = new Date()
-            const pad = n => String(n).padStart(2, '0')
-            const dateStr = `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}`
-            const role = config?.jobTitle ? config.jobTitle.replace(/\s+/g, '-') : null
-            const company = config?.companyName ? config.companyName.replace(/\s+/g, '-') : null
-            const parts = ['Entrevista', role, company, dateStr].filter(Boolean)
-            await downloadReport(pageRef.current, `${parts.join('_')}.pdf`)
-          } catch {
-            setPdfError(true)
-          } finally {
-            setDownloading(false)
-          }
-        }}
+        onClick={downloadReport}
       >
-        {downloading ? 'Generando PDF…' : 'Descargar reporte'}
+        Descargar reporte
       </button>
       <button className="rpt-btn-primary" onClick={onRestart} data-track="restart_interview_clicked">
         {onDashboard ? 'Nueva entrevista →' : 'Ir al inicio'}

@@ -2002,11 +2002,68 @@ html, body, #root, .app {
   .ld-cta-dark { padding: 60px 20px; }
 }
 
+/* ══════════════════════════════════════════════════════
+   PRINT — PDF A4 para feedback de entrevista y simulación
+══════════════════════════════════════════════════════ */
 @media print {
-  .fb-actions { display: none !important; }
-  .fb-page { background: white; }
-  .fb-card { box-shadow: none; border: none; max-width: 100%; }
-  body { background: white; }
+  @page {
+    size: A4;
+    margin: 16mm 18mm;
+  }
+
+  /* Ocultar todo excepto el contenido de feedback */
+  body > * { display: none !important; }
+  body > #root { display: block !important; }
+
+  /* Ocultar elementos de UI que no van al PDF */
+  .rpt-actions-bar,
+  .rpt-back-btn,
+  .fb-actions,
+  .sim-fb-ctas { display: none !important; }
+
+  /* Resetear colores de fondo del body */
+  html, body { background: #fff !important; }
+
+  /* ── Feedback de entrevista (FeedbackSummary) ── */
+  .rpt-page {
+    background: #fff !important;
+    font-size: 11pt;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .rpt-header { padding: 12px 0; border-bottom: 1px solid #e2e8f0; }
+  .rpt-body { padding: 0 !important; max-width: 100% !important; }
+  .rpt-main-grid { grid-template-columns: 1fr 1fr !important; }
+  .rpt-card, .rpt-score-card, .rpt-radar-card,
+  .rpt-feedback-grid, .rpt-action-card, .rpt-bottom-card {
+    box-shadow: none !important;
+    border: 1px solid #e2e8f0 !important;
+    break-inside: avoid;
+  }
+  .rpt-footer { padding: 8px 0; }
+  /* Evitar cortes en medio de items */
+  .rpt-item, .rpt-action-item-wrap { break-inside: avoid; }
+
+  /* ── Feedback de simulación (SimulationFeedback) ── */
+  .sim-fb-page {
+    background: #fff !important;
+    min-height: unset !important;
+  }
+  .sim-fb-container {
+    max-width: 100% !important;
+    padding: 0 !important;
+    font-size: 11pt;
+  }
+  .sim-fb-section {
+    break-inside: avoid;
+    box-shadow: none !important;
+    border: 1px solid #e2e8f0 !important;
+  }
+  .sim-fb-header,
+  .sim-fb-footer { display: none !important; }
+
+  /* Colores de texto siempre visibles */
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 
 .auth-forgot {
