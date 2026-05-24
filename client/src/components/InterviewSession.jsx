@@ -650,6 +650,50 @@ function stopActiveAudio() {
   }
 }
 
+function DeviceModal({ micDevices, speakerDevices, selectedMicId, selectedSpeakerId, onSave, onClose }) {
+  const [mic, setMic] = useState(selectedMicId)
+  const [speaker, setSpeaker] = useState(selectedSpeakerId)
+  const hasSpeakers = speakerDevices.length > 0
+
+  return (
+    <div className="device-modal-overlay" onClick={onClose}>
+      <div className="device-modal" onClick={e => e.stopPropagation()}>
+        <div className="device-modal-header">
+          <span className="device-modal-title">Configurar audio</span>
+          <button className="device-modal-close" onClick={onClose}>✕</button>
+        </div>
+
+        <div className="device-modal-section">
+          <label className="device-modal-label">Micrófono</label>
+          <select className="device-modal-select" value={mic} onChange={e => setMic(e.target.value)}>
+            <option value="">Predeterminado del sistema</option>
+            {micDevices.map(d => (
+              <option key={d.deviceId} value={d.deviceId}>{d.label || `Micrófono ${d.deviceId.slice(0,6)}`}</option>
+            ))}
+          </select>
+        </div>
+
+        {hasSpeakers && (
+          <div className="device-modal-section">
+            <label className="device-modal-label">Parlante / auricular</label>
+            <select className="device-modal-select" value={speaker} onChange={e => setSpeaker(e.target.value)}>
+              <option value="">Predeterminado del sistema</option>
+              {speakerDevices.map(d => (
+                <option key={d.deviceId} value={d.deviceId}>{d.label || `Salida ${d.deviceId.slice(0,6)}`}</option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        <div className="device-modal-actions">
+          <button className="device-modal-cancel" onClick={onClose}>Cancelar</button>
+          <button className="device-modal-save" onClick={() => onSave(mic, speaker)}>Guardar</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function InterviewSession({ config, onEnd, onDashboard, onSkillComplete }) {
   const isSkill = !!config.isSkill
   const simulation = config.simulationId ? getSimulationById(config.simulationId) : null
@@ -698,6 +742,11 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
   const [warnCountdown, setWarnCountdown] = useState(WARN_SECS)
   const [toast, setToast] = useState(null)
   const [micDisconnected, setMicDisconnected] = useState(false)
+  const [showDeviceModal, setShowDeviceModal] = useState(false)
+  const [micDevices, setMicDevices] = useState([])
+  const [speakerDevices, setSpeakerDevices] = useState([])
+  const [selectedMicId, setSelectedMicId] = useState('')
+  const [selectedSpeakerId, setSelectedSpeakerId] = useState('')
   const [isOffline, setIsOffline] = useState(!navigator.onLine)
   const [claudeRetryFn, setClaudeRetryFn] = useState(null)
   const [saveFailed, setSaveFailed] = useState(false)
@@ -852,9 +901,10 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
   const openMicForBargein = useCallback(async () => {
     if (analyserRef.current) return
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: { echoCancellation: true, noiseSuppression: true },
-      })
+      const audioConstraints = selectedMicId
+        ? { deviceId: { exact: selectedMicId }, echoCancellation: true, noiseSuppression: true }
+        : { echoCancellation: true, noiseSuppression: true }
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints })
       micStreamRef.current = stream
       const ctx = getAudioContext()
       const src = ctx.createMediaStreamSource(stream)
@@ -865,6 +915,43 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
     } catch {
       // no mic access — barge-in won't work, session continues fine
     }
+  }, [])
+
+  const openDeviceModal = useCallback(async () => {
+    try {
+      await navigator.mediaDevices.getUserMedia({ audio: true })
+    } catch { /* sin permisos, igual intentamos */ }
+    const devices = await navigator.mediaDevices.enumerateDevices()
+    setMicDevices(devices.filter(d => d.kind === 'audioinput'))
+    setSpeakerDevices(devices.filter(d => d.kind === 'audiooutput'))
+    setShowDeviceModal(true)
+  }, [])
+
+  const applyDeviceSelection = useCallback(async (micId, speakerId) => {
+    setSelectedMicId(micId)
+    setSelectedSpeakerId(speakerId)
+    // Aplicar parlante al AudioContext si el browser lo soporta
+    const ctx = getAudioContext()
+    if (speakerId && ctx && typeof ctx.setSinkId === 'function') {
+      try { await ctx.setSinkId(speakerId) } catch { /* browser puede denegar */ }
+    }
+    // Reiniciar barge-in con el nuevo mic
+    if (analyserRef.current) {
+      micStreamRef.current?.getTracks().forEach(t => t.stop())
+      micStreamRef.current = null
+      analyserRef.current = null
+      const constraints = { audio: micId ? { deviceId: { exact: micId }, echoCancellation: true, noiseSuppression: true } : { echoCancellation: true, noiseSuppression: true } }
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia(constraints)
+        micStreamRef.current = stream
+        const src = ctx.createMediaStreamSource(stream)
+        const analyser = ctx.createAnalyser()
+        analyser.fftSize = 512
+        src.connect(analyser)
+        analyserRef.current = analyser
+      } catch { /* sin acceso */ }
+    }
+    setShowDeviceModal(false)
   }, [])
 
   const startBargeIn = useCallback(() => {
@@ -1105,8 +1192,13 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition
     if (!SR) { setError('El reconocimiento de voz requiere Chrome o Edge.'); return }
 
-    // Avoid double-starting
+    // Avoid double-starting or starting when muted/manually stopped
     if (isRecordingRef.current) return
+    if (isMutedRef.current || manuallyStoppedRef.current) {
+      setIsRecording(false)
+      isRecordingRef.current = false
+      return
+    }
 
     manuallyStoppedRef.current = false
     isInterruptingRef.current = false
@@ -1620,7 +1712,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
         <div className="footer-controls">
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
             <button
-              className={`mic-btn ${isMuted ? 'mic-btn--muted' : isRecording ? 'mic-btn--active' : ''}`}
+              className={`mic-btn ${isMuted ? 'mic-btn--muted' : isSpeaking ? 'mic-btn--interrupt' : isRecording ? 'mic-btn--active' : ''}`}
               onClick={() => {
                 if (isSpeaking) {
                   stopBargeIn()
@@ -1640,47 +1732,49 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
                   }
                   return
                 }
-                if (isRecording) { stopRecording(); return }
-                if (!busy) { manuallyStoppedRef.current = false; startRecording() }
+                isMutedRef.current = true
+                manuallyStoppedRef.current = true
+                setIsMuted(true)
+                setIsRecording(false)
+                isRecordingRef.current = false
+                recognitionRef.current?.stop()
+                recognitionRef.current = null
               }}
-              title={isMuted ? 'Activar micrófono' : isRecording ? 'Silenciar' : isSpeaking ? 'Interrumpir' : 'Silenciar'}
+              title={isMuted ? 'Activar micrófono' : isSpeaking ? 'Interrumpir' : 'Silenciar'}
             >
-              {isMuted ? <IconMicOff /> : isRecording ? <IconStop /> : <IconMicOn />}
+              {isMuted ? <IconMicOff /> : isSpeaking ? <IconMicOn /> : isRecording ? <IconMicOn /> : <IconMicOff />}
             </button>
-            <span className={`mic-label ${isMuted ? 'mic-label--muted' : isRecording ? 'mic-label--live' : 'mic-label--idle'}`}>
-              {isMuted ? 'Muteado' : isRecording ? 'Escuchando' : isSpeaking ? 'Interrumpir' : 'Listo'}
+            <span className={`mic-label ${isMuted ? 'mic-label--muted' : isSpeaking ? 'mic-label--interrupt' : isRecording ? 'mic-label--live' : 'mic-label--idle'}`}>
+              {isMuted ? 'Activar mic' : isSpeaking ? 'Interrumpir' : isRecording ? 'Escuchando' : 'Silenciado'}
             </span>
           </div>
           <button
-            className={`cam-btn ${isMuted ? 'mic-btn--muted cam-btn--mute' : 'cam-btn--on'}`}
-            onClick={() => {
-              const nowMuted = !isMuted
-              setIsMuted(nowMuted)
-              isMutedRef.current = nowMuted
-              if (nowMuted) {
-                manuallyStoppedRef.current = true
-                if (isRecording) stopRecording()
-              } else {
-                manuallyStoppedRef.current = false
-                if (!isRecording && !isProcessing && !isSpeaking && !sessionEndedRef.current) {
-                  setTimeout(() => startRecordingRef.current?.(), 100)
-                }
-              }
-            }}
-            title={isMuted ? 'Activar micrófono' : 'Mutear micrófono'}
-          >
-            {isMuted ? <IconMicOff /> : <IconMicOn />}
-          </button>
-          <button
             className={`cam-btn ${cameraOn ? 'cam-btn--on' : 'cam-btn--off'}`}
             onClick={toggleCamera}
-            title={cameraOn ? 'Turn off camera' : 'Turn on camera'}
+            title={cameraOn ? 'Apagar cámara' : 'Encender cámara'}
           >
             {cameraOn ? <IconCamOn /> : <IconCamOff />}
           </button>
+          <button className="cam-btn cam-btn--settings" onClick={openDeviceModal} title="Configurar audio">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+          </button>
         </div>
-        <p className="mic-hint">{isSpeaking && !isMuted ? 'Clickeá para interrumpir' : ''}</p>
+        <p className="mic-hint" />
       </footer>
+
+      {showDeviceModal && (
+        <DeviceModal
+          micDevices={micDevices}
+          speakerDevices={speakerDevices}
+          selectedMicId={selectedMicId}
+          selectedSpeakerId={selectedSpeakerId}
+          onSave={applyDeviceSelection}
+          onClose={() => setShowDeviceModal(false)}
+        />
+      )}
 
       {showEndConfirm && (
         <div className="end-confirm-overlay" onClick={() => setShowEndConfirm(false)}>
