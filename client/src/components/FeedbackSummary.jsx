@@ -395,9 +395,6 @@ function LegacyFeedback({ feedback, onRestart, onDashboard }) {
 
 // ── New V2 report ───────────────────────────────────────────────────────────
 
-function downloadReport() {
-  window.print()
-}
 
 function NewFeedback({ feedback, config, onRestart, onDashboard, onBack, saveFailed }) {
   const { user } = useAuth()
@@ -733,31 +730,6 @@ function NewFeedback({ feedback, config, onRestart, onDashboard, onBack, saveFai
 
       </div>
 
-      {/* ── Footer ── */}
-      <div className="rpt-footer">
-        <img src="/logo.png" alt="FeelReady" className="rpt-footer-logo" />
-        <span>Tu camino hacia tu mejor versión profesional</span>
-        <span>feelready.io</span>
-      </div>
-    </div>
-
-    {/* ── Actions (below footer) ── */}
-    {saveFailed && (
-      <div className="err-save-notice">
-        No pudimos guardar tu entrevista. El feedback sigue disponible en pantalla.
-      </div>
-    )}
-    <div className="rpt-actions-bar">
-      <button
-        className="rpt-btn-secondary"
-        data-track="feedback_downloaded"
-        onClick={downloadReport}
-      >
-        Descargar reporte
-      </button>
-      <button className="rpt-btn-primary" onClick={onRestart} data-track="restart_interview_clicked">
-        {onDashboard ? 'Nueva entrevista →' : 'Ir al inicio'}
-      </button>
     </div>
   </>
   )
