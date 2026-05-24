@@ -2007,63 +2007,66 @@ html, body, #root, .app {
 ══════════════════════════════════════════════════════ */
 @media print {
   @page {
-    size: A4;
-    margin: 16mm 18mm;
+    size: A4 portrait;
+    margin: 12mm 16mm;
   }
 
-  /* Ocultar todo excepto el contenido de feedback */
-  body > * { display: none !important; }
-  body > #root { display: block !important; }
+  /* ── Truco de aislamiento: ocultar todo el DOM excepto el reporte ── */
+  body * { visibility: hidden !important; }
 
-  /* Ocultar elementos de UI que no van al PDF */
+  /* Mostrar solo el reporte de entrevista */
+  .rpt-page,
+  .rpt-page * { visibility: visible !important; }
+  .rpt-page {
+    position: fixed !important;
+    top: 0 !important; left: 0 !important;
+    width: 100% !important;
+    background: #f5f7fb !important;
+    font-size: 10.5pt;
+    z-index: 9999;
+  }
+
+  /* Mostrar solo el reporte de simulación */
+  .sim-fb-page,
+  .sim-fb-page * { visibility: visible !important; }
+  .sim-fb-page {
+    position: fixed !important;
+    top: 0 !important; left: 0 !important;
+    width: 100% !important;
+    background: #F7F9FD !important;
+    z-index: 9999;
+  }
+
+  /* ── Ocultar UI que no va al PDF ── */
   .rpt-actions-bar,
   .rpt-back-btn,
   .fb-actions,
-  .sim-fb-ctas { display: none !important; }
+  .err-save-notice,
+  .sim-fb-ctas,
+  .sim-fb-header,
+  .sim-fb-footer { display: none !important; visibility: hidden !important; }
 
-  /* Resetear colores de fondo del body */
-  html, body { background: #fff !important; }
-
-  /* ── Feedback de entrevista (FeedbackSummary) ── */
-  .rpt-page {
-    background: #fff !important;
-    font-size: 11pt;
-    width: 100% !important;
-    max-width: 100% !important;
-  }
-  .rpt-header { padding: 12px 0; border-bottom: 1px solid #e2e8f0; }
-  .rpt-body { padding: 0 !important; max-width: 100% !important; }
+  /* ── Layout del reporte de entrevista ── */
+  .rpt-body { padding: 0 8px !important; max-width: 100% !important; }
   .rpt-main-grid { grid-template-columns: 1fr 1fr !important; }
   .rpt-card, .rpt-score-card, .rpt-radar-card,
   .rpt-feedback-grid, .rpt-action-card, .rpt-bottom-card {
     box-shadow: none !important;
-    border: 1px solid #e2e8f0 !important;
     break-inside: avoid;
+    page-break-inside: avoid;
   }
   .rpt-footer { padding: 8px 0; }
-  /* Evitar cortes en medio de items */
-  .rpt-item, .rpt-action-item-wrap { break-inside: avoid; }
+  .rpt-item, .rpt-action-item-wrap { break-inside: avoid; page-break-inside: avoid; }
 
-  /* ── Feedback de simulación (SimulationFeedback) ── */
-  .sim-fb-page {
-    background: #fff !important;
-    min-height: unset !important;
-  }
-  .sim-fb-container {
-    max-width: 100% !important;
-    padding: 0 !important;
-    font-size: 11pt;
-  }
-  .sim-fb-section {
-    break-inside: avoid;
-    box-shadow: none !important;
-    border: 1px solid #e2e8f0 !important;
-  }
-  .sim-fb-header,
-  .sim-fb-footer { display: none !important; }
+  /* ── Radar SVG: tamaño fijo para que no quede en blanco ── */
+  .rdr-svg { display: block !important; width: 360px !important; height: 360px !important; }
 
-  /* Colores de texto siempre visibles */
-  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  /* ── Layout del reporte de simulación ── */
+  .sim-fb-container { max-width: 100% !important; padding: 16px !important; font-size: 10.5pt; }
+  .sim-fb-section { break-inside: avoid; page-break-inside: avoid; }
+
+  /* ── Forzar impresión de colores y fondos ── */
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
 }
 
 .auth-forgot {
