@@ -428,7 +428,7 @@ function NewFeedback({ feedback, config, onRestart, onDashboard, onBack, saveFai
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           {onBack && (
             <button onClick={onBack} className="rpt-back-btn">
-              ← Volver a mis entrevistas
+              ← Volver al inicio
             </button>
           )}
           {!embedded && (
