@@ -86,13 +86,13 @@ export default function SimulationsHub({ onStartSimulation }) {
   }
 
   return (
-    <div style={{ padding: '32px 40px', maxWidth: 1280, margin: '0 auto', fontFamily: 'inherit' }}>
-      <header style={{ marginBottom: 28 }}>
-        <h1 style={{ fontSize: 28, fontWeight: 700, color: '#111827', margin: 0 }}>Simulaciones</h1>
-        <p style={{ fontSize: 14, color: '#6B7280', marginTop: 6, marginBottom: 0 }}>
+    <div className="iv-page">
+      <div className="db-page-header">
+        <h2>Simulaciones</h2>
+        <p style={{ fontSize: 14, color: '#6b7280', margin: '4px 0 0' }}>
           Practicá conversaciones difíciles antes de tenerlas en la vida real.
         </p>
-      </header>
+      </div>
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 24, flexWrap: 'wrap' }}>
         <FilterChip active={filter === 'all'} onClick={() => setFilter('all')}>Todas</FilterChip>

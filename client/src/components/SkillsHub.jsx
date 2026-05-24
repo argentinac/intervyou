@@ -26,10 +26,10 @@ export default function SkillsHub({ user, onStartSkill }) {
   }, [user])
 
   return (
-    <div className="skills-hub-wrap">
-      <div className="skills-hub-header">
-        <h1 className="skills-hub-title">Habilidades</h1>
-        <p className="skills-hub-subtitle">Practicá técnicas específicas para destacar en tu próxima entrevista.</p>
+    <div className="iv-page">
+      <div className="db-page-header">
+        <h2>Habilidades</h2>
+        <p style={{ fontSize: 14, color: '#6b7280', margin: '4px 0 0' }}>Practicá técnicas específicas para destacar en tu próxima entrevista.</p>
       </div>
       <div className="skills-hub-grid">
         {SKILLS_CATALOG.map((skill) => {
