@@ -279,7 +279,7 @@ function getRecomendado(interviews) {
   if (!interviews || interviews.length === 0) {
     return {
       eyebrow: 'Empezá aquí',
-      title: 'Tu primera sesión',
+      title: 'Tu primera entrevista',
       desc: 'Practicá y recibí feedback personalizado en minutos.',
       cta: 'Comenzar →',
       target: 'interview',
@@ -663,7 +663,7 @@ export default function Dashboard({ initialSection = 'home', onNewInterview, onS
 
   const navItems = [
     { id: 'home',          label: 'Inicio',               icon: <IconHome /> },
-    { id: 'new',           label: 'Nueva sesión',      icon: <IconPlus />, primary: true },
+    { id: 'new',           label: 'Nueva entrevista',      icon: <IconPlus />, primary: true },
     { id: 'interviews',    label: 'Mis sesiones',       icon: <IconList /> },
     { id: 'recursos',      label: 'Recursos',              icon: <IconBook /> },
     { id: 'profile',       label: 'Mi perfil profesional', icon: <IconUser /> },
