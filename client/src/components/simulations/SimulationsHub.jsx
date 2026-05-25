@@ -76,13 +76,13 @@ function SimulationCard({ simulation, onClick }) {
   )
 }
 
-export default function SimulationsHub({ onStartSimulation }) {
+export default function SimulationsHub({ onStartSimulation, onStartCustomSimulation }) {
   const [filter, setFilter] = useState('all')
   const visible = filter === 'all' ? ALL_SIMULATIONS : getSimulationsByCategory(filter)
 
   const handleStart = (sim) => {
     track('simulation_card_clicked', { simulation_id: sim.id, category: sim.category })
-    onStartSimulation(sim.id)
+    onStartCustomSimulation(sim.shortDescription)
   }
 
   return (

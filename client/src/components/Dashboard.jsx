@@ -18,6 +18,8 @@ import { SKILLS_CATALOG } from '../lib/skills/catalog'
 import { unlockAudio } from '../audioContext'
 import { blogPosts } from '../data/blogPosts'
 import SimulationCarousel from './SimulationCarousel'
+import CustomSituationSetup from './simulations/CustomSituationSetup'
+import { getSimulationById } from '../lib/simulations/catalog'
 
 const IconHome = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -634,6 +636,7 @@ export default function Dashboard({ initialSection = 'home', onNewInterview, onS
 
   const [localFeedback, setLocalFeedback] = useState(null)
   const [localFeedbackConfig, setLocalFeedbackConfig] = useState(null)
+  const [customSituationInitial, setCustomSituationInitial] = useState(null)
   useEffect(() => {
     if (pendingFeedback) {
       setLocalFeedback(pendingFeedback)
@@ -691,6 +694,20 @@ export default function Dashboard({ initialSection = 'home', onNewInterview, onS
   const handleBlogPost = (slug) => {
     setBlogSlug(slug)
     setSection('recursos')
+  }
+
+  const handleStartSimulation = (id) => {
+    if (id === 'custom_situation') {
+      setCustomSituationInitial(null)
+      setSection('custom-situation')
+    } else {
+      onStartSimulation?.(id)
+    }
+  }
+
+  const handleStartCustomSimulation = (situation) => {
+    setCustomSituationInitial(situation || null)
+    setSection('custom-situation')
   }
 
   return (
@@ -843,8 +860,8 @@ export default function Dashboard({ initialSection = 'home', onNewInterview, onS
             onStartSkill={onStartSkill}
             onGoToProgress={() => setSection('interviews')}
             onGoToSimulaciones={() => setSection('simulaciones')}
-            onStartSimulation={onStartSimulation}
-            onStartCustomSimulation={onStartCustomSimulation}
+            onStartSimulation={handleStartSimulation}
+            onStartCustomSimulation={handleStartCustomSimulation}
           />
         )}
         {section === 'interviews'  && <MyInterviews onNewInterview={() => handleNav('new')} onRepeat={onRepeatInterview} initialSelectedId={deepInterviewId} onDeepIdConsumed={() => setDeepInterviewId(null)} mockInterviews={demoIndex !== null ? DEMO_STATES[demoIndex].interviews : undefined} />}
@@ -869,7 +886,18 @@ export default function Dashboard({ initialSection = 'home', onNewInterview, onS
         {section === 'profile'     && <MyProfile />}
         {section === 'settings'    && <SettingsPage onSignOut={handleSignOut} />}
         {section === 'simulaciones' && (
-          <SimulationsHub onStartSimulation={onStartSimulation} />
+          <SimulationsHub onStartSimulation={handleStartSimulation} onStartCustomSimulation={handleStartCustomSimulation} />
+        )}
+        {section === 'custom-situation' && (
+          <CustomSituationSetup
+            simulation={getSimulationById('custom_situation')}
+            initialSituation={customSituationInitial || undefined}
+            onSubmit={(cfg) => {
+              setCustomSituationInitial(null)
+              onStartSimulation?.('custom_situation', { ...cfg, simulationTitle: 'Tu Situación' })
+            }}
+            onBack={() => { setCustomSituationInitial(null); setSection('simulaciones') }}
+          />
         )}
       </main>
 
