@@ -258,7 +258,7 @@ export default function Landing({ user, onLogin, onTryFree, onDashboard, onBlogP
                   <div className="ld-mock-face-inner" />
                 </div>
               </div>
-              <span className="ld-mock-speaking">La entrenadora está hablando…</span>
+              <span className="ld-mock-speaking">La persona está hablando…</span>
               <div className="ld-waveform">
                 {[...Array(20)].map((_, i) => (
                   <div key={i} className="ld-waveform-bar" style={{ animationDelay: `${i * 80}ms` }} />

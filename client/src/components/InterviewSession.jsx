@@ -210,8 +210,8 @@ const UI_STRINGS = {
   },
   Spanish: {
     connecting:      'Conectando…',
-    thinking:        { male: 'El entrenador está pensando…',   female: 'La entrenadora está pensando…' },
-    speaking:        { male: 'El entrenador está hablando…',   female: 'La entrenadora está hablando…' },
+    thinking:        { male: 'Preparando respuesta…',   female: 'Preparando respuesta…' },
+    speaking:        { male: 'La persona está hablando…',   female: 'La persona está hablando…' },
     yourTurn:        'Tu turno — hacé click para hablar',
     recording:       'Escuchando…',
     processing:      'Procesando tu respuesta…',
@@ -232,8 +232,8 @@ const UI_STRINGS = {
   },
   Portuguese: {
     connecting:      'Conectando…',
-    thinking:        { male: 'O treinador está pensando…',   female: 'A treinadora está pensando…' },
-    speaking:        { male: 'O treinador está falando…',    female: 'A treinadora está falando…' },
+    thinking:        { male: 'Preparando resposta…',   female: 'Preparando resposta…' },
+    speaking:        { male: 'A pessoa está falando…',    female: 'A pessoa está falando…' },
     yourTurn:        'Sua vez — clique para falar',
     recording:       'Ouvindo…',
     processing:      'Processando sua resposta…',
@@ -1635,7 +1635,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
       },
       wentWell: [
         { title: 'Conocimientos técnicos sólidos', description: 'Respondiste correctamente preguntas complejas y demostraste **dominio del área**. Tu vocabulario técnico fue apropiado y preciso.', axis: 'consistencia' },
-        { title: 'Buena claridad en las respuestas', description: 'Tus explicaciones fueron **comprensibles y fáciles de seguir** la mayor parte del tiempo. Lograste transmitir ideas complejas sin perder al entrenador.', axis: 'claridad' },
+        { title: 'Buena claridad en las respuestas', description: 'Tus explicaciones fueron **comprensibles y fáciles de seguir** la mayor parte del tiempo. Lograste transmitir ideas complejas sin perder a quien escucha.', axis: 'claridad' },
         { title: 'Buen razonamiento ante desafíos', description: 'Mostraste un **enfoque lógico y estructurado** al analizar los casos planteados. Identificaste bien las variables clave antes de proponer soluciones.', axis: 'profundidad' },
       ],
       toImprove: [
@@ -1646,7 +1646,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
       actionPlan: [
         { title: 'Estructurá con el método STAR', description: 'Usá **Situación, Tarea, Acción y Resultado** para dar contexto e impacto a tus experiencias en cada respuesta.', priority: 'alta' },
         { title: 'Practicá comunicar impacto con números', description: 'Cuantificá resultados siempre que puedas: **tiempos, usuarios, porcentajes, mejoras**. Los números hacen tu respuesta memorable.', priority: 'alta' },
-        { title: 'Resumí al final de cada respuesta', description: 'Cerrá tus respuestas con una frase que resuma el **resultado o aprendizaje clave**. Esto ancla tu mensaje en la mente del entrenador.', priority: 'media' },
+        { title: 'Resumí al final de cada respuesta', description: 'Cerrá tus respuestas con una frase que resuma el **resultado o aprendizaje clave**. Esto ancla tu mensaje en la mente de quien te escucha.', priority: 'media' },
         { title: 'Gestioná mejor el tiempo', description: 'Practicá respuestas más concretas (**1-2 min máx.**) en preguntas no prioritarias para reservar energía en las que más importan.', priority: 'media' },
       ],
       nextStep: 'Practicá sesiones enfocándote en **storytelling e impacto cuantificable**. Te recomendamos hacer 2 sesiones esta semana.',
