@@ -6994,8 +6994,8 @@ html, body, #root, .app {
 
 .sc-card {
   flex: 0 0 auto;
-  width: 300px;
-  min-width: 300px;
+  width: 278px;
+  min-width: 278px;
   height: 140px;
   border-radius: 16px;
   border: none;
