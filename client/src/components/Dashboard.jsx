@@ -301,8 +301,12 @@ function getRecomendado(interviews) {
 function WeeklyScoreChart({ interviews }) {
   const scored = interviews.filter(iv => iv.interview_feedback?.[0]?.score != null).slice(-7)
   if (scored.length < 2) return null
-  const DAY_LABELS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Hoy']
   const scores = scored.map(iv => iv.interview_feedback[0].score)
+  const labels = scored.map(iv => {
+    const d = new Date(iv.completed_at || iv.created_at)
+    if (isNaN(d)) return ''
+    return `${d.getDate()}/${d.getMonth() + 1}`
+  })
   const W = 280, H = 90, padX = 4, padY = 10
   const min = Math.max(0, Math.min(...scores) - 50)
   const max = Math.min(1000, Math.max(...scores) + 50)
@@ -310,7 +314,6 @@ function WeeklyScoreChart({ interviews }) {
   const y = (s) => padY + (1 - (s - min) / (max - min)) * (H - padY * 2 - 16)
   const points = scores.map((s, i) => `${x(i)},${y(s)}`).join(' ')
   const area = `M${x(0)},${y(scores[0])} ` + scores.map((s, i) => `L${x(i)},${y(s)}`).join(' ') + ` L${x(scores.length - 1)},${H - 16} L${x(0)},${H - 16} Z`
-  const labelStart = Math.max(0, DAY_LABELS.length - scores.length)
   return (
     <svg width="100%" height={H} viewBox={`0 0 ${W} ${H}`} style={{ overflow: 'visible' }}>
       <defs>
@@ -324,9 +327,9 @@ function WeeklyScoreChart({ interviews }) {
       {scores.map((s, i) => (
         <circle key={i} cx={x(i)} cy={y(s)} r="3.5" fill="#fff" stroke="#5955F6" strokeWidth="2"/>
       ))}
-      {scores.map((_, i) => (
+      {labels.map((label, i) => (
         <text key={i} x={x(i)} y={H} textAnchor="middle" fontSize="10" fill="#94a3b8">
-          {DAY_LABELS[labelStart + i]}
+          {label}
         </text>
       ))}
     </svg>
