@@ -83,6 +83,8 @@ function AppInner() {
   const [skillId, setSkillId] = useState(null)
   const [blogSlug, setBlogSlug] = useState(getBlogSlugFromUrl)
   const [pendingInterviewId, setPendingInterviewId] = useState(null)
+  const [pendingFeedback, setPendingFeedback] = useState(null)
+  const [pendingFeedbackConfig, setPendingFeedbackConfig] = useState(null)
   const [onboardingInitialSituation, setOnboardingInitialSituation] = useState(null)
   const [onboardingReturnStep, setOnboardingReturnStep] = useState(null) // null = fresh, 2 = volver al paso de escenarios
   const [onboardingReturnPurpose, setOnboardingReturnPurpose] = useState(null)
@@ -281,6 +283,7 @@ function AppInner() {
         config={interviewConfig}
         onEnd={() => { setInterviewConfig(null); setView(interviewReturn) }}
         onDashboard={user && !user.is_anonymous ? (id) => { setInterviewConfig(null); if (id) setPendingInterviewId(id); setView('dashboard') } : undefined}
+        onFeedbackReady={user && !user.is_anonymous ? (fb, cfg) => { setPendingFeedback(fb); setPendingFeedbackConfig(cfg); setView('dashboard') } : undefined}
       />
     )
   }
@@ -319,6 +322,7 @@ function AppInner() {
         config={simulationConfig}
         onEnd={() => { setSimulationConfig(null); setSimulationId(null); setView('dashboard') }}
         onDashboard={user ? (id) => { setSimulationConfig(null); setSimulationId(null); if (id) setPendingInterviewId(id); setView('dashboard') } : undefined}
+        onFeedbackReady={user ? (fb, cfg) => { setPendingFeedback(fb); setPendingFeedbackConfig(cfg); setView('dashboard') } : undefined}
       />
     )
   }
@@ -368,6 +372,7 @@ function AppInner() {
         config={visaConfig}
         onEnd={() => { setVisaConfig(null); setView('dashboard') }}
         onDashboard={user ? (id) => { setVisaConfig(null); if (id) setPendingInterviewId(id); setView('dashboard') } : undefined}
+        onFeedbackReady={user ? (fb, cfg) => { setPendingFeedback(fb); setPendingFeedbackConfig(cfg); setView('dashboard') } : undefined}
       />
     )
   }
@@ -423,6 +428,9 @@ function AppInner() {
         onVisaInterview={() => { setVisaConfig(null); setView('visa-interview') }}
         onStartSimulation={(id) => { setSimulationId(id); setSimulationConfig(null); setView('simulation') }}
         onStartSkill={(id) => { setSkillId(id); setView('skill') }}
+        pendingFeedback={pendingFeedback}
+        pendingFeedbackConfig={pendingFeedbackConfig}
+        onPendingFeedbackConsumed={() => { setPendingFeedback(null); setPendingFeedbackConfig(null) }}
       />
     )
   }
