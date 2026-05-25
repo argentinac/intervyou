@@ -396,11 +396,11 @@ function InterviewDetail({ id, mockData, onBack, onNewInterview }) {
     const simFbRow = simulation_feedback?.[0]
     if (!simFbRow) {
       return (
-        <div className="iv-detail">
+        <div className="iv-detail-page">
           <div className="iv-detail-topbar">
             <button className="iv-back-btn" onClick={onBack}>← Volver a mis entrevistas</button>
           </div>
-          <div className="iv-detail-no-feedback">
+            <div className="iv-detail-no-feedback">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
             </svg>
@@ -429,7 +429,7 @@ function InterviewDetail({ id, mockData, onBack, onNewInterview }) {
 
   if (!hasFeedback) {
     return (
-      <div className="iv-detail">
+      <div className="iv-detail-page">
         <div className="iv-detail-topbar">
           <button className="iv-back-btn" onClick={onBack}>← Volver a mis entrevistas</button>
         </div>
