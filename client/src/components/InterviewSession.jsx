@@ -943,9 +943,9 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
       await navigator.mediaDevices.getUserMedia({ audio: true, video: true })
     } catch { /* sin permisos, igual intentamos */ }
     const devices = await navigator.mediaDevices.enumerateDevices()
-    setMicDevices(devices.filter(d => d.kind === 'audioinput'))
-    setSpeakerDevices(devices.filter(d => d.kind === 'audiooutput'))
-    setCameraDevices(devices.filter(d => d.kind === 'videoinput'))
+    setMicDevices(devices.filter(d => d.kind === 'audioinput' && d.deviceId !== 'default'))
+    setSpeakerDevices(devices.filter(d => d.kind === 'audiooutput' && d.deviceId !== 'default'))
+    setCameraDevices(devices.filter(d => d.kind === 'videoinput' && d.deviceId !== 'default'))
     setShowDeviceModal(true)
   }, [])
 
