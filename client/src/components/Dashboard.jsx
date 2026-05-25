@@ -338,7 +338,7 @@ function WeeklyScoreChart({ interviews }) {
   )
 }
 
-function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRecursos, onGoToSkills, onBlogPost, onStartSkill, onGoToProgress, onGoToSimulaciones, onStartSimulation }) {
+function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRecursos, onGoToSkills, onBlogPost, onStartSkill, onGoToProgress, onGoToSimulaciones, onStartSimulation, onStartCustomSimulation }) {
   const firstName = fullName === undefined
     ? ''
     : (fullName ? fullName.split(' ')[0] : (user?.email?.split('@')[0] ?? 'ahí'))
@@ -464,6 +464,9 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRec
         </div>
       </div>
 
+      {/* Simulaciones a ejercitar */}
+      <SimulationCarousel onStartCustomSimulation={onStartCustomSimulation} />
+
       {/* Desarrollá tus habilidades */}
       <div className="home-section-block">
         <div className="home-section-header">
@@ -498,13 +501,6 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRec
           })}
         </div>
       </div>
-
-      {/* Elegidas para tu objetivo */}
-      <SimulationCarousel
-        onStartSimulation={onStartSimulation}
-        onNewInterview={onNewInterview}
-        onGoToSimulaciones={onGoToSimulaciones}
-      />
 
       {/* Recursos + Consejo del día */}
       <div className="home-recursos-tip-grid">
@@ -621,7 +617,7 @@ function SimulacionesSection({
   )
 }
 
-export default function Dashboard({ initialSection = 'home', onNewInterview, onStartInterview, onSignOut, onRepeatInterview, onPricing, onPaymentSuccess, onPaymentError, pendingInterviewId, onPendingInterviewIdConsumed, onVisaInterview, onStartSimulation, onStartSkill, pendingFeedback, pendingFeedbackConfig, onPendingFeedbackConsumed }) {
+export default function Dashboard({ initialSection = 'home', onNewInterview, onStartInterview, onSignOut, onRepeatInterview, onPricing, onPaymentSuccess, onPaymentError, pendingInterviewId, onPendingInterviewIdConsumed, onVisaInterview, onStartSimulation, onStartCustomSimulation, onStartSkill, pendingFeedback, pendingFeedbackConfig, onPendingFeedbackConsumed }) {
   const { user, signOut } = useAuth()
   const { isPro, planStatus, showUpgradeModal, openUpgradeModal, setDemoPlan, setDemoCountry, country } = usePlan()
   const [section, setSection] = useState(initialSection)
@@ -848,6 +844,7 @@ export default function Dashboard({ initialSection = 'home', onNewInterview, onS
             onGoToProgress={() => setSection('interviews')}
             onGoToSimulaciones={() => setSection('simulaciones')}
             onStartSimulation={onStartSimulation}
+            onStartCustomSimulation={onStartCustomSimulation}
           />
         )}
         {section === 'interviews'  && <MyInterviews onNewInterview={() => handleNav('new')} onRepeat={onRepeatInterview} initialSelectedId={deepInterviewId} onDeepIdConsumed={() => setDeepInterviewId(null)} mockInterviews={demoIndex !== null ? DEMO_STATES[demoIndex].interviews : undefined} />}

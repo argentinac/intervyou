@@ -6941,3 +6941,130 @@ html, body, #root, .app {
   background-size: 800px 100%;
   animation: sk-shimmer 1.4s ease-in-out infinite;
 }
+
+/* ── SimulationCarousel ── */
+.sc-section {
+  padding: 32px 0 38px;
+  overflow: visible;
+}
+.sc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+.sc-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+.sc-nav {
+  display: flex;
+  gap: 6px;
+}
+.sc-nav-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1.5px solid #d1d5db;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #374151;
+  transition: border-color 0.15s, color 0.15s;
+}
+.sc-nav-btn:hover {
+  border-color: #5955F6;
+  color: #5955F6;
+}
+.sc-track {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  overflow-y: visible;
+  padding-right: 64px;
+  padding-bottom: 6px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.sc-track::-webkit-scrollbar { display: none; }
+
+.sc-card {
+  flex: 0 0 auto;
+  width: 300px;
+  min-width: 300px;
+  height: 140px;
+  border-radius: 16px;
+  border: none;
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+  display: block;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.sc-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+}
+
+.sc-card-img-wrap {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  width: 112px;
+  height: 102px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+}
+.sc-card-img {
+  max-width: 112px;
+  max-height: 96px;
+  object-fit: contain;
+  object-position: center bottom;
+}
+
+.sc-card-text {
+  position: absolute;
+  left: 148px;
+  right: 62px;
+  top: 38px;
+}
+.sc-card-label {
+  font-size: 16px;
+  line-height: 1.12;
+  font-weight: 700;
+  color: #171820;
+  margin: 0;
+  text-align: left;
+}
+
+.sc-card-arrow {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: #050510;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+
+@media (max-width: 640px) {
+  .sc-card {
+    width: 260px;
+    min-width: 260px;
+    height: 120px;
+  }
+  .sc-card-img { max-height: 84px; }
+  .sc-card-label { font-size: 14px; }
+  .sc-card-arrow { width: 28px; height: 28px; }
+}

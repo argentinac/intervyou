@@ -427,6 +427,7 @@ function AppInner() {
         onPendingInterviewIdConsumed={() => setPendingInterviewId(null)}
         onVisaInterview={() => { setVisaConfig(null); setView('visa-interview') }}
         onStartSimulation={(id) => { setSimulationId(id); setSimulationConfig(null); setView('simulation') }}
+        onStartCustomSimulation={(situation) => { setOnboardingInitialSituation(situation); setSimulationId('custom_situation'); setSimulationConfig(null); setView('simulation') }}
         onStartSkill={(id) => { setSkillId(id); setView('skill') }}
         pendingFeedback={pendingFeedback}
         pendingFeedbackConfig={pendingFeedbackConfig}
