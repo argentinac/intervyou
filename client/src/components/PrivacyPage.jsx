@@ -53,7 +53,7 @@ export default function PrivacyPage({ onBack, onTryFree }) {
               <ul>
                 <li><strong>Datos de registro:</strong> nombre, dirección de correo electrónico, contraseña</li>
                 <li><strong>Información de perfil profesional:</strong> rol buscado, industria, experiencia, descripción de puestos</li>
-                <li><strong>Contenido de las sesiones:</strong> respuestas a preguntas de entrevista, grabaciones de voz procesadas para transcripción, conversaciones con la IA</li>
+                <li><strong>Contenido de las sesiones:</strong> respuestas a preguntas de entrevista, grabaciones de voz procesadas para transcripción, conversaciones con el entrenador virtual</li>
                 <li><strong>Información de pago:</strong> datos necesarios para procesar transacciones (procesados por proveedores externos; FeelReady no almacena datos de tarjetas de crédito)</li>
                 <li>Comunicaciones con el equipo de soporte</li>
               </ul>
@@ -73,7 +73,7 @@ export default function PrivacyPage({ onBack, onTryFree }) {
               <ul>
                 <li><strong>Prestación del Servicio:</strong> operar, mantener y mejorar las funcionalidades de la Plataforma</li>
                 <li><strong>Personalización:</strong> adaptar las simulaciones, el feedback y el contenido a las necesidades del usuario</li>
-                <li><strong>Mejora de la IA:</strong> utilizar datos de sesiones (de forma anonimizada o pseudonimizada donde sea posible) para mejorar los modelos y algoritmos del Servicio</li>
+                <li><strong>Mejora del servicio:</strong> utilizar datos de sesiones (de forma anonimizada o pseudonimizada donde sea posible) para mejorar los modelos y algoritmos del Servicio</li>
                 <li><strong>Comunicaciones:</strong> enviar notificaciones relacionadas con el Servicio, actualizaciones, confirmaciones de pago y, con el consentimiento del usuario cuando sea requerido, comunicaciones de marketing</li>
                 <li><strong>Seguridad:</strong> detectar, investigar y prevenir actividades fraudulentas o que infrinjan los Términos</li>
                 <li><strong>Cumplimiento legal:</strong> cumplir con obligaciones legales aplicables</li>

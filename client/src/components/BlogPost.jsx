@@ -69,8 +69,8 @@ export default function BlogPost({ slug, onBack, onTryFree, hideHeader = false, 
 
         <div className="bp-cta-box">
           <p className="bp-cta-tag">¿Querés practicar lo que acabás de aprender?</p>
-          <h3 className="bp-cta-title">Simulá una entrevista real con IA</h3>
-          <p className="bp-cta-sub">FeelReady te da feedback personalizado para que llegues preparado a tu próxima entrevista.</p>
+          <h3 className="bp-cta-title">Simulá una conversación real</h3>
+          <p className="bp-cta-sub">FeelReady te da feedback personalizado para que llegues preparado.</p>
           {loggedIn
             ? <button className="bp-cta-btn" onClick={onBack}>Practicar ahora →</button>
             : <button className="bp-cta-btn" onClick={onTryFree}>Empezar gratis →</button>

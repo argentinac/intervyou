@@ -95,7 +95,7 @@ function ScoreBadge({ score }) {
 function downloadFeedback(data) {
   const { config, completed_at, interview_feedback } = data
   const feedback = interview_feedback?.[0]
-  const title = [config?.jobTitle, config?.companyName].filter(Boolean).join(' para ') || 'Entrevista'
+  const title = [config?.jobTitle, config?.companyName].filter(Boolean).join(' para ') || 'Sesión'
   const strip = (s) => (s || '').replace(/\*\*/g, '')
   const typeLabel = TYPE_LABEL[config?.interviewType] ?? config?.interviewType ?? ''
   const diffLabel = DIFFICULTY_LABEL[config?.difficulty] ?? config?.difficulty ?? ''
@@ -235,7 +235,7 @@ function ScoreLineChart({ points, onPointClick }) {
           style={{ left: tooltip.cx, top: tooltip.cy }}
         >
           <div className="prog-tooltip-title">
-            {[tooltip.p.jobTitle, tooltip.p.companyName].filter(Boolean).join(' para ') || 'Entrevista'}
+            {[tooltip.p.jobTitle, tooltip.p.companyName].filter(Boolean).join(' para ') || 'Sesión'}
           </div>
           <div className="prog-tooltip-meta">{formatDateShort(tooltip.p.date)}</div>
           {tooltip.p.type && (
@@ -315,7 +315,7 @@ function InterviewRow({ interview, onClick }) {
     ? (config?.simulationTitle || (config?.dynamicSituation
         ? (config.dynamicSituation.length > 60 ? config.dynamicSituation.slice(0, 60) + '…' : config.dynamicSituation)
         : 'Simulación'))
-    : ([config?.jobTitle, config?.companyName].filter(Boolean).join(' para ') || 'Entrevista sin título')
+    : ([config?.jobTitle, config?.companyName].filter(Boolean).join(' para ') || 'Sesión sin título')
   const difficulty = DIFFICULTY_LABEL[config?.difficulty] ?? config?.difficulty
   const type = isSimulation ? 'Simulación' : (TYPE_LABEL[config?.interviewType] ?? config?.interviewType)
 
@@ -437,7 +437,7 @@ function InterviewDetail({ id, mockData, onBack, onNewInterview }) {
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
           </svg>
-          <p>Esta entrevista no tiene feedback disponible.</p>
+          <p>Esta sesión no tiene feedback disponible.</p>
         </div>
       </div>
     )
@@ -525,7 +525,7 @@ export default function MyInterviews({ onNewInterview, onRepeat, initialSelected
   return (
     <div className="iv-page">
       <div className="db-page-header">
-        <h2>Mis entrevistas</h2>
+        <h2>Mis sesiones</h2>
       </div>
 
       {loading && (

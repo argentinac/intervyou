@@ -113,7 +113,7 @@ function useConfetti(canvasRef) {
 }
 
 const SUCCESS_FEATURES = [
-  { icon: <IconInfinity />, color: '#d1fae5', stroke: '#059669', label: 'Entrevistas ilimitadas', sub: 'Practicá sin límites y mejorá cada día.' },
+  { icon: <IconInfinity />, color: '#d1fae5', stroke: '#059669', label: 'Sesiones ilimitadas', sub: 'Practicá sin límites y mejorá cada día.' },
   { icon: <IconChart />,    color: '#dbeafe', stroke: '#2563eb', label: 'Feedback avanzado',      sub: 'Obtené análisis detallados y personalizados.' },
   { icon: <IconBolt />,     color: '#fef9c3', stroke: '#d97706', label: 'Recursos exclusivos',   sub: 'Accedé a plantillas, guías y mucho más.' },
   { icon: <IconTarget />,   color: '#e0e7ff', stroke: '#4f46e5', label: 'Alcanzá tus objetivos', sub: 'Seguimiento y herramientas para tu crecimiento.' },

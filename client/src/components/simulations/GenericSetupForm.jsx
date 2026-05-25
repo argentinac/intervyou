@@ -341,7 +341,7 @@ export default function GenericSetupForm({ simulation, onSubmit, onBack }) {
               Límite diario alcanzado
             </h2>
             <p style={{ color: '#64748b', fontSize: 15, lineHeight: 1.6, marginBottom: 32 }}>
-              Hiciste 10 entrevistas hoy. ¡Excelente trabajo!<br />
+              Hiciste 10 sesiones hoy. ¡Excelente trabajo!<br />
               Volvé mañana para seguir practicando.
             </p>
             {onBack && (

@@ -11,7 +11,7 @@ const FAQ_DATA = [
       },
       {
         q: '¿Cómo funciona?',
-        a: 'Configurás el tipo de entrevista que querés practicar (puesto, empresa, idioma, dificultad), y la IA asume el rol de entrevistador. Al finalizar, recibís un análisis detallado con puntuación, fortalezas y sugerencias de mejora concretas.'
+        a: 'Configurás el tipo de entrevista que querés practicar (puesto, empresa, idioma, dificultad), y el entrenador asume el rol correspondiente. Al finalizar, recibís un análisis detallado con puntuación, fortalezas y sugerencias de mejora concretas.'
       },
       {
         q: '¿Necesito crear una cuenta para usar FeelReady?',
@@ -66,7 +66,7 @@ const FAQ_DATA = [
         a: 'Sí. Tus sesiones son privadas y no se comparten con terceros sin tu consentimiento, salvo en los casos descritos en la Política de Privacidad (como el uso de proveedores de infraestructura o cumplimiento legal).'
       },
       {
-        q: '¿FeelReady usa mis datos para entrenar IA?',
+        q: '¿FeelReady usa mis datos para mejorar el servicio?',
         a: 'FeelReady puede utilizar datos de sesiones para mejorar el Servicio, incluyendo los modelos de feedback. En la medida de lo posible, estos datos se tratan de forma anonimizada o pseudonimizada.'
       },
       {
@@ -84,12 +84,12 @@ const FAQ_DATA = [
     icon: '🎯',
     items: [
       {
-        q: '¿El feedback de la IA reemplaza a un coach o profesional real?',
+        q: '¿El feedback de FeelReady reemplaza a un coach o profesional real?',
         a: 'No. El feedback de FeelReady es orientativo y está basado en patrones generales de comunicación. No reemplaza el asesoramiento de un coach certificado, psicólogo laboral u otro profesional cualificado. Es una herramienta de práctica y entrenamiento.'
       },
       {
         q: '¿Puedo practicar entrevistas técnicas?',
-        a: 'Sí. Podés elegir entre entrevistas de RRHH y entrevistas técnicas. En las técnicas, el entrevistador evaluará tu conocimiento del rol y tu forma de resolver problemas.'
+        a: 'Sí. Podés elegir entre entrevistas de RRHH y entrevistas técnicas. En las técnicas, el entrenador evaluará tu conocimiento del rol y tu forma de resolver problemas.'
       },
       {
         q: '¿Puedo usar FeelReady si soy menor de edad?',

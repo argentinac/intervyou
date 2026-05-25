@@ -154,7 +154,7 @@ function EmptyProgress({ onNewInterview }) {
         </svg>
       </div>
       <h3>Todavía no tenés puntuaciones</h3>
-      <p>Completá tu primera entrevista para ver tu progreso acá.</p>
+      <p>Completá tu primera sesión para ver tu progreso acá.</p>
     </div>
   )
 }
@@ -248,7 +248,7 @@ export default function MyProgress({ onInterviewClick }) {
               <div className="prog-stat-value prog-stat-value--best">{best}<span>/1000</span></div>
             </div>
             <div className="prog-stat-card">
-              <div className="prog-stat-label">Entrevistas</div>
+              <div className="prog-stat-label">Sesiones</div>
               <div className="prog-stat-value">{points.length}</div>
             </div>
           </div>

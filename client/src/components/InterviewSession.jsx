@@ -154,7 +154,7 @@ function IntroLoading({ titleText, tips = INTERVIEW_TIPS }) {
           </div>
         </div>
 
-        <p className="intro-loading-title">{titleText || 'Preparando tu entrevista…'}</p>
+        <p className="intro-loading-title">{titleText || 'Preparando tu sesión…'}</p>
 
         <div className={`intro-loading-tip ${visible ? 'intro-loading-tip--in' : 'intro-loading-tip--out'}`}>
           <span className="intro-loading-tip-label">💡 Tip</span>
@@ -197,21 +197,21 @@ const UI_STRINGS = {
     speakLabel:      'Speak',
     holdHint:        'Click to speak',
     releaseHint:     'Click to mute',
-    endInterview:    'End interview',
+    endInterview:    'End session',
     youLabel:        'You',
     waitingAnswer:   'Waiting for your answer…',
     micError:        'We need microphone access. Enable it in your browser and reload.',
     networkError:    'No internet connection. Check your network.',
     micGenericError: 'Could not access the microphone. Try reloading.',
     processingError: 'Something went wrong. Try again.',
-    startError:      'Could not start the interview. Check your API keys in the .env file.',
+    startError:      'Could not start the session. Check your API keys in the .env file.',
     difficulty:      { Basic: 'Basic', Intermediate: 'Intermediate', Advanced: 'Advanced' },
     phases:          ['Intro', 'Background', 'Role Questions', 'Behavioral', 'Closing'],
   },
   Spanish: {
     connecting:      'Conectando…',
-    thinking:        { male: 'El entrevistador está pensando…',   female: 'La entrevistadora está pensando…' },
-    speaking:        { male: 'El entrevistador está hablando…',   female: 'La entrevistadora está hablando…' },
+    thinking:        { male: 'El entrenador está pensando…',   female: 'La entrenadora está pensando…' },
+    speaking:        { male: 'El entrenador está hablando…',   female: 'La entrenadora está hablando…' },
     yourTurn:        'Tu turno — hacé click para hablar',
     recording:       'Escuchando…',
     processing:      'Procesando tu respuesta…',
@@ -219,21 +219,21 @@ const UI_STRINGS = {
     speakLabel:      'Hablar',
     holdHint:        'Click para hablar',
     releaseHint:     'Click para silenciar',
-    endInterview:    'Terminar entrevista',
+    endInterview:    'Terminar sesión',
     youLabel:        'Vos',
     waitingAnswer:   'Esperando tu respuesta…',
     micError:        'Necesitamos acceso al micrófono. Habilitalo en tu navegador y recargá la página.',
     networkError:    'Sin conexión a internet. Revisá tu red e intentá de nuevo.',
     micGenericError: 'No pudimos acceder al micrófono. Intentá recargar la página.',
     processingError: 'Algo salió mal al procesar tu respuesta. Intentá de nuevo.',
-    startError:      'No se pudo iniciar la entrevista. Revisá las API keys en el archivo .env.',
+    startError:      'No se pudo iniciar la sesión. Revisá las API keys en el archivo .env.',
     difficulty:      { Basic: 'Básico', Intermediate: 'Intermedio', Advanced: 'Avanzado' },
     phases:          ['Intro', 'Trayectoria', 'Preguntas del rol', 'Comportamiento', 'Cierre'],
   },
   Portuguese: {
     connecting:      'Conectando…',
-    thinking:        { male: 'O entrevistador está pensando…',   female: 'A entrevistadora está pensando…' },
-    speaking:        { male: 'O entrevistador está falando…',    female: 'A entrevistadora está falando…' },
+    thinking:        { male: 'O treinador está pensando…',   female: 'A treinadora está pensando…' },
+    speaking:        { male: 'O treinador está falando…',    female: 'A treinadora está falando…' },
     yourTurn:        'Sua vez — clique para falar',
     recording:       'Ouvindo…',
     processing:      'Processando sua resposta…',
@@ -241,14 +241,14 @@ const UI_STRINGS = {
     speakLabel:      'Falar',
     holdHint:        'Clique para falar',
     releaseHint:     'Clique para parar',
-    endInterview:    'Encerrar entrevista',
+    endInterview:    'Encerrar sessão',
     youLabel:        'Você',
     waitingAnswer:   'Aguardando sua resposta…',
     micError:        'Precisamos de acesso ao microfone. Ative no navegador e recarregue.',
     networkError:    'Sem conexão com a internet. Verifique sua rede.',
     micGenericError: 'Não foi possível acessar o microfone. Tente recarregar a página.',
     processingError: 'Algo deu errado. Tente novamente.',
-    startError:      'Não foi possível iniciar a entrevista. Verifique as API keys no .env.',
+    startError:      'Não foi possível iniciar a sessão. Verifique as API keys no .env.',
     difficulty:      { Basic: 'Básico', Intermediate: 'Intermediário', Advanced: 'Avançado' },
     phases:          ['Intro', 'Histórico', 'Perguntas do cargo', 'Comportamento', 'Encerramento'],
   },
@@ -263,14 +263,14 @@ const UI_STRINGS = {
     speakLabel:      'Parler',
     holdHint:        'Cliquer pour parler',
     releaseHint:     'Cliquer pour arrêter',
-    endInterview:    "Terminer l'entretien",
+    endInterview:    "Terminer la session",
     youLabel:        'Vous',
     waitingAnswer:   'En attente de votre réponse…',
     micError:        "Nous avons besoin d'accès au microphone. Activez-le dans votre navigateur.",
     networkError:    'Pas de connexion internet. Vérifiez votre réseau.',
     micGenericError: 'Impossible de accéder au microphone. Rechargez la page.',
     processingError: 'Une erreur est survenue. Réessayez.',
-    startError:      "Impossible de démarrer l'entretien. Vérifiez les clés API dans .env.",
+    startError:      "Impossible de démarrer la session. Vérifiez les clés API dans .env.",
     difficulty:      { Basic: 'Basique', Intermediate: 'Intermédiaire', Advanced: 'Avancé' },
     phases:          ['Intro', 'Parcours', 'Questions du poste', 'Comportement', 'Clôture'],
   },
@@ -285,7 +285,7 @@ const UI_STRINGS = {
     speakLabel:      'Sprechen',
     holdHint:        'Klicken zum Sprechen',
     releaseHint:     'Klicken zum Stoppen',
-    endInterview:    'Interview beenden',
+    endInterview:    'Sitzung beenden',
     youLabel:        'Sie',
     waitingAnswer:   'Warte auf Ihre Antwort…',
     micError:        'Wir benötigen Mikrofonzugang. Aktivieren Sie ihn im Browser.',
@@ -307,7 +307,7 @@ const UI_STRINGS = {
     speakLabel:      'Parla',
     holdHint:        'Clicca per parlare',
     releaseHint:     'Clicca per fermare',
-    endInterview:    'Termina il colloquio',
+    endInterview:    'Termina la sessione',
     youLabel:        'Tu',
     waitingAnswer:   'In attesa della tua risposta…',
     micError:        "Abbiamo bisogno dell'accesso al microfono. Abilitalo nel browser.",
@@ -1436,7 +1436,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
     }
   }, [sessionEnded, isRecording, isSpeaking, isProcessing, stopRecording])
 
-  // ── End interview ──────────────────────────────────────────
+  // ── End session ──────────────────────────────────────────
   const endInterview = useCallback(async () => {
     if (sessionEndedRef.current) return
     sessionEndedRef.current = true
@@ -1635,7 +1635,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
       },
       wentWell: [
         { title: 'Conocimientos técnicos sólidos', description: 'Respondiste correctamente preguntas complejas y demostraste **dominio del área**. Tu vocabulario técnico fue apropiado y preciso.', axis: 'consistencia' },
-        { title: 'Buena claridad en las respuestas', description: 'Tus explicaciones fueron **comprensibles y fáciles de seguir** la mayor parte del tiempo. Lograste transmitir ideas complejas sin perder al entrevistador.', axis: 'claridad' },
+        { title: 'Buena claridad en las respuestas', description: 'Tus explicaciones fueron **comprensibles y fáciles de seguir** la mayor parte del tiempo. Lograste transmitir ideas complejas sin perder al entrenador.', axis: 'claridad' },
         { title: 'Buen razonamiento ante desafíos', description: 'Mostraste un **enfoque lógico y estructurado** al analizar los casos planteados. Identificaste bien las variables clave antes de proponer soluciones.', axis: 'profundidad' },
       ],
       toImprove: [
@@ -1646,10 +1646,10 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
       actionPlan: [
         { title: 'Estructurá con el método STAR', description: 'Usá **Situación, Tarea, Acción y Resultado** para dar contexto e impacto a tus experiencias en cada respuesta.', priority: 'alta' },
         { title: 'Practicá comunicar impacto con números', description: 'Cuantificá resultados siempre que puedas: **tiempos, usuarios, porcentajes, mejoras**. Los números hacen tu respuesta memorable.', priority: 'alta' },
-        { title: 'Resumí al final de cada respuesta', description: 'Cerrá tus respuestas con una frase que resuma el **resultado o aprendizaje clave**. Esto ancla tu mensaje en la mente del entrevistador.', priority: 'media' },
+        { title: 'Resumí al final de cada respuesta', description: 'Cerrá tus respuestas con una frase que resuma el **resultado o aprendizaje clave**. Esto ancla tu mensaje en la mente del entrenador.', priority: 'media' },
         { title: 'Gestioná mejor el tiempo', description: 'Practicá respuestas más concretas (**1-2 min máx.**) en preguntas no prioritarias para reservar energía en las que más importan.', priority: 'media' },
       ],
-      nextStep: 'Practicá entrevistas enfocándote en **storytelling e impacto cuantificable**. Te recomendamos hacer 2 entrevistas esta semana.',
+      nextStep: 'Practicá sesiones enfocándote en **storytelling e impacto cuantificable**. Te recomendamos hacer 2 sesiones esta semana.',
     })
   }, [clearInterruptTimer])
 
@@ -1902,7 +1902,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
             <div className="end-confirm-title">¿Seguro que querés terminar?</div>
             <div className="end-confirm-body">Parte del contenido de la sesión puede perderse si salís ahora.</div>
             <div className="end-confirm-actions">
-              <button className="end-confirm-cancel" onClick={() => setShowEndConfirm(false)}>Seguir entrevistando</button>
+              <button className="end-confirm-cancel" onClick={() => setShowEndConfirm(false)}>Seguir en la sesión</button>
               <button className="end-confirm-ok" onClick={() => { setShowEndConfirm(false); endInterview(); }}>Sí, terminar</button>
             </div>
           </div>

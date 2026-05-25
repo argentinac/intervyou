@@ -70,7 +70,7 @@ function PlanSection({ userId }) {
       <div className="settings-plan-features">
         <div className="settings-plan-feature settings-plan-feature--free">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-          Entrevistas básicas (RRHH y técnica)
+          Sesiones básicas (RRHH y técnica)
         </div>
         <div className="settings-plan-feature settings-plan-feature--free">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
@@ -86,7 +86,7 @@ function PlanSection({ userId }) {
         </div>
         <div className="settings-plan-feature settings-plan-feature--locked">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          Entrevistas ilimitadas
+          Sesiones ilimitadas
         </div>
       </div>
 
@@ -160,7 +160,7 @@ export default function SettingsPage({ onSignOut }) {
             <div className="settings-card">
               <h3>Creá tu cuenta</h3>
               <p style={{ color: '#666', marginBottom: 16 }}>
-                Estás usando FeelReady como invitado. Registrate para guardar tu historial, acceder a tus entrevistas y desbloquear todas las funciones.
+                Estás usando FeelReady como invitado. Registrate para guardar tu historial, acceder a tus sesiones y desbloquear todas las funciones.
               </p>
               <button className="auth-submit" onClick={handleSignOut}>
                 Crear cuenta o iniciar sesión

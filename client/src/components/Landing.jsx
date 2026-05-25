@@ -160,7 +160,7 @@ function CompaniesStrip() {
           Preparate para llegar a las <span className="ld-accent">mejores empresas</span>.
         </h2>
         <p className="ld-section-sub">
-          Entrená entrevistas, mejorá tus respuestas y aplicá con más confianza
+          Entrená tus respuestas y aplicá con más confianza
           {` a compañías líderes de ${countryName}`}.
         </p>
       </FadeIn>
@@ -224,7 +224,7 @@ export default function Landing({ user, onLogin, onTryFree, onDashboard, onBlogP
             <span className="ld-accent">consigas<br />el trabajo.</span>
           </h1>
           <p className="ld-hero-sub">
-            Simulaciones realistas con IA que te ayudan a responder mejor, comunicarte con confianza y destacarte en tus entrevistas.
+            Simulaciones realistas que te ayudan a responder mejor, comunicarte con confianza y destacarte en cualquier conversación.
           </p>
           <div className="ld-hero-ctas">
             <button className="ld-btn-primary ld-btn-lg" onClick={onTryFree} data-track="try_free_clicked">
@@ -248,7 +248,7 @@ export default function Landing({ user, onLogin, onTryFree, onDashboard, onBlogP
               <span className="ld-mock-dot ld-mock-dot--red" />
               <span className="ld-mock-dot ld-mock-dot--yellow" />
               <span className="ld-mock-dot ld-mock-dot--green" />
-              <span className="ld-mock-title">Entrevista en progreso</span>
+              <span className="ld-mock-title">Sesión en progreso</span>
               <span className="ld-mock-time">⏱ 12:45</span>
             </div>
             <div className="ld-mock-video">
@@ -258,7 +258,7 @@ export default function Landing({ user, onLogin, onTryFree, onDashboard, onBlogP
                   <div className="ld-mock-face-inner" />
                 </div>
               </div>
-              <span className="ld-mock-speaking">La entrevistadora está hablando…</span>
+              <span className="ld-mock-speaking">La entrenadora está hablando…</span>
               <div className="ld-waveform">
                 {[...Array(20)].map((_, i) => (
                   <div key={i} className="ld-waveform-bar" style={{ animationDelay: `${i * 80}ms` }} />
@@ -297,13 +297,13 @@ export default function Landing({ user, onLogin, onTryFree, onDashboard, onBlogP
         <FadeIn>
           <div className="ld-section-badge">CARACTERÍSTICAS</div>
           <h2 className="ld-section-title">
-            Preparación real para<br />entrevistas <span className="ld-accent">reales</span>
+            Preparación real para<br />situaciones <span className="ld-accent">reales</span>
           </h2>
           <p className="ld-section-sub">Todo lo que necesitás para llegar confiado y preparado.</p>
         </FadeIn>
         <div className="ld-features-grid">
           {[
-            { icon: <IconMic />, title: 'Simulaciones realistas con IA', desc: 'Practicá con entrevistas adaptadas a tu rol, nivel y la empresa que buscás.' },
+            { icon: <IconMic />, title: 'Simulaciones realistas', desc: 'Practicá con simulaciones adaptadas a tu rol, nivel y la empresa que buscás.' },
             { icon: <IconChart />, title: 'Feedback inteligente y personalizado', desc: 'Recibí sugerencias claras para mejorar tu forma de comunicarte y responder.' },
             { icon: <IconBrain />, title: 'Mejorá tus habilidades blandas', desc: 'Comunicación, storytelling, seguridad y pensamiento estructurado.' },
             { icon: <IconLock />, title: 'Privado y seguro', desc: 'Tu información está protegida y no será compartida con ninguna empresa.' },
@@ -330,9 +330,9 @@ export default function Landing({ user, onLogin, onTryFree, onDashboard, onBlogP
         <div className="ld-steps">
           {[
             { icon: <IconUser />, title: 'Contanos sobre vos', desc: 'Contanos tu rol, experiencia y el tipo de trabajo que buscás.' },
-            { icon: <IconMic />, title: 'Practicá entrevistas', desc: 'Realizá simulaciones con IA como si fuera una entrevista real.' },
+            { icon: <IconMic />, title: 'Practicá', desc: 'Practicá simulaciones realistas a tu ritmo.' },
             { icon: <IconChart />, title: 'Recibí feedback', desc: 'Obtené un análisis detallado con fortalezas y puntos de mejora.' },
-            { icon: <IconRocket />, title: 'Mejorá y destacate', desc: 'Aplicá lo aprendido, repetí y llegá a tu próxima entrevista con confianza.' },
+            { icon: <IconRocket />, title: 'Mejorá y destacate', desc: 'Aplicá lo aprendido, repetí y llegá a tu próxima instancia con confianza.' },
           ].map((s, i) => (
             <FadeIn key={i} delay={i * 120} className="ld-step-wrap">
               <div className="ld-step">
@@ -359,7 +359,7 @@ export default function Landing({ user, onLogin, onTryFree, onDashboard, onBlogP
           {[
             { quote: '"Practicar con FeelReady me ayudó a ordenar mis ideas y ganar confianza. Conseguí el trabajo que quería 🙌"', name: 'Martina López', role: 'Product Manager', initials: 'ML' },
             { quote: '"Los feedbacks son súper claros y accionables. Mejoré mucho mis respuestas y mi seguridad."', name: 'Juan Pablo Gómez', role: 'Data Analyst', initials: 'JG' },
-            { quote: '"Me encantó lo realista que se siente. Es como estar en la entrevista posta, pero sin los nervios."', name: 'Camila Torres', role: 'UX Designer', initials: 'CT' },
+            { quote: '"Me encantó lo realista que se siente. Es como estar en la situación real, pero sin los nervios."', name: 'Camila Torres', role: 'UX Designer', initials: 'CT' },
           ].map((t, i) => (
             <FadeIn key={i} delay={i * 120}>
               <div className="ld-testimonial-card">
@@ -382,7 +382,7 @@ export default function Landing({ user, onLogin, onTryFree, onDashboard, onBlogP
       <section className="ld-cta-dark">
         <div className="ld-cta-dark-left">
           <h2>Tu próxima oportunidad<br />empieza con preparación.</h2>
-          <p>Unite a miles de profesionales que ya están entrenando entrevistas y alcanzando sus metas.</p>
+          <p>Unite a miles de profesionales que ya están entrenando y alcanzando sus metas.</p>
           <ul className="ld-cta-checks">
             <li><IconCheck /> Probalo gratis</li>
             <li><IconCheck /> Sin tarjeta de crédito</li>
@@ -392,7 +392,7 @@ export default function Landing({ user, onLogin, onTryFree, onDashboard, onBlogP
         <div className="ld-cta-dark-right">
           <div className="ld-cta-card">
             <h3>Empieza gratis hoy</h3>
-            <p className="ld-cta-card-sub">Accedé a 3 entrevistas de prueba.</p>
+            <p className="ld-cta-card-sub">Accedé a 3 sesiones de prueba.</p>
             <button className="ld-btn-primary ld-btn-full" onClick={onDashboard} data-track="signup_cta_clicked">Crear mi cuenta gratis</button>
           </div>
         </div>

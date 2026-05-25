@@ -36,7 +36,7 @@ export default function PricingPage({ onSelectPlan, loadingPeriod, processor }) 
             <span className="pricing-headline-accent">preparado.</span>
           </h1>
           <p className="pricing-subtext">
-            Desbloqueá entrevistas completas, feedback detallado y práctica sin límites.
+            Desbloqueá sesiones completas, feedback detallado y práctica sin límites.
           </p>
 
           <div className="pricing-benefits">
@@ -56,7 +56,7 @@ export default function PricingPage({ onSelectPlan, loadingPeriod, processor }) 
 
           <div className="pricing-free-box">
             <div className="pricing-free-box-title">Probaste 3 preguntas gratis</div>
-            <div className="pricing-free-box-sub">Continuá con entrevistas completas y feedback avanzado.</div>
+            <div className="pricing-free-box-sub">Continuá con sesiones completas y feedback avanzado.</div>
           </div>
         </div>
 

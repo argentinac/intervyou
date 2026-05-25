@@ -595,7 +595,7 @@ const IconCheck = () => (
 
 /* ─── Purpose options ───────────────────────────────────────────────────── */
 const PURPOSE_OPTIONS = [
-  { id: 'work',  label: 'Trabajo',           desc: 'Entrevistas, aumento, feedback al equipo.', icon: <IconBrief /> },
+  { id: 'work',  label: 'Trabajo',           desc: 'Trabajo, aumento, feedback al equipo.', icon: <IconBrief /> },
   { id: 'life',  label: 'Vida personal',     desc: 'Pareja, familia, conversaciones difíciles.', icon: <IconHeart /> },
   { id: 'speak', label: 'Hablar en público', desc: 'Pitch, defensa de tesis, discurso.',          icon: <IconMega /> },
   { id: 'paper', label: 'Trámites',          desc: 'Visa, universidad, asilo, master.',           icon: <IconDoc /> },

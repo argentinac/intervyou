@@ -106,7 +106,7 @@ function RightPanel() {
       <div className="auth-right-content">
         <h2 className="auth-right-title">Tu próximo paso<br />empieza hoy.</h2>
         <p className="auth-right-subtitle">
-          Practicá entrevistas, recibí feedback personalizado y preparate mejor para tu próxima oportunidad.
+          Practicá, recibí feedback personalizado y preparate mejor para tu próxima oportunidad.
         </p>
         <div className="auth-right-card">
           <div className="auth-right-card-icon">
@@ -194,7 +194,7 @@ export default function AuthForm({ onBack, context }) {
                 <img src="/logo.png" alt="FeelReady" />
               </div>
 
-              <h1 className="auth-title">{context === 'interview' ? 'Guardá tu entrevista' : 'Ingresá a tu cuenta'}</h1>
+              <h1 className="auth-title">{context === 'interview' ? 'Guardá tu sesión' : 'Ingresá a tu cuenta'}</h1>
               <p className="auth-subtitle">{context === 'interview' ? 'Creá tu cuenta gratis para empezar y guardar tus resultados.' : 'Usá Google o tu email para acceder.'}</p>
 
               <div className="auth-card">

@@ -125,7 +125,7 @@ const MP_COUNTRIES = new Set(['AR', 'BR', 'MX', 'CO', 'CL', 'PE', 'UY'])
 
 const FEATURES_LEFT = [
   'Plan completo',
-  'Entrevistas ilimitadas',
+  'Sesiones ilimitadas',
   'Feedback detallado',
   'Preguntas por rol',
 ]
@@ -344,7 +344,7 @@ export default function UpgradeModal() {
               Llegá <span className="up-headline-accent">mejor preparado.</span>
             </h2>
             <p className="up-subtext">
-              Practicá entrevistas. Recibí feedback. Mejorá cada día.
+              Practicá, recibí feedback y mejorá cada día.
             </p>
 
             <div className="up-benefits">

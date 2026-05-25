@@ -370,7 +370,7 @@ function LegacyFeedback({ feedback, onRestart, onDashboard }) {
             <p className="fb-score-label">Puntaje global</p>
           </div>
         )}
-        <div className="fb-headline"><p className="fb-headline-label">Tu entrevista en pocas palabras</p>
+        <div className="fb-headline"><p className="fb-headline-label">Tu sesión en pocas palabras</p>
           <h1 className="fb-headline-text">{feedback.headline}</h1></div>
         {Array.isArray(feedback.wentWell) && feedback.wentWell.length > 0 && (
           <div className="fb-section fb-section--good"><h3 className="fb-section-title">Puntos fuertes</h3>
@@ -386,7 +386,7 @@ function LegacyFeedback({ feedback, onRestart, onDashboard }) {
         )}
         <div className="fb-actions">
           <button className="fb-download" onClick={() => window.print()}>Descargar feedback</button>
-          <button className="fb-restart" onClick={onRestart}>Nueva entrevista →</button>
+          <button className="fb-restart" onClick={onRestart}>Nueva sesión →</button>
         </div>
       </div>
     </div>
@@ -465,7 +465,7 @@ function NewFeedback({ feedback, config, onRestart, onDashboard, onBack, saveFai
                   <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
                 </svg>
               </div>
-              <div><div className="rpt-pill-label">Tipo de entrevista</div><div className="rpt-pill-value">{typeLabel}</div></div>
+              <div><div className="rpt-pill-label">Tipo de sesión</div><div className="rpt-pill-value">{typeLabel}</div></div>
             </div>
             {feedback.durationSeconds && (
               <div className="rpt-pill">
@@ -759,10 +759,10 @@ export default function FeedbackSummary({ feedback, config, onRestart, onDashboa
           </svg>
           <h2 style={{ margin:0, fontSize:20, fontWeight:700, color:'#111827', textAlign:'center' }}>Problema al generar feedback</h2>
           <p style={{ margin:0, fontSize:14, color:'#6b7280', textAlign:'center', lineHeight:1.6 }}>
-            Ocurrió un error al procesar tu entrevista.<br />Podés intentar una nueva entrevista.
+            Ocurrió un error al procesar tu sesión.<br />Podés intentar una nueva sesión.
           </p>
         </div>
-        <div className="fb-actions"><button className="fb-restart" onClick={onRestart}>{onDashboard ? 'Nueva entrevista →' : 'Ir al inicio'}</button></div>
+        <div className="fb-actions"><button className="fb-restart" onClick={onRestart}>{onDashboard ? 'Nueva sesión →' : 'Ir al inicio'}</button></div>
       </div></div>
     )
   }
@@ -778,7 +778,7 @@ export default function FeedbackSummary({ feedback, config, onRestart, onDashboa
             <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: 12 }}>
               <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
             </svg>
-            <h2 style={{ fontSize: 20, fontWeight: 700, color: '#111827', margin: 0, marginBottom: 8 }}>Entrevista muy corta</h2>
+            <h2 style={{ fontSize: 20, fontWeight: 700, color: '#111827', margin: 0, marginBottom: 8 }}>Sesión muy corta</h2>
             <p style={{ fontSize: 14, color: '#6B7280', lineHeight: 1.6, margin: 0, marginBottom: 24 }}>
               Necesitamos al menos un par de respuestas para analizar cómo te expresás.<br />Intentá completar más preguntas la próxima vez.
             </p>

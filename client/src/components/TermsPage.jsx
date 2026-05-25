@@ -50,7 +50,7 @@ export default function TermsPage({ onBack, onTryFree }) {
               <p>FeelReady es una plataforma de entrenamiento basada en inteligencia artificial que permite a los usuarios practicar y mejorar sus habilidades de comunicación, preparación para entrevistas laborales y, en versiones futuras, otras situaciones que requieran comunicación efectiva, incluyendo coaching académico, personal y de vida.</p>
               <p>El Servicio incluye actualmente, entre otras funcionalidades:</p>
               <ul>
-                <li>Simulaciones de entrevistas laborales con IA conversacional</li>
+                <li>Simulaciones de entrevistas laborales con entrenador virtual</li>
                 <li>Feedback personalizado basado en el desempeño del usuario</li>
                 <li>Análisis del progreso a lo largo del tiempo</li>
                 <li>Recursos y contenido educativo relacionado</li>
@@ -120,8 +120,8 @@ export default function TermsPage({ onBack, onTryFree }) {
 
             <section id="s8" className="lp-section">
               <h2>8. Uso de inteligencia artificial y terceros proveedores</h2>
-              <p>El Servicio utiliza tecnologías de inteligencia artificial y servicios de terceros para brindar sus funcionalidades. El contenido generado por la IA tiene carácter orientativo y no reemplaza el asesoramiento profesional de un orientador laboral, psicólogo, coach certificado u otro profesional cualificado.</p>
-              <p>FeelReady no garantiza que el feedback o los resultados generados por la IA sean exactos, completos o aplicables a la situación particular de cada usuario.</p>
+              <p>El Servicio utiliza tecnologías de inteligencia artificial y servicios de terceros para brindar sus funcionalidades. El contenido generado por FeelReady tiene carácter orientativo y no reemplaza el asesoramiento profesional de un orientador laboral, psicólogo, coach certificado u otro profesional cualificado.</p>
+              <p>FeelReady no garantiza que el feedback o los resultados generados sean exactos, completos o aplicables a la situación particular de cada usuario.</p>
             </section>
 
             <section id="s9" className="lp-section">
@@ -130,7 +130,7 @@ export default function TermsPage({ onBack, onTryFree }) {
               <ul>
                 <li>Daños indirectos, incidentales, especiales, consecuentes o punitivos</li>
                 <li>Pérdida de beneficios, oportunidades laborales u otros perjuicios económicos derivados del uso o la imposibilidad de uso del Servicio</li>
-                <li>La exactitud, integridad o adecuación del feedback generado por la IA</li>
+                <li>La exactitud, integridad o adecuación del feedback generado</li>
                 <li>Interrupciones del servicio debidas a causas de fuerza mayor o a fallas de proveedores externos</li>
               </ul>
               <p>En ningún caso la responsabilidad total de FeelReady frente a un usuario excederá el importe efectivamente pagado por dicho usuario en los seis (6) meses anteriores al evento que originó la reclamación.</p>

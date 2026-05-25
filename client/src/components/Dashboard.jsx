@@ -106,7 +106,7 @@ const PRACTICE_TYPES = [
       </svg>
     ),
     label: 'Inglés',
-    sub: 'Practicá entrevistas en inglés.',
+    sub: 'Practicá en inglés.',
   },
 ]
 
@@ -173,7 +173,7 @@ function makeMockInterview(i, score, daysAgo) {
         actionPlan: [
           { title: 'Practicá el método STAR', description: 'Usá **Situación → Tarea → Acción → Resultado** en cada respuesta conductual.', priority: 'alta' },
           { title: 'Investigá la empresa', description: 'Leé sobre los **valores y productos** de la empresa antes de la entrevista.', priority: 'alta' },
-          { title: 'Cronometrá tus respuestas', description: 'Apuntá a **2-3 minutos** por respuesta para mantener el interés del entrevistador.', priority: 'media' },
+          { title: 'Cronometrá tus respuestas', description: 'Apuntá a **2-3 minutos** por respuesta para mantener el interés de quien te evalúa.', priority: 'media' },
           { title: 'Preparate 3 logros clave', description: 'Tené listos **ejemplos cuantificados** que demuestren impacto real.', priority: 'media' },
         ],
         nextStep: 'Preparate **3 logros concretos con métricas** antes de tu próxima entrevista.',
@@ -200,10 +200,10 @@ function makeMockInterview(i, score, daysAgo) {
 }
 
 const DEMO_STATES = [
-  { label: '0 entrevistas', interviews: [] },
-  { label: '1 entrevista', interviews: [makeMockInterview(0, 680, 3)] },
+  { label: '0 sesiones', interviews: [] },
+  { label: '1 sesión', interviews: [makeMockInterview(0, 680, 3)] },
   {
-    label: '5 entrevistas',
+    label: '5 sesiones',
     interviews: [
       makeMockInterview(0, 520, 30),
       makeMockInterview(1, 610, 22),
@@ -213,7 +213,7 @@ const DEMO_STATES = [
     ],
   },
   {
-    label: '50 entrevistas',
+    label: '50 sesiones',
     interviews: Array.from({ length: 50 }, (_, i) => {
       const score = Math.min(1000, 450 + (i / 50) * 450 + (Math.random() - 0.5) * 150)
       return makeMockInterview(i, Math.round(score), 180 - i * 3)
@@ -259,7 +259,7 @@ function HomeSkeleton() {
 
 function getNextAction(interviews, scoredInterviews) {
   if (!interviews || interviews.length === 0) {
-    return { msg: 'Completá tu primera entrevista para comenzar', cta: 'Empezar ahora', target: 'interview' }
+    return { msg: 'Completá tu primera sesión para comenzar', cta: 'Empezar ahora', target: 'interview' }
   }
   const last = interviews[interviews.length - 1]
   const daysSinceLast = last?.completed_at
@@ -278,8 +278,8 @@ function getRecomendado(interviews) {
   if (!interviews || interviews.length === 0) {
     return {
       eyebrow: 'Empezá aquí',
-      title: 'Tu primera entrevista',
-      desc: 'Practicá con IA y recibí feedback personalizado en minutos.',
+      title: 'Tu primera sesión',
+      desc: 'Practicá y recibí feedback personalizado en minutos.',
       cta: 'Comenzar →',
       target: 'interview',
     }
@@ -287,8 +287,8 @@ function getRecomendado(interviews) {
   const last = interviews[interviews.length - 1]
   const cfg = last?.config || {}
   const label = cfg.jobTitle
-    ? `${cfg.interviewType === 'Technical' ? 'Entrevista técnica' : 'Entrevista'} de ${cfg.jobTitle}`
-    : 'Entrevista de práctica'
+    ? `${cfg.interviewType === 'Technical' ? 'Sesión técnica' : 'Entrevista'} de ${cfg.jobTitle}`
+    : 'Sesión de práctica'
   return {
     eyebrow: 'Simulación recomendada',
     title: label,
@@ -436,7 +436,7 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRec
             </>
           ) : (
             <div className="home-stats-empty">
-              <p>Completá tu primera entrevista para ver tu progreso.</p>
+              <p>Completá tu primera sesión para ver tu progreso.</p>
               <button className="db-btn-primary" onClick={onNewInterview} data-track="new_interview_clicked">Comenzar ahora</button>
             </div>
           )}
@@ -588,7 +588,7 @@ function SimulacionesSection({
       <div className="db-page-header">
         <h2>Simulaciones</h2>
         <p style={{ fontSize: 14, color: '#6b7280', marginTop: 4 }}>
-          Tipos de entrevista disponibles
+          Tipos de simulación disponibles
         </p>
       </div>
 
@@ -603,7 +603,7 @@ function SimulacionesSection({
           </div>
           <div className="blp-card-body">
             <h3 className="blp-card-title">Simulación de Visa</h3>
-            <p className="blp-card-excerpt">Practicá las preguntas más comunes de entrevistas consulares para obtener tu visa.</p>
+            <p className="blp-card-excerpt">Practicá las preguntas más comunes de sesiones consulares para obtener tu visa.</p>
             <span style={{ display: 'inline-block', marginTop: 8, fontSize: 13, fontWeight: 600, color: '#4f46e5' }}>Comenzar simulación →</span>
           </div>
         </article>
@@ -650,8 +650,8 @@ export default function Dashboard({ initialSection = 'home', onNewInterview, onS
 
   const navItems = [
     { id: 'home',          label: 'Inicio',               icon: <IconHome /> },
-    { id: 'new',           label: 'Nueva entrevista',      icon: <IconPlus />, primary: true },
-    { id: 'interviews',    label: 'Mis entrevistas',       icon: <IconList /> },
+    { id: 'new',           label: 'Nueva sesión',      icon: <IconPlus />, primary: true },
+    { id: 'interviews',    label: 'Mis sesiones',       icon: <IconList /> },
     { id: 'recursos',      label: 'Recursos',              icon: <IconBook /> },
     { id: 'profile',       label: 'Mi perfil profesional', icon: <IconUser /> },
     { id: 'simulaciones',  label: 'Simulaciones',          icon: <IconFlask /> },
@@ -742,7 +742,7 @@ export default function Dashboard({ initialSection = 'home', onNewInterview, onS
                       </svg>
                     </div>
                     <div>
-                      <div className="db-plan-feature-title">Entrevistas ilimitadas</div>
+                      <div className="db-plan-feature-title">Sesiones ilimitadas</div>
                       <div className="db-plan-feature-sub">Practicá sin límites este mes.</div>
                     </div>
                   </div>

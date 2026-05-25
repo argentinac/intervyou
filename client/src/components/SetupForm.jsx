@@ -223,7 +223,7 @@ export default function SetupForm({ onSubmit, onBack, initialConfig, hideHeader 
               Límite diario alcanzado
             </h2>
             <p style={{ color: '#64748b', fontSize: 15, lineHeight: 1.6, marginBottom: 32 }}>
-              Hiciste 10 entrevistas hoy. ¡Excelente trabajo!<br />
+              Hiciste 10 sesiones hoy. ¡Excelente trabajo!<br />
               Volvé mañana para seguir practicando.
             </p>
             {onBack && (
@@ -313,7 +313,7 @@ export default function SetupForm({ onSubmit, onBack, initialConfig, hideHeader 
                     >
                       {generatingDesc
                         ? <><span className="sf-ai-spinner" /> Generando…</>
-                        : <><IconSparkle /> Generar con IA</>
+                        : <><IconSparkle /> Generar</>
                       }
                     </button>
                   </div>
@@ -359,12 +359,12 @@ export default function SetupForm({ onSubmit, onBack, initialConfig, hideHeader 
           {step === 2 && (
             <form onSubmit={handleSubmit}>
               <div className="sf-heading">
-                <h1>¿Cómo querés que<br/>sea la entrevista?</h1>
+                <h1>¿Cómo querés que<br/>sea la sesión?</h1>
               </div>
 
               <div className="sf-fields sf-fields--step2">
                 <div className="sf-field">
-                  <label>Tipo de entrevista</label>
+                  <label>Tipo de sesión</label>
                   <div className="sf-cards-row">
                     {INTERVIEW_TYPES.map((t) => (
                       <RadioCard
