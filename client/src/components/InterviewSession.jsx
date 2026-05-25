@@ -106,19 +106,11 @@ Otherwise respond with this exact JSON structure:
     {"title": "Third action", "description": "Specific suggestion. Use **bold** for key concepts.", "priority": "media"},
     {"title": "Fourth action", "description": "Specific suggestion. Use **bold** for key concepts.", "priority": "media"}
   ],
-  "nextStep": "One sentence: the single most important thing the candidate should practice before their next interview. Use **bold** for the key concept.",
-  "qa_review": [
-    {
-      "question": "¿Cuál fue tu mayor logro laboral?",
-      "userAnswer": "Exact transcription of what the candidate said, cleaned up with proper punctuation and capitalization. Wrap weak or improvable parts with [[double brackets]] — e.g. phrases that are vague, generic, too short, or miss an opportunity. Do NOT change the content.",
-      "suggestedAnswer": "A perfect 2-4 paragraph answer for this specific question given the role, company, and interview type context. Use natural language. For behavioral questions, follow STAR structure (context, action, result). Wrap the parts that directly improve or replace the [[weak parts]] from userAnswer with ((double parentheses)) — so the reader can visually connect red → green."
-    }
-  ]
+  "nextStep": "One sentence: the single most important thing the candidate should practice before their next interview. Use **bold** for the key concept."
 }
 
 Rules:
-- 2-3 items in wentWell, 2-3 items in toImprove, exactly 4 items in actionPlan (2 alta + 2 media priority).
-- qa_review is REQUIRED. Include 1-5 content questions from the transcript (exclude greetings, "how are you?", closings, logistics). Rewrite each as a short direct question in the same language as the transcript. If there are no content questions, set qa_review to [].`
+- 2-3 items in wentWell, 2-3 items in toImprove, exactly 4 items in actionPlan (2 alta + 2 media priority).`
 }
 
 function IntroLoading({ titleText, tips = INTERVIEW_TIPS }) {
@@ -1517,7 +1509,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            max_tokens: 8000,
+            max_tokens: 2500,
             system: scoringSystem,
             messages: [{ role: 'user', content: scoringUserMessage }],
           }),
@@ -1542,7 +1534,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
           { clarity, structure, roleRelevance },
           contentAxes
         )
-        enrichedFeedback = { ...parsed, score: scoreResult.finalScore, scoreResult, previousScore, durationSeconds, interviewType: config.interviewType || 'HR' }
+        enrichedFeedback = { ...parsed, score: scoreResult.finalScore, scoreResult, previousScore, durationSeconds, interviewType: config.interviewType || 'HR', qa_review: 'loading' }
       }
 
       // Save to DB and navigate to dashboard with the saved interview open

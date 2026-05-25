@@ -723,12 +723,20 @@ function NewFeedback({ feedback, config, onRestart, onDashboard, onBack, saveFai
         )}
 
         {/* ── Q&A Review ── */}
-        {Array.isArray(feedback.qa_review) && feedback.qa_review.length > 0 && (
+        {feedback.qa_review === 'loading' || feedback.qa_review_pending ? (
+          <div className="rpt-card" style={{ padding: 24, marginBottom: 16 }}>
+            <p className="rpt-card-label" style={{ marginBottom: 16 }}>REVISIÓN DE RESPUESTAS</p>
+            <div className="sk" style={{ height: 24, width: '60%', borderRadius: 6, marginBottom: 12 }} />
+            <div className="sk" style={{ height: 80, borderRadius: 6, marginBottom: 12 }} />
+            <div className="sk" style={{ height: 24, width: '50%', borderRadius: 6, marginBottom: 12 }} />
+            <div className="sk" style={{ height: 80, borderRadius: 6 }} />
+          </div>
+        ) : Array.isArray(feedback.qa_review) && feedback.qa_review.length > 0 ? (
           <div className="rpt-card" style={{ padding: 24, marginBottom: 16 }}>
             <p className="rpt-card-label" style={{ marginBottom: 16 }}>REVISIÓN DE RESPUESTAS</p>
             <QAReviewTable qaReview={feedback.qa_review} />
           </div>
-        )}
+        ) : null}
 
       </div>
 
