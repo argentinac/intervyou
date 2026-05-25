@@ -1557,7 +1557,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
               durationSeconds,
             }),
           })
-          if (saveRes.ok && onDashboard && !isSimulation) {
+          if (saveRes.ok && onDashboard) {
             const { id } = await saveRes.json()
             navigated = true
             setPendingNavId(id)
@@ -1582,7 +1582,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
   const closeRatingModal = useCallback((navId) => {
     setShowRatingModal(false)
     setRatingDone(true)
-    if (navId && onDashboard) onDashboard(navId)
+    if (onDashboard) onDashboard(navId ?? null)
   }, [onDashboard])
 
   const submitRating = useCallback(async () => {
