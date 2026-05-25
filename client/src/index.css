@@ -2138,7 +2138,7 @@ html, body, #root, .app {
 .db-layout {
   display: flex;
   min-height: 100vh;
-  background: #F7F9FD;
+  background: #fafafa;
   font-family: 'Inter', system-ui, sans-serif;
 }
 
