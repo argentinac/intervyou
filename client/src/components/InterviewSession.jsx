@@ -183,6 +183,7 @@ const UI_STRINGS = {
     thinking:        { male: 'Interviewer is thinking…',   female: 'Interviewer is thinking…' },
     speaking:        { male: 'Interviewer is speaking…',   female: 'Interviewer is speaking…' },
     yourTurn:        'Your turn — click the mic to speak',
+    micBlockedStatus: 'Microphone access required to participate.',
     recording:       'Listening…',
     processing:      'Processing your answer…',
     noSpeech:        "Didn't catch that. Try again.",
@@ -205,6 +206,7 @@ const UI_STRINGS = {
     thinking:        { male: 'Preparando respuesta…',   female: 'Preparando respuesta…' },
     speaking:        { male: 'La persona está hablando…',   female: 'La persona está hablando…' },
     yourTurn:        'Tu turno — hacé click para hablar',
+    micBlockedStatus: 'Necesitamos acceso al micrófono para continuar.',
     recording:       'Escuchando…',
     processing:      'Procesando tu respuesta…',
     noSpeech:        'No te escuché. Intentá de nuevo.',
@@ -227,6 +229,7 @@ const UI_STRINGS = {
     thinking:        { male: 'Preparando resposta…',   female: 'Preparando resposta…' },
     speaking:        { male: 'A pessoa está falando…',    female: 'A pessoa está falando…' },
     yourTurn:        'Sua vez — clique para falar',
+    micBlockedStatus: 'Precisamos de acesso ao microfone para continuar.',
     recording:       'Ouvindo…',
     processing:      'Processando sua resposta…',
     noSpeech:        'Não te ouvi. Tente novamente.',
@@ -249,6 +252,7 @@ const UI_STRINGS = {
     thinking:        { male: "L'intervieweur réfléchit…",   female: "L'intervieweuse réfléchit…" },
     speaking:        { male: "L'intervieweur parle…",       female: "L'intervieweuse parle…" },
     yourTurn:        'À vous — cliquez pour parler',
+    micBlockedStatus: "Nous avons besoin d'accès au microphone pour continuer.",
     recording:       'Écoute…',
     processing:      'Traitement de votre réponse…',
     noSpeech:        "Je ne vous ai pas entendu. Réessayez.",
@@ -271,6 +275,7 @@ const UI_STRINGS = {
     thinking:        { male: 'Der Interviewer denkt nach…',   female: 'Die Interviewerin denkt nach…' },
     speaking:        { male: 'Der Interviewer spricht…',      female: 'Die Interviewerin spricht…' },
     yourTurn:        'Sie sind dran — klicken zum Sprechen',
+    micBlockedStatus: 'Mikrofonzugang erforderlich, um fortzufahren.',
     recording:       'Zuhören…',
     processing:      'Antwort wird verarbeitet…',
     noSpeech:        'Ich habe Sie nicht gehört. Versuchen Sie es erneut.',
@@ -293,6 +298,7 @@ const UI_STRINGS = {
     thinking:        { male: "L'intervistatore sta pensando…",   female: "L'intervistatrice sta pensando…" },
     speaking:        { male: "L'intervistatore sta parlando…",   female: "L'intervistatrice sta parlando…" },
     yourTurn:        'Tocca a te — clicca per parlare',
+    micBlockedStatus: 'Accesso al microfono necessario per continuare.',
     recording:       'In ascolto…',
     processing:      'Elaborazione della risposta…',
     noSpeech:        'Non ti ho sentito. Riprova.',
@@ -759,6 +765,8 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
   const [warnCountdown, setWarnCountdown] = useState(WARN_SECS)
   const [toast, setToast] = useState(null)
   const [micDisconnected, setMicDisconnected] = useState(false)
+  const [micBlocked, setMicBlocked] = useState(false)
+  const [cameraBlocked, setCameraBlocked] = useState(false)
   const [showDeviceModal, setShowDeviceModal] = useState(false)
   const [micDevices, setMicDevices] = useState([])
   const [speakerDevices, setSpeakerDevices] = useState([])
@@ -807,6 +815,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
   const bargeInCountRef        = useRef(0)
   const micBarsRef             = useRef(null)
   const micBarsRafRef          = useRef(null)
+  const micBlockedRef          = useRef(false)
 
   const locale = COUNTRY_LOCALE[config.country] || LANG_LOCALE[config.language] || 'en-US'
   const canInterrupt = false
@@ -817,12 +826,22 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
   useEffect(() => { isSpeakingRef.current = isSpeaking }, [isSpeaking])
   useEffect(() => { isProcessingRef.current = isProcessing }, [isProcessing])
   useEffect(() => { isRecordingRef.current = isRecording }, [isRecording])
+  useEffect(() => {
+    micBlockedRef.current = micBlocked
+    if (micBlocked) {
+      recognitionRef.current?.stop()
+      recognitionRef.current = null
+      setIsRecording(false)
+      isRecordingRef.current = false
+      setStatusText('')
+    }
+  }, [micBlocked, str.micBlockedStatus])
 
   // ── Mic bars audio level loop ─────────────────────────────
   useEffect(() => {
     if (!isRecording || isMuted) {
       cancelAnimationFrame(micBarsRafRef.current)
-      micBarsRef.current?.querySelectorAll('.mic-bar').forEach(b => { b.style.height = '4px'; b.style.background = '#9ca3af' })
+      micBarsRef.current?.querySelectorAll('.mic-bar').forEach(b => { b.style.height = '4px'; b.style.background = '#d1d5db' })
       return
     }
     let fftData = null
@@ -843,7 +862,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
         const target = isTalking ? 4 + Math.min(rms * 700 * wave, 16) : 4
         HEIGHTS[i] += (target - HEIGHTS[i]) * 0.3
         bar.style.height = HEIGHTS[i].toFixed(1) + 'px'
-        bar.style.background = isTalking ? '#22c55e' : '#9ca3af'
+        bar.style.background = isTalking ? '#4F6EF7' : '#9ca3af'
       })
     }
     loop()
@@ -933,12 +952,20 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
         if (videoRef.current) videoRef.current.srcObject = stream
         setCameraOn(true)
       } catch {
-        // Camera not available or denied — silently skip
+        setCameraBlocked(true)
       }
     }
   }, [cameraOn, selectedCameraId])
 
   useEffect(() => () => cameraStreamRef.current?.getTracks().forEach((t) => t.stop()), [])
+
+  // Detect camera availability on mount
+  useEffect(() => {
+    navigator.mediaDevices.enumerateDevices().then(devices => {
+      const hasCam = devices.some(d => d.kind === 'videoinput')
+      if (!hasCam) setCameraBlocked(true)
+    }).catch(() => setCameraBlocked(true))
+  }, [])
 
   const clearInterruptTimer = useCallback(() => {
     clearTimeout(interruptTimerRef.current)
@@ -1260,8 +1287,9 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition
     if (!SR) { setError('El reconocimiento de voz requiere Chrome o Edge.'); return }
 
-    // Avoid double-starting or starting when muted/manually stopped
+    // Avoid double-starting or starting when muted/manually stopped/blocked
     if (isRecordingRef.current) return
+    if (micBlockedRef.current) return
     if (isMutedRef.current || manuallyStoppedRef.current) {
       setIsRecording(false)
       isRecordingRef.current = false
@@ -1352,8 +1380,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
       }
       setIsRecording(false)
       isRecordingRef.current = false
-      if (e.error === 'not-allowed') setError(str.micError)
-      else if (e.error === 'network') setMicDisconnected(true)
+      if (e.error === 'not-allowed') setMicBlocked(true)
       else setMicDisconnected(true)
     }
 
@@ -1486,24 +1513,11 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
     recognitionRef.current?.stop()
     recognitionRef.current = null
     setSessionEnded(true)
-    if (!isSkill) setShowRatingModal(true)
     if (isSkill) {
       track('skill_session_ended', { skill_id: config.skillId })
       onSkillComplete?.(config.skillId, config.techniqueIdx)
       return
     }
-    if (isSimulation) {
-      track('simulation_session_ended', {
-        simulation_id: simulation.id,
-        category: simulation.category,
-        duration_seconds: Math.round((Date.now() - startTimeRef.current) / 1000),
-        turn_count: messagesRef.current.filter((m) => m.role === 'assistant').length,
-      })
-    } else {
-      track('interview_session_completed')
-    }
-
-    const durationSeconds = Math.round((Date.now() - startTimeRef.current) / 1000)
 
     // Hard guard: simulations need at least N user turns AND M total user words
     // before we even ask Claude to score. Saves a useless API call and prevents
@@ -1518,6 +1532,21 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
         return
       }
     }
+
+    setShowRatingModal(true)
+
+    if (isSimulation) {
+      track('simulation_session_ended', {
+        simulation_id: simulation.id,
+        category: simulation.category,
+        duration_seconds: Math.round((Date.now() - startTimeRef.current) / 1000),
+        turn_count: messagesRef.current.filter((m) => m.role === 'assistant').length,
+      })
+    } else {
+      track('interview_session_completed')
+    }
+
+    const durationSeconds = Math.round((Date.now() - startTimeRef.current) / 1000)
 
     const transcript = messagesRef.current
       .filter((m) => m.role !== 'user' || !m.content.startsWith('('))
@@ -1861,14 +1890,14 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
               )}
             </div>
           )
-          : <p className="meet-status">{statusText}</p>
+          : <p className="meet-status">{micBlocked ? '' : statusText}</p>
         }
         <div className="footer-controls">
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div className="ctrl-pill">
             <button
-              className={`mic-btn ${isMuted ? 'mic-btn--muted' : isSpeaking ? 'mic-btn--interrupt' : isRecording ? 'mic-btn--active' : ''}`}
+              className={`ctrl-btn ctrl-btn--mic ${micBlocked ? 'ctrl-btn--blocked' : isMuted ? 'ctrl-btn--muted' : isSpeaking ? 'ctrl-btn--interrupt' : ''}`}
               onClick={() => {
+                if (micBlocked) return
                 if (isSpeaking) {
                   stopBargeIn()
                   userInterruptedRef.current = true
@@ -1895,32 +1924,69 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
                 recognitionRef.current?.stop()
                 recognitionRef.current = null
               }}
-              title={isMuted ? 'Activar micrófono' : isSpeaking ? 'Interrumpir' : 'Silenciar'}
+              title={micBlocked ? 'Sin acceso al micrófono' : isMuted ? 'Activar micrófono' : isSpeaking ? 'Interrumpir' : 'Silenciar'}
             >
-              {isMuted ? <IconMicOff /> : isSpeaking ? <IconMicOn /> : isRecording ? <IconMicOn /> : <IconMicOff />}
+              {micBlocked ? <IconMicOff /> : isMuted ? <IconMicOff /> : <IconMicOn />}
             </button>
             <MicBars barsRef={micBarsRef} />
-            </div>
-            <span className={`mic-label ${isMuted ? 'mic-label--muted' : isSpeaking ? 'mic-label--interrupt' : isRecording ? 'mic-label--live' : 'mic-label--idle'}`}>
-              {isMuted ? 'Activar mic' : isSpeaking ? 'Interrumpir' : isRecording ? 'Escuchando' : 'Silenciado'}
-            </span>
+            <div className="ctrl-pill-divider" />
+            <button
+              className={`ctrl-btn ${cameraBlocked ? 'ctrl-btn--blocked' : cameraOn ? 'ctrl-btn--cam-on' : ''}`}
+              onClick={cameraBlocked ? undefined : toggleCamera}
+              title={cameraBlocked ? 'Sin acceso a la cámara' : cameraOn ? 'Apagar cámara' : 'Encender cámara'}
+              style={cameraBlocked ? { cursor: 'default' } : undefined}
+            >
+              {cameraOn ? <IconCamOn /> : <IconCamOff />}
+            </button>
+            <div className="ctrl-pill-divider" />
+            <button className="ctrl-btn ctrl-btn--settings" onClick={openDeviceModal} title="Configurar audio y video">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+              </svg>
+            </button>
           </div>
+          {micBlocked && (
+            <div className="mic-blocked-cta">
+              <span>No podemos acceder al micrófono.</span>
+              <button onClick={() => {
+                setMicBlocked(false)
+                setTimeout(() => startRecordingRef.current?.(), 100)
+              }}>Activar</button>
+            </div>
+          )}
+          {!micBlocked && isMuted && !isSpeaking && !isProcessing && !sessionEnded && (
+            <div className="mic-blocked-cta">
+              <span>Tu micrófono está silenciado. Activalo para hablar.</span>
+              <button onClick={() => {
+                setIsMuted(false)
+                isMutedRef.current = false
+                manuallyStoppedRef.current = false
+                if (!isRecording && !isProcessing && !sessionEndedRef.current) {
+                  setTimeout(() => startRecordingRef.current?.(), 100)
+                }
+              }}>Activar</button>
+            </div>
+          )}
+        </div>
+      </footer>
+
+      {import.meta.env.DEV && (
+        <div style={{ position: 'fixed', bottom: 12, right: 12, zIndex: 9999, display: 'flex', gap: 8 }}>
           <button
-            className={`cam-btn ${cameraOn ? 'cam-btn--on' : 'cam-btn--off'}`}
-            onClick={toggleCamera}
-            title={cameraOn ? 'Apagar cámara' : 'Encender cámara'}
+            onClick={() => setMicBlocked(b => !b)}
+            style={{ fontSize: 11, padding: '4px 10px', background: '#1e293b', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', opacity: 0.7 }}
           >
-            {cameraOn ? <IconCamOn /> : <IconCamOff />}
+            Demo: {micBlocked ? 'mic OK' : 'sin mic'}
           </button>
-          <button className="cam-btn cam-btn--settings" onClick={openDeviceModal} title="Configurar audio y video">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="3"/>
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-            </svg>
+          <button
+            onClick={() => setCameraBlocked(b => !b)}
+            style={{ fontSize: 11, padding: '4px 10px', background: '#1e293b', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', opacity: 0.7 }}
+          >
+            Demo: {cameraBlocked ? 'cam OK' : 'sin cam'}
           </button>
         </div>
-        <p className="mic-hint" />
-      </footer>
+      )}
 
       {showDeviceModal && (
         <DeviceModal
