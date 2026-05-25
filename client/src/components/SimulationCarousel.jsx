@@ -1,4 +1,13 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
+
+function shuffleAfterFirst(arr) {
+  const [first, ...rest] = arr
+  for (let i = rest.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [rest[i], rest[j]] = [rest[j], rest[i]]
+  }
+  return [first, ...rest]
+}
 
 const CARDS = [
   {
@@ -88,6 +97,7 @@ function CarouselCard({ card, onAction }) {
 
 export default function SimulationCarousel({ onStartCustomSimulation }) {
   const trackRef = useRef(null)
+  const [cards] = useState(() => shuffleAfterFirst(CARDS))
 
   function scroll(dir) {
     const track = trackRef.current
@@ -105,7 +115,7 @@ export default function SimulationCarousel({ onStartCustomSimulation }) {
         </div>
       </div>
       <div className="sc-track" ref={trackRef}>
-        {CARDS.map((card) => (
+        {cards.map((card) => (
           <CarouselCard key={card.id} card={card} onAction={onStartCustomSimulation} />
         ))}
       </div>
