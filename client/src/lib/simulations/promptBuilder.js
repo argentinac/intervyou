@@ -72,7 +72,7 @@ export function buildSystemPrompt(simulation, answers) {
     `INSTRUCCIONES DE FORMATO:`,
     `- Duración objetivo: ${simulation.internalInstructions?.durationMaxMinutes || 10} minutos.`,
     `- Cantidad de intervenciones tuyas: aproximadamente ${getInterventionsRange(simulation, difficulty)}.`,
-    `- Comenzá con un saludo o pregunta inicial coherente con el contexto.`,
+    `- Comenzá con un saludo o pregunta inicial coherente con el contexto. RECORDATORIO CRÍTICO: el saludo inicial NO puede contener ninguna forma con género gramatical ("bienvenido/a", "listo/a", etc.) — usá solo frases neutras como "es un placer", "gracias por tu tiempo", "podemos empezar".`,
     '',
     `CIERRE — REGLA CRÍTICA:`,
     `Después de aproximadamente ${getInterventionsRange(simulation, difficulty)} intervenciones tuyas, llevá la conversación a un cierre natural y FIRME. Cuando termines tu mensaje de cierre, agregá literalmente al final el token \`[END_INTERVIEW]\` (con corchetes incluidos). Ese token es la señal que el sistema usa para finalizar la sesión.`,
