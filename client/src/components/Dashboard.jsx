@@ -17,6 +17,7 @@ import { INTERVIEW_TIPS } from '../data/tips'
 import { SKILLS_CATALOG } from '../lib/skills/catalog'
 import { unlockAudio } from '../audioContext'
 import { blogPosts } from '../data/blogPosts'
+import SimulationCarousel from './SimulationCarousel'
 
 const IconHome = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -448,8 +449,8 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRec
           <div className="home-custom-sim-icon">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
           </div>
-          <h3 className="home-custom-sim-title">Creá tu propia situación</h3>
-          <p className="home-custom-sim-desc">Practicá cualquier situación, personal o laboral, con un interlocutor adaptado a vos.</p>
+          <h3 className="home-custom-sim-title">Practicá tu propia situación</h3>
+          <p className="home-custom-sim-desc">Ejercitá cualquier situación, personal o laboral, con un interlocutor adaptado a vos.</p>
           <div className="home-custom-sim-meta">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
             7 min
@@ -458,7 +459,7 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRec
             className="home-custom-sim-btn"
             onClick={() => onStartSimulation?.('custom_situation')}
           >
-            Crear situación →
+            Practicar ahora→
           </button>
         </div>
       </div>
@@ -497,6 +498,13 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRec
           })}
         </div>
       </div>
+
+      {/* Elegidas para tu objetivo */}
+      <SimulationCarousel
+        onStartSimulation={onStartSimulation}
+        onNewInterview={onNewInterview}
+        onGoToSimulaciones={onGoToSimulaciones}
+      />
 
       {/* Recursos + Consejo del día */}
       <div className="home-recursos-tip-grid">
