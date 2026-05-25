@@ -4,6 +4,7 @@ import { usePlan } from '../contexts/PlanContext'
 import { track } from '../lib/analytics'
 import { supabase } from '../lib/supabase'
 import MyInterviews from './MyInterviews'
+import FeedbackSummary from './FeedbackSummary'
 import SetupForm from './SetupForm'
 import MyProfile from './MyProfile'
 import SettingsPage from './SettingsPage'
@@ -612,7 +613,7 @@ function SimulacionesSection({
   )
 }
 
-export default function Dashboard({ initialSection = 'home', onNewInterview, onStartInterview, onSignOut, onRepeatInterview, onPricing, onPaymentSuccess, onPaymentError, pendingInterviewId, onPendingInterviewIdConsumed, onVisaInterview, onStartSimulation, onStartSkill }) {
+export default function Dashboard({ initialSection = 'home', onNewInterview, onStartInterview, onSignOut, onRepeatInterview, onPricing, onPaymentSuccess, onPaymentError, pendingInterviewId, onPendingInterviewIdConsumed, onVisaInterview, onStartSimulation, onStartSkill, pendingFeedback, pendingFeedbackConfig, onPendingFeedbackConsumed }) {
   const { user, signOut } = useAuth()
   const { isPro, planStatus, showUpgradeModal, openUpgradeModal, setDemoPlan, setDemoCountry, country } = usePlan()
   const [section, setSection] = useState(initialSection)
@@ -626,6 +627,18 @@ export default function Dashboard({ initialSection = 'home', onNewInterview, onS
       onPendingInterviewIdConsumed?.()
     }
   }, [pendingInterviewId])
+
+  const [localFeedback, setLocalFeedback] = useState(null)
+  const [localFeedbackConfig, setLocalFeedbackConfig] = useState(null)
+  useEffect(() => {
+    if (pendingFeedback) {
+      setLocalFeedback(pendingFeedback)
+      setLocalFeedbackConfig(pendingFeedbackConfig)
+      setSection('feedback')
+      onPendingFeedbackConsumed?.()
+    }
+  }, [pendingFeedback])
+
   const [profile, setProfile] = useState(null)
   const [subscription, setSubscription] = useState(null)
   const [demoIndex, setDemoIndex] = useState(null)
@@ -830,6 +843,18 @@ export default function Dashboard({ initialSection = 'home', onNewInterview, onS
           />
         )}
         {section === 'interviews'  && <MyInterviews onNewInterview={() => handleNav('new')} onRepeat={onRepeatInterview} initialSelectedId={deepInterviewId} onDeepIdConsumed={() => setDeepInterviewId(null)} mockInterviews={demoIndex !== null ? DEMO_STATES[demoIndex].interviews : undefined} />}
+        {section === 'feedback' && localFeedback && (
+          <FeedbackSummary
+            feedback={localFeedback}
+            config={localFeedbackConfig}
+            onRestart={() => { setLocalFeedback(null); setLocalFeedbackConfig(null); setSection('new') }}
+            onDashboard={() => { setLocalFeedback(null); setLocalFeedbackConfig(null); setSection('home') }}
+            onBack={() => { setLocalFeedback(null); setLocalFeedbackConfig(null); setSection('interviews') }}
+            embedded
+            backLabel="← Mis entrevistas"
+            saveFailed={localFeedback?.saveFailed}
+          />
+        )}
         {section === 'recursos'    && (
           blogSlug
             ? <BlogPost slug={blogSlug} onBack={() => setBlogSlug(null)} hideHeader loggedIn />

@@ -409,6 +409,14 @@ const INTERRUPT_SYSTEM = (language) =>
 const INTERRUPT_AFTER_MS = 180000
 
 // ── Icons (SVG, no emojis) ────────────────────────────────
+const MicBars = ({ barsRef }) => (
+  <div ref={barsRef} className="mic-bars">
+    <span className="mic-bar" />
+    <span className="mic-bar" />
+    <span className="mic-bar" />
+  </div>
+)
+
 const IconMicOn  = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
     <path d="M12 1a4 4 0 0 1 4 4v6a4 4 0 0 1-8 0V5a4 4 0 0 1 4-4zm-1.5 16.93A8.001 8.001 0 0 1 4 11H2a10 10 0 0 0 9 9.95V23h2v-2.05A10 10 0 0 0 22 11h-2a8 8 0 0 1-6.5 7.93z"/>
@@ -697,7 +705,7 @@ function DeviceModal({ micDevices, speakerDevices, cameraDevices, selectedMicId,
   )
 }
 
-export default function InterviewSession({ config, onEnd, onDashboard, onSkillComplete }) {
+export default function InterviewSession({ config, onEnd, onDashboard, onSkillComplete, onFeedbackReady }) {
   const isSkill = !!config.isSkill
   const simulation = config.simulationId ? getSimulationById(config.simulationId) : null
   const isSimulation = !!simulation
@@ -797,6 +805,8 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
   const analyserRef            = useRef(null)
   const bargeInIntervalRef     = useRef(null)
   const bargeInCountRef        = useRef(0)
+  const micBarsRef             = useRef(null)
+  const micBarsRafRef          = useRef(null)
 
   const locale = COUNTRY_LOCALE[config.country] || LANG_LOCALE[config.language] || 'en-US'
   const canInterrupt = false
@@ -807,6 +817,38 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
   useEffect(() => { isSpeakingRef.current = isSpeaking }, [isSpeaking])
   useEffect(() => { isProcessingRef.current = isProcessing }, [isProcessing])
   useEffect(() => { isRecordingRef.current = isRecording }, [isRecording])
+
+  // ── Mic bars audio level loop ─────────────────────────────
+  useEffect(() => {
+    if (!isRecording || isMuted) {
+      cancelAnimationFrame(micBarsRafRef.current)
+      micBarsRef.current?.querySelectorAll('.mic-bar').forEach(b => { b.style.height = '4px'; b.style.background = '#9ca3af' })
+      return
+    }
+    let fftData = null
+    const HEIGHTS = [4, 4, 4]
+    const offsets = [0, Math.PI * 0.6, Math.PI * 1.2]
+    const loop = () => {
+      micBarsRafRef.current = requestAnimationFrame(loop)
+      if (!analyserRef.current || !micBarsRef.current) return
+      if (!fftData || fftData.length !== analyserRef.current.frequencyBinCount) {
+        fftData = new Float32Array(analyserRef.current.frequencyBinCount)
+      }
+      analyserRef.current.getFloatTimeDomainData(fftData)
+      const rms = Math.sqrt(fftData.reduce((s, x) => s + x * x, 0) / fftData.length)
+      const bars = micBarsRef.current.querySelectorAll('.mic-bar')
+      const isTalking = rms > 0.008
+      bars.forEach((bar, i) => {
+        const wave = Math.sin(Date.now() * 0.008 + offsets[i]) * 0.4 + 0.6
+        const target = isTalking ? 4 + Math.min(rms * 700 * wave, 16) : 4
+        HEIGHTS[i] += (target - HEIGHTS[i]) * 0.3
+        bar.style.height = HEIGHTS[i].toFixed(1) + 'px'
+        bar.style.background = isTalking ? '#22c55e' : '#9ca3af'
+      })
+    }
+    loop()
+    return () => cancelAnimationFrame(micBarsRafRef.current)
+  }, [isRecording, isMuted])
 
   // ── Inactivity timer ──────────────────────────────────────
   const resetInactivity = useCallback(() => {
@@ -1317,6 +1359,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
 
     recognition.start()
     recognitionRef.current = recognition
+    openMicForBargein()  // ensures analyserRef is live for mic bars
     setIsRecording(true)
     isRecordingRef.current = true
     setError(null)
@@ -1376,7 +1419,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
         }
       }, INTERRUPT_AFTER_MS)
     }
-  }, [locale, canInterrupt, config.language, askClaude, playAudio, processTurn, clearInterruptTimer])
+  }, [locale, canInterrupt, config.language, askClaude, playAudio, processTurn, clearInterruptTimer, openMicForBargein])
 
   // Keep startRecordingRef in sync so playAudio can call it
   useEffect(() => { startRecordingRef.current = startRecording }, [startRecording])
@@ -1557,7 +1600,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
               durationSeconds,
             }),
           })
-          if (saveRes.ok && onDashboard && !isSimulation) {
+          if (saveRes.ok && onDashboard) {
             const { id } = await saveRes.json()
             navigated = true
             setPendingNavId(id)
@@ -1568,7 +1611,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
         setSaveFailed(true)
       }
 
-      if (!navigated) setFeedback(enrichedFeedback)
+      if (!navigated) { if (onFeedbackReady && onDashboard) { onFeedbackReady(enrichedFeedback, config); onDashboard(null) } else { setFeedback(enrichedFeedback) } }
     } catch (err) {
       console.error('Feedback error:', err)
       setFeedback({ notEnoughData: false, parseError: true })
@@ -1582,7 +1625,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
   const closeRatingModal = useCallback((navId) => {
     setShowRatingModal(false)
     setRatingDone(true)
-    if (navId && onDashboard) onDashboard(navId)
+    if (onDashboard) onDashboard(navId ?? null)
   }, [onDashboard])
 
   const submitRating = useCallback(async () => {
@@ -1611,7 +1654,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
     recognitionRef.current?.stop()
     recognitionRef.current = null
     setSessionEnded(true)
-    setFeedback({
+    const demoData = {
       notEnoughData: false,
       score: 742,
       previousScore: 656,
@@ -1642,8 +1685,9 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
         { title: 'Gestioná mejor el tiempo', description: 'Practicá respuestas más concretas (**1-2 min máx.**) en preguntas no prioritarias para reservar energía en las que más importan.', priority: 'media' },
       ],
       nextStep: 'Practicá sesiones enfocándote en **storytelling e impacto cuantificable**. Te recomendamos hacer 2 sesiones esta semana.',
-    })
-  }, [clearInterruptTimer])
+    }
+    if (onFeedbackReady && onDashboard) { onFeedbackReady(demoData, config); onDashboard(null) } else { setFeedback(demoData) }
+  }, [config, onFeedbackReady, onDashboard, clearInterruptTimer])
 
   if (sessionEnded) {
     if (isSkill) {
@@ -1821,6 +1865,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
         }
         <div className="footer-controls">
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <button
               className={`mic-btn ${isMuted ? 'mic-btn--muted' : isSpeaking ? 'mic-btn--interrupt' : isRecording ? 'mic-btn--active' : ''}`}
               onClick={() => {
@@ -1854,6 +1899,8 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
             >
               {isMuted ? <IconMicOff /> : isSpeaking ? <IconMicOn /> : isRecording ? <IconMicOn /> : <IconMicOff />}
             </button>
+            <MicBars barsRef={micBarsRef} />
+            </div>
             <span className={`mic-label ${isMuted ? 'mic-label--muted' : isSpeaking ? 'mic-label--interrupt' : isRecording ? 'mic-label--live' : 'mic-label--idle'}`}>
               {isMuted ? 'Activar mic' : isSpeaking ? 'Interrumpir' : isRecording ? 'Escuchando' : 'Silenciado'}
             </span>
