@@ -650,16 +650,17 @@ function stopActiveAudio() {
   }
 }
 
-function DeviceModal({ micDevices, speakerDevices, selectedMicId, selectedSpeakerId, onSave, onClose }) {
+function DeviceModal({ micDevices, speakerDevices, cameraDevices, selectedMicId, selectedSpeakerId, selectedCameraId, onSave, onClose }) {
   const [mic, setMic] = useState(selectedMicId)
   const [speaker, setSpeaker] = useState(selectedSpeakerId)
+  const [camera, setCamera] = useState(selectedCameraId)
   const hasSpeakers = speakerDevices.length > 0
 
   return (
     <div className="device-modal-overlay" onClick={onClose}>
       <div className="device-modal" onClick={e => e.stopPropagation()}>
         <div className="device-modal-header">
-          <span className="device-modal-title">Configurar audio</span>
+          <span className="device-modal-title">Configurar audio y video</span>
           <button className="device-modal-close" onClick={onClose}>✕</button>
         </div>
 
@@ -685,9 +686,19 @@ function DeviceModal({ micDevices, speakerDevices, selectedMicId, selectedSpeake
           </div>
         )}
 
+        <div className="device-modal-section">
+          <label className="device-modal-label">Cámara</label>
+          <select className="device-modal-select" value={camera} onChange={e => setCamera(e.target.value)}>
+            <option value="">Predeterminada del sistema</option>
+            {cameraDevices.map(d => (
+              <option key={d.deviceId} value={d.deviceId}>{d.label || `Cámara ${d.deviceId.slice(0,6)}`}</option>
+            ))}
+          </select>
+        </div>
+
         <div className="device-modal-actions">
           <button className="device-modal-cancel" onClick={onClose}>Cancelar</button>
-          <button className="device-modal-save" onClick={() => onSave(mic, speaker)}>Guardar</button>
+          <button className="device-modal-save" onClick={() => onSave(mic, speaker, camera)}>Guardar</button>
         </div>
       </div>
     </div>
@@ -719,6 +730,12 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
   const [sessionEnded, setSessionEnded] = useState(false)
   const [showEndConfirm, setShowEndConfirm] = useState(false)
   const [feedback, setFeedback] = useState(null)
+  const [showRatingModal, setShowRatingModal] = useState(false)
+  const [ratingScore, setRatingScore] = useState(0)
+  const [ratingHover, setRatingHover] = useState(0)
+  const [ratingComment, setRatingComment] = useState('')
+  const [ratingSaving, setRatingSaving] = useState(false)
+  const [ratingDone, setRatingDone] = useState(false)
   const [statusText, setStatusText] = useState(() => str.connecting)
   const [error, setError] = useState(null)
   const [introLoading, setIntroLoading] = useState(true)
@@ -745,11 +762,14 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
   const [showDeviceModal, setShowDeviceModal] = useState(false)
   const [micDevices, setMicDevices] = useState([])
   const [speakerDevices, setSpeakerDevices] = useState([])
+  const [cameraDevices, setCameraDevices] = useState([])
   const [selectedMicId, setSelectedMicId] = useState('')
   const [selectedSpeakerId, setSelectedSpeakerId] = useState('')
+  const [selectedCameraId, setSelectedCameraId] = useState('')
   const [isOffline, setIsOffline] = useState(!navigator.onLine)
   const [claudeRetryFn, setClaudeRetryFn] = useState(null)
   const [saveFailed, setSaveFailed] = useState(false)
+  const [pendingNavId, setPendingNavId] = useState(null)
   const toastTimerRef = useRef(null)
 
   const inactivityTimerRef = useRef(null)
@@ -873,7 +893,8 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
       setCameraOn(false)
     } else {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+        const constraints = selectedCameraId ? { video: { deviceId: { exact: selectedCameraId } }, audio: false } : { video: true, audio: false }
+        const stream = await navigator.mediaDevices.getUserMedia(constraints)
         cameraStreamRef.current = stream
         if (videoRef.current) videoRef.current.srcObject = stream
         setCameraOn(true)
@@ -881,7 +902,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
         // Camera not available or denied — silently skip
       }
     }
-  }, [cameraOn])
+  }, [cameraOn, selectedCameraId])
 
   useEffect(() => () => cameraStreamRef.current?.getTracks().forEach((t) => t.stop()), [])
 
@@ -919,17 +940,30 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
 
   const openDeviceModal = useCallback(async () => {
     try {
-      await navigator.mediaDevices.getUserMedia({ audio: true })
+      await navigator.mediaDevices.getUserMedia({ audio: true, video: true })
     } catch { /* sin permisos, igual intentamos */ }
     const devices = await navigator.mediaDevices.enumerateDevices()
     setMicDevices(devices.filter(d => d.kind === 'audioinput'))
     setSpeakerDevices(devices.filter(d => d.kind === 'audiooutput'))
+    setCameraDevices(devices.filter(d => d.kind === 'videoinput'))
     setShowDeviceModal(true)
   }, [])
 
-  const applyDeviceSelection = useCallback(async (micId, speakerId) => {
+  const applyDeviceSelection = useCallback(async (micId, speakerId, cameraId) => {
     setSelectedMicId(micId)
     setSelectedSpeakerId(speakerId)
+    setSelectedCameraId(cameraId)
+    // Aplicar nueva cámara si está activa
+    if (cameraOn && cameraStreamRef.current) {
+      cameraStreamRef.current.getTracks().forEach(t => t.stop())
+      cameraStreamRef.current = null
+      try {
+        const constraints = cameraId ? { video: { deviceId: { exact: cameraId } }, audio: false } : { video: true, audio: false }
+        const stream = await navigator.mediaDevices.getUserMedia(constraints)
+        cameraStreamRef.current = stream
+        if (videoRef.current) videoRef.current.srcObject = stream
+      } catch { /* sin acceso */ }
+    }
     // Aplicar parlante al AudioContext si el browser lo soporta
     const ctx = getAudioContext()
     if (speakerId && ctx && typeof ctx.setSinkId === 'function') {
@@ -1417,6 +1451,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
     recognitionRef.current?.stop()
     recognitionRef.current = null
     setSessionEnded(true)
+    if (!isSkill) setShowRatingModal(true)
     if (isSkill) {
       track('skill_session_ended', { skill_id: config.skillId })
       onSkillComplete?.(config.skillId, config.techniqueIdx)
@@ -1533,7 +1568,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
           if (saveRes.ok && onDashboard && !isSimulation) {
             const { id } = await saveRes.json()
             navigated = true
-            onDashboard(id)
+            setPendingNavId(id)
           }
         }
       } catch (saveErr) {
@@ -1550,6 +1585,31 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
 
   // Keep endInterviewRef in sync so processTurn can call it
   useEffect(() => { endInterviewRef.current = endInterview }, [endInterview])
+
+  // ── Session rating ─────────────────────────────────────────
+  const closeRatingModal = useCallback((navId) => {
+    setShowRatingModal(false)
+    setRatingDone(true)
+    if (navId && onDashboard) onDashboard(navId)
+  }, [onDashboard])
+
+  const submitRating = useCallback(async () => {
+    if (ratingScore === 0) { closeRatingModal(pendingNavId); return }
+    setRatingSaving(true)
+    try {
+      const sessionType = isSkill ? 'skill' : isSimulation ? 'simulation' : 'interview'
+      let userId = null
+      if (supabase) {
+        const { data: { user } } = await supabase.auth.getUser()
+        userId = user?.id ?? null
+      }
+      await supabase.from('session_ratings').insert({ user_id: userId, rating: ratingScore, comment: ratingComment.trim() || null, session_type: sessionType })
+    } catch (e) {
+      console.warn('Could not save rating', e)
+    }
+    setRatingSaving(false)
+    closeRatingModal(pendingNavId)
+  }, [ratingScore, ratingComment, isSkill, isSimulation, pendingNavId, closeRatingModal])
 
   // ── Demo feedback (skip interview, load mock data) ─────────
   const showDemoFeedback = useCallback(() => {
@@ -1598,22 +1658,80 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
       const skill = getSkillById(config.skillId)
       return <SkillSuccess skill={skill} messages={messagesRef.current} onDashboard={onDashboard} />
     }
+
+    const ratingToast = showRatingModal && (
+      <>
+        <style>{`
+          @keyframes ratingSlideUp { from { opacity:0; transform:translateY(20px) } to { opacity:1; transform:translateY(0) } }
+          .rating-toast { position:fixed; bottom:28px; left:50%; transform:translateX(-50%); background:#fff; border-radius:16px; padding:20px 24px 16px; width:calc(100% - 32px); max-width:400px; box-shadow:0 8px 32px rgba(0,0,0,0.14); animation:ratingSlideUp 0.35s ease; z-index:9999; font-family:inherit }
+          .rating-toast-title { font-size:15px; font-weight:700; color:#111827; margin:0 0 12px; text-align:center }
+          .rating-toast-stars { display:flex; justify-content:center; gap:8px; margin-bottom:12px }
+          .rating-toast-star { cursor:pointer; font-size:28px; line-height:1; user-select:none; transition:transform 0.12s }
+          .rating-toast-star:hover { transform:scale(1.2) }
+          .rating-toast-comment { width:100%; box-sizing:border-box; border:1.5px solid #E5E7EB; border-radius:8px; padding:9px 12px; font-size:13px; color:#111827; resize:none; height:64px; font-family:inherit; outline:none; transition:border-color 0.15s; display:block }
+          .rating-toast-comment:focus { border-color:#7C3AED }
+          .rating-toast-actions { display:flex; gap:8px; margin-top:12px }
+          .rating-toast-skip { flex:1; padding:9px; border:1.5px solid #E5E7EB; border-radius:8px; background:#fff; color:#6B7280; font-size:13px; cursor:pointer; font-family:inherit }
+          .rating-toast-submit { flex:2; padding:9px; border:none; border-radius:8px; background:#7C3AED; color:#fff; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; transition:background 0.15s }
+          .rating-toast-submit:hover { background:#6D28D9 }
+          .rating-toast-submit:disabled { background:#C4B5FD; cursor:not-allowed }
+        `}</style>
+        <div className="rating-toast">
+          <p className="rating-toast-title">¿Cómo fue tu experiencia con la simulación?</p>
+          <div className="rating-toast-stars">
+            {[1,2,3,4,5].map(n => (
+              <span
+                key={n}
+                className="rating-toast-star"
+                onMouseEnter={() => setRatingHover(n)}
+                onMouseLeave={() => setRatingHover(0)}
+                onClick={() => setRatingScore(n)}
+                role="button"
+                aria-label={`${n} estrella${n !== 1 ? 's' : ''}`}
+              >
+                {n <= (ratingHover || ratingScore) ? '⭐' : '☆'}
+              </span>
+            ))}
+          </div>
+          <textarea
+            className="rating-toast-comment"
+            placeholder="¿Algo que quieras contarnos? (opcional)"
+            value={ratingComment}
+            onChange={e => setRatingComment(e.target.value)}
+            maxLength={500}
+          />
+          <div className="rating-toast-actions">
+            <button className="rating-toast-skip" onClick={() => closeRatingModal(pendingNavId)}>Omitir</button>
+            <button className="rating-toast-submit" disabled={ratingSaving} onClick={submitRating}>
+              {ratingSaving ? 'Enviando...' : 'Enviar'}
+            </button>
+          </div>
+        </div>
+      </>
+    )
+
     if (isSimulation) {
       if (!feedback) {
         return (
-          <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#F7F9FD', gap: 20, fontFamily: 'inherit' }}>
+          <div style={{ position:'relative', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#F7F9FD', gap: 20, fontFamily: 'inherit' }}>
             <img src="/logo.png" alt="FeelReady" style={{ height: 32 }} />
             <div className="spinner" style={{ width: 32, height: 32, border: '3px solid #E5E7EB', borderTop: '3px solid #7C3AED', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
             <div style={{ fontSize: 16, fontWeight: 600, color: '#111827' }}>Preparando tu feedback...</div>
             <div style={{ fontSize: 13, color: '#6B7280', maxWidth: 360, textAlign: 'center' }}>Estamos analizando tu conversación. Esto puede tardar unos segundos.</div>
             <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+            {ratingToast}
           </div>
         )
       }
       track('simulation_feedback_viewed', { simulation_id: simulation.id, general_score: feedback.general_score })
       return <SimulationFeedback feedback={feedback} config={config} onRestart={onEnd} onDashboard={onDashboard} />
     }
-    return <FeedbackSummary feedback={feedback} config={config} onRestart={onEnd} onDashboard={onDashboard} saveFailed={saveFailed} />
+    return (
+      <>
+        <FeedbackSummary feedback={feedback} config={config} onRestart={onEnd} onDashboard={onDashboard} saveFailed={saveFailed} />
+        {ratingToast}
+      </>
+    )
   }
   if (introLoading) return <IntroLoading titleText={isSkill ? 'Preparando tu sesión de coaching…' : isSimulation ? 'Preparando tu simulación…' : undefined} tips={isSkill ? COACHING_TIPS : isSimulation ? getTipsForSimulation(simulation.category) : INTERVIEW_TIPS} />
 
@@ -1755,7 +1873,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
           >
             {cameraOn ? <IconCamOn /> : <IconCamOff />}
           </button>
-          <button className="cam-btn cam-btn--settings" onClick={openDeviceModal} title="Configurar audio">
+          <button className="cam-btn cam-btn--settings" onClick={openDeviceModal} title="Configurar audio y video">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="3"/>
               <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
@@ -1769,8 +1887,10 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
         <DeviceModal
           micDevices={micDevices}
           speakerDevices={speakerDevices}
+          cameraDevices={cameraDevices}
           selectedMicId={selectedMicId}
           selectedSpeakerId={selectedSpeakerId}
+          selectedCameraId={selectedCameraId}
           onSave={applyDeviceSelection}
           onClose={() => setShowDeviceModal(false)}
         />
