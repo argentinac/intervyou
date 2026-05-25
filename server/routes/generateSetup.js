@@ -27,6 +27,7 @@ Evitá preguntas sobre datos de fondo que no cambiarían el comportamiento (ej: 
 
 Respondé SOLO con este JSON:
 {
+  "situationTitle": "Título corto de 3-5 palabras que resume la situación (ej: 'Pedir aumento al jefe', 'Despedir a un empleado', 'Hablar con mi ex'). Sin comillas en el valor.",
   "persona": {
     "role": "Título breve del rol (ej: Cliente enojado, Jefe directo, Colega)",
     "gender": "male",

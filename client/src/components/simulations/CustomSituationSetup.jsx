@@ -570,7 +570,7 @@ export default function CustomSituationSetup({ simulation, onSubmit, onBack, ini
       if (!res.ok) throw new Error('api_error')
       const data = await res.json()
       if (!data.persona || !Array.isArray(data.questions)) throw new Error('bad_response')
-      setGenerated(data)
+      setGenerated({ ...data, situationTitle: data.situationTitle || situation.trim().slice(0, 50) })
       goTo('questions', 'left')
     } catch {
       setError('Hubo un problema generando tu simulación. Intentá de nuevo.')
@@ -621,6 +621,7 @@ export default function CustomSituationSetup({ simulation, onSubmit, onBack, ini
       interlocutorName,
       interlocutorRole: persona.role || 'Tu interlocutor',
       voiceTone,
+      simulationTitle: generated?.situationTitle || situation.trim().slice(0, 50),
       dynamicSituation: situation.trim(),
       dynamicPersonaCore: persona.systemPromptCore || '',
       dynamicAnswers: resolvedAnswers,
