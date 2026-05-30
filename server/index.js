@@ -10,6 +10,7 @@ import express from 'express'
 import cors from 'cors'
 import multer from 'multer'
 import { rateLimit } from 'express-rate-limit'
+import { requireAuth } from './middleware/auth.js'
 import { transcribeRoute } from './routes/transcribe.js'
 import { chatRoute } from './routes/chat.js'
 import { speakRoute } from './routes/speak.js'
@@ -24,31 +25,43 @@ const upload = multer({ storage: multer.memoryStorage() })
 app.use(cors())
 app.use(express.json())
 
-// 60 requests/min per IP — ~1 req/s, enough for a full interview turn
+// 60 requests/min per user — ~1 req/s, enough for a full interview turn
 const chatLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 60,
+  keyGenerator: (req) => req.user?.id || req.ip,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'rate_limit', message: 'Too many requests, please slow down.' },
 })
 
-// 120 requests/min per IP — speak is called more often (each AI turn + skill audio)
+// 120 requests/min per user — speak is called more often (each AI turn + skill audio)
 const speakLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 120,
+  keyGenerator: (req) => req.user?.id || req.ip,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'rate_limit', message: 'Too many requests, please slow down.' },
 })
 
-app.post('/api/transcribe', upload.single('audio'), transcribeRoute)
-app.post('/api/chat', chatLimiter, chatRoute)
-app.post('/api/speak', speakLimiter, speakRoute)
+// 10 requests/min per user — generate-setup uses Claude, limit abuse
+const setupLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  keyGenerator: (req) => req.user?.id || req.ip,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'rate_limit', message: 'Too many requests, please slow down.' },
+})
+
+app.post('/api/transcribe', requireAuth, upload.single('audio'), transcribeRoute)
+app.post('/api/chat', requireAuth, chatLimiter, chatRoute)
+app.post('/api/speak', requireAuth, speakLimiter, speakRoute)
 app.use('/api/interviews', interviewsRouter)
 app.use('/api/logs', logsRouter)
 app.use('/api/payments', paymentsRouter)
-app.post('/api/generate-setup', generateSetupRoute)
+app.post('/api/generate-setup', requireAuth, setupLimiter, generateSetupRoute)
 
 // Serve frontend in production
 const clientDist = resolve(process.cwd(), 'client/dist')

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { unlockAudio } from '../../audioContext'
+import { useAuth } from '../../contexts/AuthContext'
 import { generateInterlocutorName } from '../../lib/simulations/interlocutorNames'
 import { useQuestionStepper } from '../../lib/simulations/useQuestionStepper'
 
@@ -531,6 +532,7 @@ const EXAMPLES = [
 
 /* ─── Component ───────────────────────────────────────────────────────────── */
 export default function CustomSituationSetup({ simulation, onSubmit, onBack, initialSituation, hideHeader }) {
+  const { getToken } = useAuth()
   const [step, setStep] = useState('input') // 'input' | 'loading' | 'questions' | 'difficulty' | 'gender'
   const [direction, setDirection] = useState('left')
   const [situation, setSituation] = useState(initialSituation || '')
@@ -572,9 +574,10 @@ export default function CustomSituationSetup({ simulation, onSubmit, onBack, ini
     goTo('loading')
     setError(null)
     try {
+      const token = await getToken().catch(() => null)
       const res = await fetch('/api/generate-setup', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify({ situation: situation.trim() }),
       })
       if (!res.ok) throw new Error('api_error')
