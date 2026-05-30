@@ -306,7 +306,7 @@ export default function SetupForm({ onSubmit, onBack, initialConfig, hideHeader 
   const [step, setStep] = useState(1)
   const [direction, setDirection] = useState('left')
   const [form, setForm] = useState({
-    country: initialConfig?.country ?? '',
+    country: initialConfig?.country ?? 'Argentina',
     language: initialConfig?.language ?? 'Spanish',
     interviewType: initialConfig?.interviewType ?? 'Mixed',
     difficulty: initialConfig?.difficulty ?? 'Intermediate',
@@ -329,7 +329,7 @@ export default function SetupForm({ onSubmit, onBack, initialConfig, hideHeader 
       .then((data) => {
         const detected = data.country_name
         if (detected && COUNTRIES.includes(detected)) {
-          setForm((f) => f.country ? f : { ...f, country: detected })
+          setForm((f) => initialConfig?.country ? f : { ...f, country: detected })
         }
       })
       .catch(() => {})
