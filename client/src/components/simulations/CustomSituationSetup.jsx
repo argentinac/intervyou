@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { unlockAudio } from '../../audioContext'
 import { generateInterlocutorName } from '../../lib/simulations/interlocutorNames'
+import { useQuestionStepper } from '../../lib/simulations/useQuestionStepper'
 
 /* ─── Styles ──────────────────────────────────────────────────────────────── */
 const CSS = `
@@ -538,9 +539,17 @@ export default function CustomSituationSetup({ simulation, onSubmit, onBack, ini
   const [otherText, setOtherText] = useState({})
   const [difficulty, setDifficulty] = useState('Intermediate')
   const [gender, setGender] = useState('indistinto')
-  const [qIndex, setQIndex] = useState(0)
   const [error, setError] = useState(null)
   const textareaRef = useRef(null)
+
+  const qStepper = useQuestionStepper(
+    generated?.questions || [],
+    qAnswers,
+    {
+      onComplete: () => goTo('difficulty', 'left'),
+      onBack: () => goTo('input', 'right'),
+    }
+  )
 
   useEffect(() => {
     if (step === 'input') textareaRef.current?.focus()
@@ -572,22 +581,12 @@ export default function CustomSituationSetup({ simulation, onSubmit, onBack, ini
       const data = await res.json()
       if (!data.persona || !Array.isArray(data.questions)) throw new Error('bad_response')
       setGenerated({ ...data, situationTitle: data.situationTitle || situation.trim().slice(0, 50) })
-      setQIndex(0)
+      qStepper.setIdx(0)
       goTo('questions', 'left')
     } catch {
       setError('Hubo un problema generando tu simulación. Intentá de nuevo.')
       goTo('input', 'right')
     }
-  }
-
-  const allQuestionsAnswered = () => {
-    if (!generated) return false
-    return generated.questions.every((q) => {
-      const v = qAnswers[q.id]
-      if (!v) return false
-      if (q.type === 'multiselect') return Array.isArray(v) && v.length > 0
-      return true
-    })
   }
 
   const handleSubmit = async () => {
@@ -633,13 +632,13 @@ export default function CustomSituationSetup({ simulation, onSubmit, onBack, ini
   const totalSteps = 3 + (generated?.questions?.length || 0)
   const stepIndex = step === 'input' ? 1
     : step === 'loading' ? 2
-    : step === 'questions' ? 2 + qIndex + 1
+    : step === 'questions' ? 2 + qStepper.idx + 1
     : step === 'difficulty' ? totalSteps - 1
     : totalSteps
   const progressPct = `${Math.round((stepIndex / totalSteps) * 100)}%`
   const stepNumMap = {
     input: `1 / ${totalSteps}`,
-    questions: `${2 + qIndex} / ${totalSteps}`,
+    questions: `${2 + qStepper.idx} / ${totalSteps}`,
     difficulty: `${totalSteps - 1} / ${totalSteps}`,
     gender: `${totalSteps} / ${totalSteps}`,
   }
@@ -751,11 +750,10 @@ export default function CustomSituationSetup({ simulation, onSubmit, onBack, ini
 
             {/* ── STEP: QUESTIONS ── */}
             {step === 'questions' && generated && (() => {
-              const q = generated.questions[qIndex]
+              const q = qStepper.currentQ
+              if (!q) return null
               const val = qAnswers[q.id]
               const isMulti = q.type === 'multiselect'
-              const isLast = qIndex === generated.questions.length - 1
-              const currentAnswered = isMulti ? (Array.isArray(val) && val.length > 0) : !!val
 
               const toggleMulti = (v) => {
                 const arr = Array.isArray(val) ? val : []
@@ -768,7 +766,7 @@ export default function CustomSituationSetup({ simulation, onSubmit, onBack, ini
               }
 
               return (
-                <div className={`cs-step ${animClass}`} key={`q-${qIndex}`}>
+                <div className={`cs-step ${animClass}`} key={`q-${qStepper.idx}`}>
                   <h1 className="cs-heading">Contanos un poco más</h1>
                   <p className="cs-subheading">
                     Esto nos ayuda a crear un interlocutor que se ajuste a tu situación.
@@ -823,20 +821,14 @@ export default function CustomSituationSetup({ simulation, onSubmit, onBack, ini
                   <div className="cs-footer">
                     <button
                       className="cs-btn-back"
-                      onClick={() => {
-                        if (qIndex === 0) goTo('input', 'right')
-                        else { setDirection('right'); setQIndex(i => i - 1) }
-                      }}
+                      onClick={() => { setDirection('right'); qStepper.goPrev() }}
                     >
                       ← Volver
                     </button>
                     <button
                       className="cs-btn-next"
-                      onClick={() => {
-                        if (isLast) goTo('difficulty', 'left')
-                        else { setDirection('left'); setQIndex(i => i + 1) }
-                      }}
-                      disabled={!currentAnswered}
+                      onClick={() => { setDirection('left'); qStepper.goNext() }}
+                      disabled={!qStepper.canAdvance}
                     >
                       Continuar →
                     </button>

@@ -3,6 +3,7 @@ import { unlockAudio } from '../../audioContext'
 import { supabase } from '../../lib/supabase'
 import { generateInterlocutorName } from '../../lib/simulations/interlocutorNames'
 import { COUNTRIES_ES } from '../../lib/simulations/countries'
+import { useQuestionStepper } from '../../lib/simulations/useQuestionStepper'
 
 const IntervyouIcon = () => (
   <img src="/logo.png" alt="intervyou" style={{ height: 32, width: 'auto' }} />
@@ -236,15 +237,6 @@ function Question({ q, value, onChange }) {
   return null
 }
 
-function isAnswerValid(q, answers) {
-  const v = answers[q.id]
-  if (!q.required) return true
-  if (q.type === 'shortText') return typeof v === 'string' && v.trim().length > 0
-  if (q.type === 'multiselect') return Array.isArray(v) && v.length > 0
-  if (q.type === 'tile') return !!v
-  return !!v
-}
-
 function buildInitialAnswers(simulation) {
   const initial = {}
   const all = [
@@ -258,11 +250,23 @@ function buildInitialAnswers(simulation) {
 }
 
 export default function GenericSetupForm({ simulation, onSubmit, onBack }) {
-  const [step, setStep] = useState(1)
+  const allQuestions = [
+    ...(simulation.onboarding?.screen1?.questions || []),
+    ...(simulation.onboarding?.screen2?.questions || []),
+  ]
+
   const [answers, setAnswers] = useState(() => buildInitialAnswers(simulation))
   const detectedCountryRef = useRef(null)
   const [dailyLimitReached, setDailyLimitReached] = useState(false)
   const [checkingLimit, setCheckingLimit] = useState(false)
+
+  const setAnswer = (id, value) => setAnswers((a) => ({ ...a, [id]: value }))
+
+  const { idx: stepIdx, total, currentQ, isLast, canAdvance, goNext, goPrev } = useQuestionStepper(
+    allQuestions,
+    answers,
+    { onComplete: doSubmit, onBack }
+  )
 
   useEffect(() => {
     fetch('https://ipapi.co/json/')
@@ -275,14 +279,7 @@ export default function GenericSetupForm({ simulation, onSubmit, onBack }) {
       .catch(() => {})
   }, [])
 
-  const setAnswer = (id, value) => setAnswers((a) => ({ ...a, [id]: value }))
-
-  const screen = step === 1 ? simulation.onboarding.screen1 : simulation.onboarding.screen2
-  const screen1Valid = simulation.onboarding.screen1.questions.every((q) => isAnswerValid(q, answers))
-  const screen2Valid = simulation.onboarding.screen2.questions.every((q) => isAnswerValid(q, answers))
-
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  async function doSubmit() {
     setCheckingLimit(true)
     try {
       const { data: { session } } = await supabase.auth.getSession()
@@ -362,51 +359,30 @@ export default function GenericSetupForm({ simulation, onSubmit, onBack }) {
           <IntervyouIcon />
         </div>
         <div className="sf-progress">
-          <div className="sf-progress-bar" style={{ width: step === 1 ? '50%' : '100%' }} />
+          <div className="sf-progress-bar" style={{ width: `${((stepIdx + 1) / total) * 100}%` }} />
         </div>
-        <span className="sf-step-label">{step} / 2</span>
+        <span className="sf-step-label">{stepIdx + 1} / {total}</span>
       </header>
 
       <main className="sf-main">
         <div className="sf-card">
-          <div className="sf-heading">
-            <h1>{screen.heading}</h1>
-            {screen.subheading && (
-              <p style={{ fontSize: 14, color: '#6b7280', marginTop: 8 }}>{screen.subheading}</p>
-            )}
-          </div>
-
-          <form onSubmit={step === 2 ? handleSubmit : (e) => e.preventDefault()}>
+          <form onSubmit={(e) => { e.preventDefault(); goNext() }}>
             <div className="sf-fields">
-              {screen.questions.map((q) => (
-                <Question key={q.id} q={q} value={answers[q.id]} onChange={(v) => setAnswer(q.id, v)} />
-              ))}
+              <Question key={currentQ.id} q={currentQ} value={answers[currentQ.id]} onChange={(v) => setAnswer(currentQ.id, v)} />
             </div>
 
             <div className="sf-footer">
-              {step === 1 ? <div /> : (
-                <button type="button" className="sf-back" onClick={() => setStep(1)}>← Volver</button>
-              )}
-              {step === 1 ? (
-                <button
-                  type="button"
-                  className="sf-next"
-                  onClick={() => setStep(2)}
-                  disabled={!screen1Valid}
-                  data-track={`simulation_setup_step1_${simulation.id}`}
-                >
-                  Continuar →
-                </button>
-              ) : (
-                <button
-                  type="submit"
-                  className="sf-next"
-                  disabled={!screen2Valid || checkingLimit}
-                  data-track={`simulation_started_${simulation.id}`}
-                >
-                  {checkingLimit ? 'Verificando...' : 'Empezar →'}
-                </button>
-              )}
+              {stepIdx > 0 ? (
+                <button type="button" className="sf-back" onClick={goPrev}>← Volver</button>
+              ) : <div />}
+              <button
+                type="submit"
+                className="sf-next"
+                disabled={!canAdvance || checkingLimit}
+                data-track={isLast ? `simulation_started_${simulation.id}` : `simulation_setup_step${stepIdx + 1}_${simulation.id}`}
+              >
+                {isLast ? (checkingLimit ? 'Verificando...' : 'Empezar →') : 'Continuar →'}
+              </button>
             </div>
           </form>
         </div>
