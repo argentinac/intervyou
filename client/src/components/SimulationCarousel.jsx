@@ -74,12 +74,19 @@ function NavButton({ direction, onClick }) {
   )
 }
 
-function CarouselCard({ card, onAction }) {
+function CarouselCard({ card, onAction, onNewInterview }) {
+  function handleClick() {
+    if (card.id === 'entrevista_laboral') {
+      onNewInterview?.()
+    } else {
+      onAction(card.situation)
+    }
+  }
   return (
     <button
       className="sc-card"
       style={{ background: card.bg }}
-      onClick={() => onAction(card.situation)}
+      onClick={handleClick}
       aria-label={card.label}
     >
       <div className="sc-card-img-wrap">
@@ -99,7 +106,7 @@ function CarouselCard({ card, onAction }) {
   )
 }
 
-export default function SimulationCarousel({ onStartCustomSimulation }) {
+export default function SimulationCarousel({ onStartCustomSimulation, onNewInterview }) {
   const trackRef = useRef(null)
   const [cards] = useState(() => shuffleWithPinInFirst4(CARDS))
 
@@ -120,7 +127,7 @@ export default function SimulationCarousel({ onStartCustomSimulation }) {
       </div>
       <div className="sc-track" ref={trackRef}>
         {cards.map((card) => (
-          <CarouselCard key={card.id} card={card} onAction={onStartCustomSimulation} />
+          <CarouselCard key={card.id} card={card} onAction={onStartCustomSimulation} onNewInterview={onNewInterview} />
         ))}
       </div>
     </div>
