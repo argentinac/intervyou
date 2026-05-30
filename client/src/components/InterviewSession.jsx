@@ -1357,7 +1357,10 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
           const formData = new FormData()
           formData.append('audio', blob, 'recording.webm')
           formData.append('language', config.language || 'Spanish')
-          const resp = await fetch('/api/transcribe', { method: 'POST', body: formData })
+          const controller = new AbortController()
+          const whisperTimeout = setTimeout(() => controller.abort(), 15000)
+          const resp = await fetch('/api/transcribe', { method: 'POST', body: formData, signal: controller.signal })
+          clearTimeout(whisperTimeout)
           if (resp.ok) text = (await resp.json()).text?.trim() || ''
         } catch (err) {
           console.error('Whisper transcription error:', err)
@@ -1405,11 +1408,19 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
       setError(null)
       setStatusText(str.recording)
 
+      // Safety: stop after 45s max even if VAD never fires
+      const maxRecordingTimer = setTimeout(() => {
+        if (mediaRecorderRef.current?.state === 'recording') mediaRecorderRef.current.stop()
+      }, 45000)
+
       // VAD: stop recorder after SILENCE_MS of quiet audio
       let silenceStart = null
       let fftData = null
       vadIntervalRef.current = setInterval(() => {
-        if (!analyserRef.current) return
+        if (!analyserRef.current) {
+          // No analyser — fall back to max recording timer only
+          return
+        }
         if (!fftData || fftData.length !== analyserRef.current.frequencyBinCount) {
           fftData = new Float32Array(analyserRef.current.frequencyBinCount)
         }
@@ -1418,6 +1429,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
         if (rms < SILENCE_THRESHOLD) {
           if (!silenceStart) silenceStart = Date.now()
           else if (Date.now() - silenceStart >= SILENCE_MS) {
+            clearTimeout(maxRecordingTimer)
             if (mediaRecorderRef.current?.state === 'recording') mediaRecorderRef.current.stop()
           }
         } else {
