@@ -285,7 +285,7 @@ function RadarChart({ axisValues }) {
 
         const lx = cx + labelDist * cosA
         const ly = cy + labelDist * sinA
-        const anchor = Math.abs(cosA) < 0.3 ? 'middle' : cosA > 0 ? 'start' : 'end'
+        const anchor = 'middle'
 
         // Tight stacking relative to anchor (lx,ly):
         // top-half axes: icon(outermost up) → name → score(closest to polygon, down)
