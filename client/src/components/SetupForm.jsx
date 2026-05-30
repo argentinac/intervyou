@@ -360,8 +360,9 @@ export default function SetupForm({ onSubmit, onBack, initialConfig, hideHeader 
           messages: [{ role: 'user', content: `Write a concise job description (3-5 sentences, plain text) in ${form.language} for the role of "${form.jobTitle}"${form.companyName ? ` at ${form.companyName}` : ''}. Cover main responsibilities and key requirements.` }],
         }),
       })
-      const { text } = await res.json()
-      setForm((f) => ({ ...f, jobDescription: text.trim().slice(0, MAX_CHARS) }))
+      const data = await res.json()
+      const text = data.text || data.content || ''
+      if (text) setForm((f) => ({ ...f, jobDescription: text.trim().slice(0, MAX_CHARS) }))
     } catch { /* fail silently */ }
     finally { setGeneratingDesc(false) }
   }
