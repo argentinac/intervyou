@@ -185,6 +185,7 @@ const UI_STRINGS = {
     yourTurn:        'Your turn — click the mic to speak',
     micBlockedStatus: 'Microphone access required to participate.',
     recording:       'Listening…',
+    transcribing:    'Transcribing…',
     processing:      'Processing your answer…',
     noSpeech:        "Didn't catch that. Try again.",
     speakLabel:      'Speak',
@@ -208,6 +209,7 @@ const UI_STRINGS = {
     yourTurn:        'Tu turno — hacé click para hablar',
     micBlockedStatus: 'Necesitamos acceso al micrófono para continuar.',
     recording:       'Escuchando…',
+    transcribing:    'Transcribiendo…',
     processing:      'Procesando tu respuesta…',
     noSpeech:        'No te escuché. Intentá de nuevo.',
     speakLabel:      'Hablar',
@@ -231,6 +233,7 @@ const UI_STRINGS = {
     yourTurn:        'Sua vez — clique para falar',
     micBlockedStatus: 'Precisamos de acesso ao microfone para continuar.',
     recording:       'Ouvindo…',
+    transcribing:    'Transcrevendo…',
     processing:      'Processando sua resposta…',
     noSpeech:        'Não te ouvi. Tente novamente.',
     speakLabel:      'Falar',
@@ -254,6 +257,7 @@ const UI_STRINGS = {
     yourTurn:        'À vous — cliquez pour parler',
     micBlockedStatus: "Nous avons besoin d'accès au microphone pour continuer.",
     recording:       'Écoute…',
+    transcribing:    'Transcription…',
     processing:      'Traitement de votre réponse…',
     noSpeech:        "Je ne vous ai pas entendu. Réessayez.",
     speakLabel:      'Parler',
@@ -277,6 +281,7 @@ const UI_STRINGS = {
     yourTurn:        'Sie sind dran — klicken zum Sprechen',
     micBlockedStatus: 'Mikrofonzugang erforderlich, um fortzufahren.',
     recording:       'Zuhören…',
+    transcribing:    'Transkribieren…',
     processing:      'Antwort wird verarbeitet…',
     noSpeech:        'Ich habe Sie nicht gehört. Versuchen Sie es erneut.',
     speakLabel:      'Sprechen',
@@ -300,6 +305,7 @@ const UI_STRINGS = {
     yourTurn:        'Tocca a te — clicca per parlare',
     micBlockedStatus: 'Accesso al microfono necessario per continuare.',
     recording:       'In ascolto…',
+    transcribing:    'Trascrizione…',
     processing:      'Elaborazione della risposta…',
     noSpeech:        'Non ti ho sentito. Riprova.',
     speakLabel:      'Parla',
@@ -1344,7 +1350,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
         timingsRef.current = { t0_ms: Date.now() }
         setIsProcessing(true)
         isProcessingRef.current = true
-        setStatusText(str.processing)
+        setStatusText(str.transcribing)
 
         let text = ''
         try {
@@ -1372,6 +1378,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
           return
         }
 
+        setStatusText(str.processing)
         const doTurn = async () => {
           setClaudeRetryFn(null)
           try {
@@ -1898,7 +1905,18 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
           ? <div className="meet-topbar-skill-label">Coach Guiado · {config.skillName}</div>
           : isSimulation && simulation.showPhaseIndicator === false
             ? <SimulationHeader simulation={simulation} interlocutorName={config.interlocutorName} interlocutorRole={config.interlocutorRole} />
-            : <PhaseIndicator phase={phase} labels={str.phases} />}
+            : isSimulation
+            ? <PhaseIndicator phase={phase} labels={str.phases} />
+            : (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                <span style={{ fontSize: 13, fontWeight: 600, color: '#111827', letterSpacing: 0.1 }}>
+                  {config.companyName ? `${config.companyName} — ${interviewerLabel}` : interviewerLabel}
+                </span>
+                {config.jobTitle && (
+                  <span style={{ fontSize: 11, color: '#6B7280' }}>{config.jobTitle}</span>
+                )}
+              </div>
+            )}
         <div className="meet-topbar-right">
           {!isSkill && <span className="session-difficulty" data-level={config.difficulty}>{str.difficulty[config.difficulty]}</span>}
           {!isSkill && <button className="btn-demo-feedback" onClick={showDemoFeedback} title="Ver feedback de demo">Demo</button>}
