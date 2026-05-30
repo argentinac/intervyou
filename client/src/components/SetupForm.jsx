@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { unlockAudio } from '../audioContext'
 import { supabase } from '../lib/supabase'
-import { useAuth } from '../contexts/AuthContext'
 
 const LANG_OPTIONS = [
   { value: 'Spanish',    label: 'Español' },
@@ -102,6 +101,8 @@ function Chip({ active, label, desc, onClick, icon, wide }) {
 }
 
 export default function SetupForm({ onSubmit, onBack, initialConfig, hideHeader }) {
+  const { user } = useAuth()
+  const isAdmin = import.meta.env.DEV || user?.email === 'matiasabas@gmail.com'
   const [step, setStep] = useState(1)
   const [form, setForm] = useState({
     country: initialConfig?.country ?? '',
