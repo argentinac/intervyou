@@ -102,12 +102,13 @@ function SimulationCard({ simulation, onClick }) {
 
 export default function SimulationsHub({ onStartSimulation, onStartCustomSimulation }) {
   const [filter, setFilter] = useState('all')
-  const visible = filter === 'all' ? ALL_SIMULATIONS : getSimulationsByCategory(filter)
 
   const handleStart = (sim) => {
     track('simulation_card_clicked', { simulation_id: sim.id, category: sim.category })
     onStartCustomSimulation(sim.shortDescription)
   }
+
+  const categoriesWithSims = CATEGORIES.filter((c) => getSimulationsByCategory(c.id).length > 0)
 
   return (
     <div className="iv-page">
@@ -120,9 +121,8 @@ export default function SimulationsHub({ onStartSimulation, onStartCustomSimulat
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 24, flexWrap: 'wrap' }}>
         <FilterChip active={filter === 'all'} onClick={() => setFilter('all')}>Todas</FilterChip>
-        {CATEGORIES.map((c) => {
+        {categoriesWithSims.map((c) => {
           const count = getSimulationsByCategory(c.id).length
-          if (count === 0) return null
           return (
             <FilterChip key={c.id} active={filter === c.id} onClick={() => setFilter(c.id)}>
               {c.label} <span style={{ opacity: 0.6, marginLeft: 4 }}>{count}</span>
@@ -131,16 +131,44 @@ export default function SimulationsHub({ onStartSimulation, onStartCustomSimulat
         })}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
-        {visible.map((sim) => (
-          <SimulationCard key={sim.id} simulation={sim} onClick={() => handleStart(sim)} />
-        ))}
-        {visible.length === 0 && (
-          <div style={{ gridColumn: '1 / -1', padding: 40, textAlign: 'center', color: '#9CA3AF', fontSize: 14 }}>
-            Pronto van a aparecer simulaciones de esta categoría.
-          </div>
-        )}
-      </div>
+      {filter === 'all' ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+          {categoriesWithSims.map((c) => {
+            const sims = getSimulationsByCategory(c.id)
+            return (
+              <div key={c.id}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+                  <span style={{
+                    fontSize: 13, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase',
+                    color: CATEGORY_COLORS[c.id]?.fg || '#374151',
+                    background: CATEGORY_COLORS[c.id]?.bg || '#F3F4F6',
+                    padding: '4px 10px', borderRadius: 999,
+                  }}>
+                    {c.label}
+                  </span>
+                  <div style={{ flex: 1, height: 1, background: '#E5E7EB' }} />
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
+                  {sims.map((sim) => (
+                    <SimulationCard key={sim.id} simulation={sim} onClick={() => handleStart(sim)} />
+                  ))}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
+          {getSimulationsByCategory(filter).map((sim) => (
+            <SimulationCard key={sim.id} simulation={sim} onClick={() => handleStart(sim)} />
+          ))}
+          {getSimulationsByCategory(filter).length === 0 && (
+            <div style={{ gridColumn: '1 / -1', padding: 40, textAlign: 'center', color: '#9CA3AF', fontSize: 14 }}>
+              Pronto van a aparecer simulaciones de esta categoría.
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
