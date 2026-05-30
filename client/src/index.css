@@ -6986,7 +6986,8 @@ html, body, #root, .app {
   overflow-x: auto;
   overflow-y: visible;
   padding-right: 64px;
-  padding-bottom: 6px;
+  padding-bottom: 20px;
+  padding-top: 8px;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }

@@ -1,12 +1,16 @@
 import { useRef, useState } from 'react'
 
-function shuffleAfterFirst(arr) {
-  const [first, ...rest] = arr
+function shuffleWithPinInFirst4(arr) {
+  const pinId = 'entrevista_laboral'
+  const pinned = arr.find(c => c.id === pinId)
+  const rest = arr.filter(c => c.id !== pinId)
   for (let i = rest.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [rest[i], rest[j]] = [rest[j], rest[i]]
   }
-  return [first, ...rest]
+  const pos = Math.floor(Math.random() * 4)
+  rest.splice(pos, 0, pinned)
+  return rest
 }
 
 const CARDS = [
@@ -97,7 +101,7 @@ function CarouselCard({ card, onAction }) {
 
 export default function SimulationCarousel({ onStartCustomSimulation }) {
   const trackRef = useRef(null)
-  const [cards] = useState(() => shuffleAfterFirst(CARDS))
+  const [cards] = useState(() => shuffleWithPinInFirst4(CARDS))
 
   function scroll(dir) {
     const track = trackRef.current
