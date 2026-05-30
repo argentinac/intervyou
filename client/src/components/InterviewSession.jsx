@@ -783,8 +783,10 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
   const inactivityTimerRef = useRef(null)
   const countdownTimerRef  = useRef(null)
 
-  const recognitionRef     = useRef(null)
+  const recognitionRef     = useRef(null)  // kept for interrupt-path compat (canInterrupt=false)
   const interimTextRef     = useRef('')
+  const mediaRecorderRef   = useRef(null)
+  const vadIntervalRef     = useRef(null)
   const interruptTimerRef  = useRef(null)
   const silenceTimerRef    = useRef(null)
   const messagesRef        = useRef([])
@@ -829,8 +831,10 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
   useEffect(() => {
     micBlockedRef.current = micBlocked
     if (micBlocked) {
-      recognitionRef.current?.stop()
-      recognitionRef.current = null
+      clearInterval(vadIntervalRef.current)
+      vadIntervalRef.current = null
+      if (mediaRecorderRef.current?.state === 'recording') mediaRecorderRef.current.stop()
+      mediaRecorderRef.current = null
       setIsRecording(false)
       isRecordingRef.current = false
       setStatusText('')
@@ -1282,11 +1286,8 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // ── Mic: start ────────────────────────────────────────────
+  // ── Mic: start (Whisper STT) ──────────────────────────────
   const startRecording = useCallback(() => {
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition
-    if (!SR) { setError('El reconocimiento de voz requiere Chrome o Edge.'); return }
-
     // Avoid double-starting or starting when muted/manually stopped/blocked
     if (isRecordingRef.current) return
     if (micBlockedRef.current) return
@@ -1300,97 +1301,128 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
     isInterruptingRef.current = false
     interimTextRef.current = ''
 
-    const recognition = new SR()
-    recognition.lang = locale
-    recognition.continuous = true
-    recognition.interimResults = true
+    const SILENCE_MS = 1800
+    const SILENCE_THRESHOLD = 0.012  // RMS amplitude threshold for silence
 
-    // Longer silence window in conversational mode for natural pauses
-    const SILENCE_MS = isMutedRef.current ? 1200 : 1800
+    const doRecord = async () => {
+      await openMicForBargein()
+      const stream = micStreamRef.current
+      if (!stream) { setMicBlocked(true); return }
 
-    recognition.onresult = (event) => {
-      interimTextRef.current = Array.from(event.results).map((r) => r[0].transcript).join(' ').trim()
-      clearTimeout(silenceTimerRef.current)
-      silenceTimerRef.current = setTimeout(() => {
-        recognitionRef.current?.stop()
-      }, SILENCE_MS)
-    }
+      const mimeType = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg'].find(
+        t => MediaRecorder.isTypeSupported(t)
+      ) || ''
 
-    recognition.onend = async () => {
-      clearInterruptTimer()
-      if (isInterruptingRef.current) return  // interrupt flow owns this
+      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined)
+      mediaRecorderRef.current = recorder
+      const chunks = []
 
-      const text = interimTextRef.current.trim()
+      recorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data) }
 
-      if (!text) {
-        // Conversational: restart silently without changing visual state (avoids mic flicker)
-        if (!isMutedRef.current && !sessionEndedRef.current && !isSpeakingRef.current && !isProcessingRef.current && !manuallyStoppedRef.current) {
-          interimTextRef.current = ''
-          isRecordingRef.current = false  // reset so startRecording doesn't bail, but keep isRecording=true visually
-          await new Promise(r => setTimeout(r, 80))
-          startRecordingRef.current?.()
+      recorder.onstop = async () => {
+        clearInterval(vadIntervalRef.current)
+        vadIntervalRef.current = null
+
+        const blob = new Blob(chunks, { type: mimeType || 'audio/webm' })
+
+        if (blob.size < 1500) {
+          // Too short — no real speech, restart silently in conversational mode
+          if (!isMutedRef.current && !sessionEndedRef.current && !isSpeakingRef.current && !isProcessingRef.current && !manuallyStoppedRef.current) {
+            isRecordingRef.current = false
+            await new Promise(r => setTimeout(r, 80))
+            startRecordingRef.current?.()
+            return
+          }
+          setIsRecording(false)
+          isRecordingRef.current = false
+          setStatusText(str.noSpeech)
           return
         }
+
         setIsRecording(false)
         isRecordingRef.current = false
-        setStatusText(str.noSpeech)
-        return
-      }
+        timingsRef.current = { t0_ms: Date.now() }
+        setIsProcessing(true)
+        isProcessingRef.current = true
+        setStatusText(str.processing)
 
-      setIsRecording(false)
-      isRecordingRef.current = false
-      timingsRef.current = { t0_ms: Date.now() }
-      setIsProcessing(true)
-      isProcessingRef.current = true
-      setStatusText(str.processing)
-      const doTurn = async () => {
-        setClaudeRetryFn(null)
+        let text = ''
         try {
-          await processTurn(text, messagesRef.current)
+          const formData = new FormData()
+          formData.append('audio', blob, 'recording.webm')
+          formData.append('language', config.language || 'Spanish')
+          const resp = await fetch('/api/transcribe', { method: 'POST', body: formData })
+          if (resp.ok) text = (await resp.json()).text?.trim() || ''
         } catch (err) {
+          console.error('Whisper transcription error:', err)
+        }
+
+        if (!text) {
           setIsProcessing(false)
           isProcessingRef.current = false
-          setStatusText(str.waitingAnswer)
-          console.error(err)
-          if (err.name === 'AbortError' || err.message?.includes('timeout')) {
-            setError('Hubo un problema con la conexión.')
-          } else {
-            setError('Hubo un problema con la respuesta.')
+          if (!isMutedRef.current && !sessionEndedRef.current && !isSpeakingRef.current && !manuallyStoppedRef.current) {
+            isRecordingRef.current = false
+            await new Promise(r => setTimeout(r, 80))
+            startRecordingRef.current?.()
+            return
           }
-          setClaudeRetryFn(() => doTurn)
-        }
-      }
-      await doTurn()
-    }
-
-    recognition.onerror = (e) => {
-      clearInterruptTimer()
-      if (e.error === 'no-speech' || e.error === 'aborted') {
-        // Conversational: restart silently without visual flicker
-        if (!isMutedRef.current && !sessionEndedRef.current && !isSpeakingRef.current && !isProcessingRef.current && !manuallyStoppedRef.current) {
-          interimTextRef.current = ''
+          setIsRecording(false)
           isRecordingRef.current = false
-          setTimeout(() => startRecordingRef.current?.(), 80)
+          setStatusText(str.noSpeech)
           return
         }
-        setIsRecording(false)
-        isRecordingRef.current = false
-        setStatusText(str.noSpeech)
-        return
+
+        const doTurn = async () => {
+          setClaudeRetryFn(null)
+          try {
+            await processTurn(text, messagesRef.current)
+          } catch (err) {
+            setIsProcessing(false)
+            isProcessingRef.current = false
+            setStatusText(str.waitingAnswer)
+            console.error(err)
+            if (err.name === 'AbortError' || err.message?.includes('timeout')) {
+              setError('Hubo un problema con la conexión.')
+            } else {
+              setError('Hubo un problema con la respuesta.')
+            }
+            setClaudeRetryFn(() => doTurn)
+          }
+        }
+        await doTurn()
       }
-      setIsRecording(false)
-      isRecordingRef.current = false
-      if (e.error === 'not-allowed') setMicBlocked(true)
-      else setMicDisconnected(true)
+
+      recorder.start(100)
+      setIsRecording(true)
+      isRecordingRef.current = true
+      setError(null)
+      setStatusText(str.recording)
+
+      // VAD: stop recorder after SILENCE_MS of quiet audio
+      let silenceStart = null
+      let fftData = null
+      vadIntervalRef.current = setInterval(() => {
+        if (!analyserRef.current) return
+        if (!fftData || fftData.length !== analyserRef.current.frequencyBinCount) {
+          fftData = new Float32Array(analyserRef.current.frequencyBinCount)
+        }
+        analyserRef.current.getFloatTimeDomainData(fftData)
+        const rms = Math.sqrt(fftData.reduce((s, v) => s + v * v, 0) / fftData.length)
+        if (rms < SILENCE_THRESHOLD) {
+          if (!silenceStart) silenceStart = Date.now()
+          else if (Date.now() - silenceStart >= SILENCE_MS) {
+            if (mediaRecorderRef.current?.state === 'recording') mediaRecorderRef.current.stop()
+          }
+        } else {
+          silenceStart = null
+        }
+      }, 50)
     }
 
-    recognition.start()
-    recognitionRef.current = recognition
-    openMicForBargein()  // ensures analyserRef is live for mic bars
-    setIsRecording(true)
-    isRecordingRef.current = true
-    setError(null)
-    setStatusText(str.recording)
+    doRecord().catch((err) => {
+      console.error('startRecording error:', err)
+      setMicDisconnected(true)
+    })
 
     // ── Interrupt check (HR only) — completely separate from main conversation
     if (canInterrupt) {
@@ -1446,7 +1478,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
         }
       }, INTERRUPT_AFTER_MS)
     }
-  }, [locale, canInterrupt, config.language, askClaude, playAudio, processTurn, clearInterruptTimer, openMicForBargein])
+  }, [canInterrupt, config.language, askClaude, playAudio, processTurn, clearInterruptTimer, openMicForBargein, str])
 
   // Keep startRecordingRef in sync so playAudio can call it
   useEffect(() => { startRecordingRef.current = startRecording }, [startRecording])
@@ -1455,8 +1487,10 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
   const stopRecording = useCallback(() => {
     manuallyStoppedRef.current = true  // prevent auto-restart in conversational mode
     clearInterruptTimer()
-    clearTimeout(silenceTimerRef.current)
-    recognitionRef.current?.stop()
+    clearInterval(vadIntervalRef.current)
+    vadIntervalRef.current = null
+    if (mediaRecorderRef.current?.state === 'recording') mediaRecorderRef.current.stop()
+    mediaRecorderRef.current = null
   }, [clearInterruptTimer])
 
   // ── Closing sequence (extracted so it can be deferred) ────
@@ -1510,27 +1544,33 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
     micStreamRef.current?.getTracks().forEach(t => t.stop())
     micStreamRef.current = null
     analyserRef.current = null
-    recognitionRef.current?.stop()
-    recognitionRef.current = null
-    setSessionEnded(true)
-    if (isSkill) {
-      track('skill_session_ended', { skill_id: config.skillId })
-      onSkillComplete?.(config.skillId, config.techniqueIdx)
-      return
-    }
-
-    // Hard guard: simulations need at least N user turns AND M total user words
-    // before we even ask Claude to score. Saves a useless API call and prevents
-    // the LLM from inventing feedback from thin air.
-    if (isSimulation) {
+    clearInterval(vadIntervalRef.current)
+    vadIntervalRef.current = null
+    if (mediaRecorderRef.current?.state === 'recording') mediaRecorderRef.current.stop()
+    mediaRecorderRef.current = null
+    // Hard guard check before any state update, so we can batch sessionEnded + feedback together
+    let tooShortFeedback = null
+    if (isSimulation && !isSkill) {
       const userMessages = messagesRef.current.filter((m) => m.role === 'user' && !m.content.startsWith('('))
       const userWordCount = userMessages.reduce((acc, m) => acc + m.content.trim().split(/\s+/).filter(Boolean).length, 0)
       const TURNS_MIN = 3
       const WORDS_MIN = 40
       if (userMessages.length < TURNS_MIN || userWordCount < WORDS_MIN) {
-        setFeedback({ notEnoughData: true, reason: 'too_short', userTurns: userMessages.length, userWords: userWordCount })
-        return
+        tooShortFeedback = { notEnoughData: true, reason: 'too_short', userTurns: userMessages.length, userWords: userWordCount }
       }
+    }
+
+    if (tooShortFeedback) {
+      setSessionEnded(true)
+      setFeedback(tooShortFeedback)
+      return
+    }
+
+    setSessionEnded(true)
+    if (isSkill) {
+      track('skill_session_ended', { skill_id: config.skillId })
+      onSkillComplete?.(config.skillId, config.techniqueIdx)
+      return
     }
 
     setShowRatingModal(true)
@@ -1680,8 +1720,10 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
     window.speechSynthesis.cancel()
     stopActiveAudio()
     clearInterruptTimer()
-    recognitionRef.current?.stop()
-    recognitionRef.current = null
+    clearInterval(vadIntervalRef.current)
+    vadIntervalRef.current = null
+    if (mediaRecorderRef.current?.state === 'recording') mediaRecorderRef.current.stop()
+    mediaRecorderRef.current = null
     setSessionEnded(true)
     const demoData = {
       notEnoughData: false,
@@ -1784,7 +1826,6 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
             <div style={{ fontSize: 16, fontWeight: 600, color: '#111827' }}>Preparando tu feedback...</div>
             <div style={{ fontSize: 13, color: '#6B7280', maxWidth: 360, textAlign: 'center' }}>Estamos analizando tu conversación. Esto puede tardar unos segundos.</div>
             <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
-            {ratingToast}
           </div>
         )
       }
@@ -1921,8 +1962,10 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
                 setIsMuted(true)
                 setIsRecording(false)
                 isRecordingRef.current = false
-                recognitionRef.current?.stop()
-                recognitionRef.current = null
+                clearInterval(vadIntervalRef.current)
+                vadIntervalRef.current = null
+                if (mediaRecorderRef.current?.state === 'recording') mediaRecorderRef.current.stop()
+                mediaRecorderRef.current = null
               }}
               title={micBlocked ? 'Sin acceso al micrófono' : isMuted ? 'Activar micrófono' : isSpeaking ? 'Interrumpir' : 'Silenciar'}
             >
