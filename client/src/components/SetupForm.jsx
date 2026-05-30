@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { unlockAudio } from '../audioContext'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../contexts/AuthContext'
 
 /* ─── CSS idéntico al de CustomSituationSetup ─────────────────────────────── */
 const CSS = `
@@ -301,6 +302,7 @@ const DiffBars = ({ count, active }) => (
 )
 
 export default function SetupForm({ onSubmit, onBack, initialConfig, hideHeader }) {
+  const { getToken } = useAuth()
   const [step, setStep] = useState(1)
   const [direction, setDirection] = useState('left')
   const [form, setForm] = useState({
@@ -317,6 +319,7 @@ export default function SetupForm({ onSubmit, onBack, initialConfig, hideHeader 
   const [checkingLimit, setCheckingLimit] = useState(false)
   const [micBlocked, setMicBlocked] = useState(false)
   const [fieldErrors, setFieldErrors] = useState({})
+  const companyRef = useRef(null)
   const jobTitleRef = useRef(null)
   const sttSupported = !!(window.SpeechRecognition || window.webkitSpeechRecognition)
 
@@ -333,7 +336,7 @@ export default function SetupForm({ onSubmit, onBack, initialConfig, hideHeader 
   }, [])
 
   useEffect(() => {
-    if (step === 3) setTimeout(() => jobTitleRef.current?.focus(), 50)
+    if (step === 3) setTimeout(() => companyRef.current?.focus(), 50)
   }, [step])
 
   const goTo = (next, dir = 'left') => {
@@ -346,9 +349,10 @@ export default function SetupForm({ onSubmit, onBack, initialConfig, hideHeader 
     if (!form.jobTitle) return
     setGeneratingDesc(true)
     try {
+      const token = await getToken().catch(() => null)
       const res = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify({
           max_tokens: 512,
           model: 'claude-haiku-4-5-20251001',
@@ -502,6 +506,7 @@ export default function SetupForm({ onSubmit, onBack, initialConfig, hideHeader 
                   <div>
                     <span className="cs-field-label">Empresa <span className="cs-field-opt">opcional</span></span>
                     <input
+                      ref={companyRef}
                       className="cs-input"
                       value={form.companyName}
                       onChange={(e) => setForm(f => ({ ...f, companyName: e.target.value }))}
