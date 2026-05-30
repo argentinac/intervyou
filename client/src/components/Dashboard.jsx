@@ -467,7 +467,7 @@ function HomeSection({ onNewInterview, user, fullName, mockInterviews, onGoToRec
       </div>
 
       {/* Simulaciones a ejercitar */}
-      <SimulationCarousel onStartCustomSimulation={onStartCustomSimulation} />
+      <SimulationCarousel onStartCustomSimulation={onStartCustomSimulation} onNewInterview={onNewInterview} />
 
       {/* Desarrollá tus habilidades */}
       <div className="home-section-block">

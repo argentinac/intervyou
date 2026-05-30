@@ -36,9 +36,9 @@ function AnnotatedText({ text }) {
     <>
       {parts.map((part, i) =>
         i % 2 === 1 ? (
-          <mark key={i} style={{ background: '#FEE2E2', color: '#991B1B', borderRadius: 3, padding: '0 2px' }}>
+          <span key={i} style={{ textDecoration: 'line-through', textDecorationColor: '#DC2626', color: '#9CA3AF' }}>
             {part}
-          </mark>
+          </span>
         ) : (
           <span key={i}>{part}</span>
         )
