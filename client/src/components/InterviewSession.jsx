@@ -1775,6 +1775,23 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
         { title: 'Gestioná mejor el tiempo', description: 'Practicá respuestas más concretas (**1-2 min máx.**) en preguntas no prioritarias para reservar energía en las que más importan.', priority: 'media' },
       ],
       nextStep: 'Practicá sesiones enfocándote en **storytelling e impacto cuantificable**. Te recomendamos hacer 2 sesiones esta semana.',
+      qa_review: [
+        {
+          question: '¿Podés contarme un desafío técnico que hayas enfrentado y cómo lo resolviste?',
+          userAnswer: 'Sí, tuvimos un problema de [[performance en producción]]. Lo que hice fue implementar una caché en Redis y eso redujo la latencia, [[básicamente]].',
+          suggestedAnswer: 'Claro. En mi último proyecto enfrentamos ((un cuello de botella en producción donde las consultas a la base de datos tardaban más de 3 segundos bajo carga alta)). Mi tarea era reducir la latencia sin rediseñar la arquitectura completa. ((Analicé los endpoints más lentos con profiling, identifiqué que el 80% del problema venía de 3 queries sin índice, e implementé una capa de caché con Redis para los datos más consultados)). ((Como resultado, la latencia promedio bajó de 3.2 segundos a 180ms, lo que mejoró la tasa de conversión en un 12%)) según métricas del siguiente sprint.',
+        },
+        {
+          question: '¿Cómo manejás situaciones donde no tenés todos los datos para tomar una decisión?',
+          userAnswer: '[[Bueno, depende]]. A veces pregunto, a veces avanzo con lo que tengo. [[No sé bien cómo explicarlo]], pero básicamente trato de no bloquearse.',
+          suggestedAnswer: '((Cuando me falta información, sigo un proceso claro)). Primero ((evalúo el impacto de esperar vs. decidir con incertidumbre)): si la decisión es reversible, avanzo con los datos disponibles y establezco un punto de revisión. Si es irreversible, escalo para obtener más contexto. ((Por ejemplo, al definir la arquitectura de un módulo nuevo, no tenía claro el volumen de usuarios esperado. Propuse dos opciones con sus trade-offs y las presenté al equipo para decidir en conjunto)). Eso evitó un bloqueo de dos días y generamos la solución correcta en menos de una hora.',
+        },
+        {
+          question: '¿Por qué te interesa este puesto?',
+          userAnswer: 'Me interesa porque [[me gusta el desafío]] y [[quiero crecer profesionalmente]]. También el equipo parece bueno.',
+          suggestedAnswer: '((Me atrae específicamente el foco en productos con impacto real en usuarios finales)), que es algo que busco deliberadamente en mi próximo paso. ((Llevo tres años trabajando en plataformas B2B y quiero aplicar ese expertise técnico en un contexto más cercano al consumidor final)). Además, ((investigué el producto y vi que el equipo resolvió el problema de escalabilidad de una manera que encuentro muy elegante)) — eso me dice que hay un alto estándar técnico, que es el tipo de entorno donde más aprendo.',
+        },
+      ],
     }
     if (onFeedbackReady && onDashboard) { onFeedbackReady(demoData, config); onDashboard(null) } else { setFeedback(demoData) }
   }, [config, onFeedbackReady, onDashboard, clearInterruptTimer])

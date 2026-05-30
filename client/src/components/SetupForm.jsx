@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { unlockAudio } from '../audioContext'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../contexts/AuthContext'
 
 const LANG_OPTIONS = [
   { value: 'Spanish',    label: 'Español' },
@@ -11,18 +12,10 @@ const LANG_OPTIONS = [
   { value: 'Italian',    label: 'Italiano' },
 ]
 
-const DiffIcon = ({ bars }) => (
-  <svg width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ display:'block' }}>
-    <rect x="0.5"  y="9.5"  width="4" height="6" rx="1" stroke="currentColor" strokeWidth="1.5" fill={bars >= 1 ? 'currentColor' : 'none'} fillOpacity={bars >= 1 ? 0.85 : 0}/>
-    <rect x="7.5"  y="5.5"  width="4" height="10" rx="1" stroke="currentColor" strokeWidth="1.5" fill={bars >= 2 ? 'currentColor' : 'none'} fillOpacity={bars >= 2 ? 0.85 : 0}/>
-    <rect x="14.5" y="0.5"  width="4" height="15" rx="1" stroke="currentColor" strokeWidth="1.5" fill={bars >= 3 ? 'currentColor' : 'none'} fillOpacity={bars >= 3 ? 0.85 : 0}/>
-  </svg>
-)
-
 const DIFFICULTIES = [
-  { value: 'Basic',        label: 'Básico',     desc: 'Tono amigable, preguntas directas.',  icon: <DiffIcon bars={1} /> },
-  { value: 'Intermediate', label: 'Intermedio', desc: 'Profesional y balanceado.',            icon: <DiffIcon bars={2} /> },
-  { value: 'Advanced',     label: 'Avanzado',   desc: 'Exigente, te va a presionar.',         icon: <DiffIcon bars={3} /> },
+  { value: 'Basic',        label: 'Básico',     desc: 'Tono amigable, preguntas directas.',  bars: 1 },
+  { value: 'Intermediate', label: 'Intermedio', desc: 'Profesional y balanceado.',            bars: 2 },
+  { value: 'Advanced',     label: 'Avanzado',   desc: 'Exigente, te va a presionar.',         bars: 3 },
 ]
 
 const COUNTRIES = [
@@ -38,9 +31,9 @@ const COUNTRIES = [
 ]
 
 const INTERVIEW_TYPES = [
-  { value: 'Mixed',     label: 'Integral', desc: 'Combina preguntas de RRHH y técnicas, como en una entrevista real.' },
-  { value: 'HR',        label: 'RRHH',    desc: 'Cultura, motivación y habilidades blandas.' },
-  { value: 'Technical', label: 'Técnica', desc: 'Conocimiento técnico y resolución de problemas.' },
+  { value: 'Mixed',     label: 'Integral', desc: 'Combina RRHH y técnica, como en una entrevista real.' },
+  { value: 'HR',        label: 'RRHH',     desc: 'Cultura, motivación y habilidades blandas.' },
+  { value: 'Technical', label: 'Técnica',  desc: 'Conocimiento técnico y resolución de problemas.' },
 ]
 
 const TEST_DATA = {
@@ -63,11 +56,10 @@ Requisitos:
 }
 
 const MAX_CHARS = 2000
-
-// ── Logo ───────────────────────────────────────────────────
+const TOTAL_STEPS = 5
 
 const IntervyouIcon = () => (
-  <img src="/logo.png" alt="intervyou" style={{height:32,width:'auto'}} />
+  <img src="/logo.png" alt="intervyou" style={{ height: 32, width: 'auto' }} />
 )
 
 const IconSparkle = ({ size = 13 }) => (
@@ -76,26 +68,38 @@ const IconSparkle = ({ size = 13 }) => (
   </svg>
 )
 
-// ── Radio card ─────────────────────────────────────────────
-
-const RadioCard = ({ active, label, desc, onClick, wide, icon }) => (
-  <button
-    type="button"
-    className={`rc ${active ? 'rc--active' : ''} ${wide ? 'rc--wide' : ''}`}
-    onClick={onClick}
-  >
-    <div className="rc-dot-wrap">
-      <span className={`rc-dot ${active ? 'rc-dot--active' : ''}`} />
-    </div>
-    <div className="rc-body">
-      {icon && <span className="rc-icon">{icon}</span>}
-      <span className="rc-label">{label}</span>
-      <span className="rc-desc">{desc}</span>
-    </div>
-  </button>
+const DiffIcon = ({ bars }) => (
+  <svg width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ display: 'block' }}>
+    <rect x="0.5"  y="9.5"  width="4" height="6"  rx="1" stroke="currentColor" strokeWidth="1.5" fill={bars >= 1 ? 'currentColor' : 'none'} fillOpacity={bars >= 1 ? 0.85 : 0} />
+    <rect x="7.5"  y="5.5"  width="4" height="10" rx="1" stroke="currentColor" strokeWidth="1.5" fill={bars >= 2 ? 'currentColor' : 'none'} fillOpacity={bars >= 2 ? 0.85 : 0} />
+    <rect x="14.5" y="0.5"  width="4" height="15" rx="1" stroke="currentColor" strokeWidth="1.5" fill={bars >= 3 ? 'currentColor' : 'none'} fillOpacity={bars >= 3 ? 0.85 : 0} />
+  </svg>
 )
 
-// ── Main ───────────────────────────────────────────────────
+function Chip({ active, label, desc, onClick, icon, wide }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
+        gap: 4, padding: wide ? '14px 16px' : '12px 16px',
+        borderRadius: 12, border: '2px solid',
+        borderColor: active ? '#7C3AED' : '#E5E7EB',
+        background: active ? '#F5F3FF' : '#fff',
+        cursor: 'pointer', fontFamily: 'inherit',
+        flex: wide ? '1 1 0' : undefined,
+        minWidth: wide ? 0 : undefined,
+        transition: 'border-color 0.15s, background 0.15s',
+        textAlign: 'left',
+      }}
+    >
+      {icon && <span style={{ color: active ? '#7C3AED' : '#6B7280' }}>{icon}</span>}
+      <span style={{ fontSize: 14, fontWeight: 600, color: active ? '#7C3AED' : '#111827' }}>{label}</span>
+      {desc && <span style={{ fontSize: 12, color: '#6B7280', lineHeight: 1.4 }}>{desc}</span>}
+    </button>
+  )
+}
 
 export default function SetupForm({ onSubmit, onBack, initialConfig, hideHeader }) {
   const [step, setStep] = useState(1)
@@ -136,7 +140,7 @@ export default function SetupForm({ onSubmit, onBack, initialConfig, hideHeader 
       const { text } = await res.json()
       setForm((f) => ({ ...f, jobDescription: text.trim().slice(0, MAX_CHARS) }))
     } catch {
-      // fail silently — user can type manually
+      // fail silently
     } finally {
       setGeneratingDesc(false)
     }
@@ -154,26 +158,30 @@ export default function SetupForm({ onSubmit, onBack, initialConfig, hideHeader 
       .catch(() => {})
   }, [])
 
-  const set = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }))
-
-  const step1Valid = form.country && form.jobTitle && form.jobDescription.trim()
-
-  const validateStep1 = () => {
-    const errs = {}
-    if (!form.country) errs.country = 'Seleccioná un país.'
-    if (!form.jobTitle.trim()) errs.jobTitle = 'Ingresá el nombre del puesto.'
-    if (!form.jobDescription.trim()) errs.jobDescription = 'Agregá una descripción del puesto.'
-    setFieldErrors(errs)
-    return Object.keys(errs).length === 0
+  const canAdvance = () => {
+    if (step === 1) return !!form.country
+    if (step === 2) return !!form.language
+    if (step === 3) return !!form.jobTitle.trim()
+    if (step === 4) return !!form.jobDescription.trim()
+    if (step === 5) return !!form.interviewType && !!form.difficulty
+    return false
   }
 
-  const handleStep1Continue = () => {
-    if (!validateStep1()) return
-    setStep(2)
+  const handleNext = () => {
+    if (step === 3 && !form.jobTitle.trim()) {
+      setFieldErrors({ jobTitle: 'Ingresá el nombre del puesto.' })
+      return
+    }
+    if (step === 4 && !form.jobDescription.trim()) {
+      setFieldErrors({ jobDescription: 'Agregá una descripción del puesto.' })
+      return
+    }
+    setFieldErrors({})
+    if (step < TOTAL_STEPS) { setStep(s => s + 1); return }
+    handleSubmit()
   }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  const handleSubmit = async () => {
     setCheckingLimit(true)
     try {
       const { data: { session } } = await supabase.auth.getSession()
@@ -191,9 +199,7 @@ export default function SetupForm({ onSubmit, onBack, initialConfig, hideHeader 
           }
         }
       }
-    } catch {
-      // si falla el check, dejamos pasar (no bloqueamos al usuario por error de red)
-    }
+    } catch { /* si falla el check, dejamos pasar */ }
     setCheckingLimit(false)
     unlockAudio()
     try {
@@ -209,27 +215,20 @@ export default function SetupForm({ onSubmit, onBack, initialConfig, hideHeader 
   if (dailyLimitReached) {
     return (
       <div className="sf-page">
-        {!hideHeader && (
         <header className="sf-header">
           <div className="sf-logo" style={{ cursor: onBack ? 'pointer' : 'default' }} onClick={onBack}>
             <IntervyouIcon />
           </div>
         </header>
-      )}
         <main className="sf-main">
           <div className="sf-card" style={{ textAlign: 'center', padding: '48px 32px' }}>
             <div style={{ fontSize: 48, marginBottom: 16 }}>🎯</div>
-            <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 12 }}>
-              Límite diario alcanzado
-            </h2>
+            <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 12 }}>Límite diario alcanzado</h2>
             <p style={{ color: '#64748b', fontSize: 15, lineHeight: 1.6, marginBottom: 32 }}>
-              Hiciste 10 sesiones hoy. ¡Excelente trabajo!<br />
-              Volvé mañana para seguir practicando.
+              Hiciste 10 sesiones hoy. ¡Excelente trabajo!<br />Volvé mañana para seguir practicando.
             </p>
             {onBack && (
-              <button className="sf-next" onClick={onBack} style={{ display: 'inline-block' }}>
-                ← Volver al inicio
-              </button>
+              <button className="sf-next" onClick={onBack} style={{ display: 'inline-block' }}>← Volver al inicio</button>
             )}
           </div>
         </main>
@@ -245,65 +244,151 @@ export default function SetupForm({ onSubmit, onBack, initialConfig, hideHeader 
           Este navegador no soporta reconocimiento de voz. Usá <strong>Chrome</strong> o <strong>Edge</strong>.
         </div>
       )}
-      {/* Header */}
+
       <header className="sf-header">
         {!hideHeader && (
-          <div className="sf-logo" style={{cursor: onBack ? 'pointer' : 'default'}} onClick={onBack}>
+          <div className="sf-logo" style={{ cursor: onBack ? 'pointer' : 'default' }} onClick={onBack}>
             <IntervyouIcon />
           </div>
         )}
         <div className="sf-progress">
-          <div className="sf-progress-bar" style={{ width: step === 1 ? '50%' : '100%' }} />
+          <div className="sf-progress-bar" style={{ width: `${(step / TOTAL_STEPS) * 100}%` }} />
         </div>
-        <span className="sf-step-label">{step} / 2</span>
+        <span className="sf-step-label">{step} / {TOTAL_STEPS}</span>
       </header>
 
-      {/* Content */}
       <main className="sf-main">
         <div className="sf-card">
 
-          {/* ── Step 1 ── */}
+          {/* ── Step 1: País ── */}
           {step === 1 && (
             <>
               <div className="sf-heading">
-                <h1>¿Para qué puesto<br/>querés practicar?</h1>
+                <h1>¿En qué país es<br/>la entrevista?</h1>
               </div>
-
               <div className="sf-fields">
-                <div className="sf-row">
-                  <div className="sf-field">
-                    <label>País</label>
-                    <select value={form.country} onChange={(e) => { set('country')(e); setFieldErrors(f => ({ ...f, country: '' })) }}>
-                      <option value="">Seleccioná…</option>
-                      {COUNTRIES.map((c) => <option key={c}>{c}</option>)}
-                    </select>
-                    {fieldErrors.country && <span className="err-field">{fieldErrors.country}</span>}
-                  </div>
-                  <div className="sf-field">
-                    <label>Idioma</label>
-                    <select value={form.language} onChange={set('language')}>
-                      {LANG_OPTIONS.map((l) => (
-                        <option key={l.value} value={l.value}>{l.label}</option>
-                      ))}
-                    </select>
-                  </div>
+                <div className="sf-field">
+                  <label>País</label>
+                  <select
+                    value={form.country}
+                    onChange={(e) => { setForm(f => ({ ...f, country: e.target.value })); setFieldErrors({}) }}
+                    autoFocus
+                  >
+                    <option value="">Seleccioná un país…</option>
+                    {COUNTRIES.map((c) => <option key={c}>{c}</option>)}
+                  </select>
+                  {fieldErrors.country && <span className="err-field">{fieldErrors.country}</span>}
                 </div>
+              </div>
+              <div className="sf-footer">
+                {onBack ? (
+                  <button type="button" className="sf-back" onClick={onBack}>← Volver</button>
+                ) : <div />}
+                <button
+                  type="button"
+                  className="sf-next"
+                  disabled={!form.country}
+                  onClick={handleNext}
+                  data-track="setup_step1_continued"
+                >
+                  Continuar →
+                </button>
+              </div>
+            </>
+          )}
 
-                <div className="sf-row">
-                  <div className="sf-field">
-                    <label>Empresa <span className="sf-opt">opcional</span></label>
-                    <input value={form.companyName} onChange={set('companyName')} placeholder="Ej: Mercado Libre" />
-                  </div>
-                  <div className="sf-field">
-                    <label>Rol / Puesto</label>
-                    <input value={form.jobTitle} onChange={(e) => { set('jobTitle')(e); setFieldErrors(f => ({ ...f, jobTitle: '' })) }} placeholder="Ej: Product Manager" />
-                    {fieldErrors.jobTitle && <span className="err-field">{fieldErrors.jobTitle}</span>}
-                  </div>
+          {/* ── Step 2: Idioma ── */}
+          {step === 2 && (
+            <>
+              <div className="sf-heading">
+                <h1>¿En qué idioma<br/>será la entrevista?</h1>
+              </div>
+              <div className="sf-fields">
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                  {LANG_OPTIONS.map((l) => (
+                    <button
+                      key={l.value}
+                      type="button"
+                      onClick={() => setForm(f => ({ ...f, language: l.value }))}
+                      style={{
+                        padding: '10px 20px', borderRadius: 999, fontSize: 14, fontWeight: 500,
+                        border: '2px solid', cursor: 'pointer', fontFamily: 'inherit',
+                        borderColor: form.language === l.value ? '#7C3AED' : '#E5E7EB',
+                        background: form.language === l.value ? '#F5F3FF' : '#fff',
+                        color: form.language === l.value ? '#7C3AED' : '#374151',
+                        transition: 'border-color 0.15s, background 0.15s',
+                      }}
+                    >
+                      {l.label}
+                    </button>
+                  ))}
                 </div>
+              </div>
+              <div className="sf-footer">
+                <button type="button" className="sf-back" onClick={() => setStep(1)}>← Volver</button>
+                <button
+                  type="button"
+                  className="sf-next"
+                  disabled={!form.language}
+                  onClick={handleNext}
+                >
+                  Continuar →
+                </button>
+              </div>
+            </>
+          )}
 
+          {/* ── Step 3: Empresa + Rol ── */}
+          {step === 3 && (
+            <>
+              <div className="sf-heading">
+                <h1>¿Para qué empresa<br/>y puesto practicás?</h1>
+              </div>
+              <div className="sf-fields">
+                <div className="sf-field">
+                  <label>Empresa <span className="sf-opt">opcional</span></label>
+                  <input
+                    value={form.companyName}
+                    onChange={(e) => setForm(f => ({ ...f, companyName: e.target.value }))}
+                    placeholder="Ej: Mercado Libre"
+                    autoFocus
+                  />
+                </div>
+                <div className="sf-field">
+                  <label>Rol / Puesto</label>
+                  <input
+                    value={form.jobTitle}
+                    onChange={(e) => { setForm(f => ({ ...f, jobTitle: e.target.value })); setFieldErrors({}) }}
+                    placeholder="Ej: Product Manager"
+                  />
+                  {fieldErrors.jobTitle && <span className="err-field">{fieldErrors.jobTitle}</span>}
+                </div>
+              </div>
+              <div className="sf-footer">
+                <button type="button" className="sf-back" onClick={() => setStep(2)}>← Volver</button>
+                <button
+                  type="button"
+                  className="sf-next"
+                  disabled={!form.jobTitle.trim()}
+                  onClick={handleNext}
+                  data-track="setup_step3_continued"
+                >
+                  Continuar →
+                </button>
+              </div>
+            </>
+          )}
+
+          {/* ── Step 4: Descripción del puesto ── */}
+          {step === 4 && (
+            <>
+              <div className="sf-heading">
+                <h1>Descripción<br/>del puesto</h1>
+              </div>
+              <div className="sf-fields">
                 <div className="sf-field">
                   <div className="sf-label-row">
-                    <label>Descripción del puesto</label>
+                    <label>Descripción</label>
                     <button
                       type="button"
                       className="sf-ai-gen"
@@ -323,31 +408,25 @@ export default function SetupForm({ onSubmit, onBack, initialConfig, hideHeader 
                       onChange={(e) => {
                         const val = e.target.value.slice(0, MAX_CHARS)
                         setForm((f) => ({ ...f, jobDescription: val }))
-                        setFieldErrors(f => ({ ...f, jobDescription: '' }))
+                        setFieldErrors(fe => ({ ...fe, jobDescription: '' }))
                       }}
                       placeholder="Pegá la descripción o resumí las responsabilidades principales…"
                       rows={5}
+                      autoFocus
                     />
                     <span className="sf-counter">{form.jobDescription.length}/{MAX_CHARS}</span>
                   </div>
                   {fieldErrors.jobDescription && <span className="err-field">{fieldErrors.jobDescription}</span>}
                 </div>
               </div>
-
               <div className="sf-footer">
-                <button
-                  type="button"
-                  className="sf-autofill"
-                  onClick={() => { setForm(TEST_DATA); setStep(1) }}
-                  data-track="setup_autofill_used"
-                >
-                  <IconSparkle /> Autocompletar con ejemplo
-                </button>
+                <button type="button" className="sf-back" onClick={() => setStep(3)}>← Volver</button>
                 <button
                   type="button"
                   className="sf-next"
-                  onClick={handleStep1Continue}
-                  data-track="setup_step1_continued"
+                  disabled={!form.jobDescription.trim()}
+                  onClick={handleNext}
+                  data-track="setup_step4_continued"
                 >
                   Continuar →
                 </button>
@@ -355,46 +434,44 @@ export default function SetupForm({ onSubmit, onBack, initialConfig, hideHeader 
             </>
           )}
 
-          {/* ── Step 2 ── */}
-          {step === 2 && (
-            <form onSubmit={handleSubmit}>
+          {/* ── Step 5: Tipo + Dificultad ── */}
+          {step === 5 && (
+            <>
               <div className="sf-heading">
-                <h1>¿Cómo querés que<br/>sea la sesión?</h1>
+                <h1>¿Cómo querés<br/>la sesión?</h1>
               </div>
-
               <div className="sf-fields sf-fields--step2">
                 <div className="sf-field">
-                  <label>Tipo de sesión</label>
-                  <div className="sf-cards-row">
+                  <label>Tipo de entrevista</label>
+                  <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                     {INTERVIEW_TYPES.map((t) => (
-                      <RadioCard
+                      <Chip
                         key={t.value}
                         active={form.interviewType === t.value}
                         label={t.label}
                         desc={t.desc}
-                        onClick={() => setForm((f) => ({ ...f, interviewType: t.value }))}
+                        wide
+                        onClick={() => setForm(f => ({ ...f, interviewType: t.value }))}
                       />
                     ))}
                   </div>
                 </div>
-
                 <div className="sf-field">
                   <label>Dificultad</label>
-                  <div className="sf-cards-row">
+                  <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                     {DIFFICULTIES.map((d) => (
-                      <RadioCard
+                      <Chip
                         key={d.value}
                         active={form.difficulty === d.value}
                         label={d.label}
                         desc={d.desc}
-                        icon={d.icon}
-                        onClick={() => setForm((f) => ({ ...f, difficulty: d.value }))}
+                        icon={<DiffIcon bars={d.bars} />}
                         wide
+                        onClick={() => setForm(f => ({ ...f, difficulty: d.value }))}
                       />
                     ))}
                   </div>
                 </div>
-
               </div>
 
               {micBlocked && (
@@ -406,15 +483,31 @@ export default function SetupForm({ onSubmit, onBack, initialConfig, hideHeader 
                   </div>
                 </div>
               )}
+
               <div className="sf-footer">
-                <button type="button" className="sf-back" onClick={() => setStep(1)}>
-                  ← Volver
-                </button>
-                <button type="submit" className="sf-next" data-track="interview_started" disabled={checkingLimit || micBlocked || !sttSupported}>
-                  {checkingLimit ? 'Verificando...' : 'Empezar entrevista →'}
-                </button>
+                <button type="button" className="sf-back" onClick={() => setStep(4)}>← Volver</button>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <button
+                    type="button"
+                    className="sf-autofill"
+                    onClick={() => { setForm(TEST_DATA) }}
+                    data-track="setup_autofill_used"
+                    style={{ fontSize: 12 }}
+                  >
+                    <IconSparkle /> Ejemplo
+                  </button>
+                  <button
+                    type="button"
+                    className="sf-next"
+                    onClick={handleNext}
+                    data-track="interview_started"
+                    disabled={checkingLimit || micBlocked || !sttSupported}
+                  >
+                    {checkingLimit ? 'Verificando...' : 'Empezar →'}
+                  </button>
+                </div>
               </div>
-            </form>
+            </>
           )}
 
         </div>
