@@ -892,6 +892,7 @@ export default function Dashboard({ initialSection = 'home', onNewInterview, onS
           <CustomSituationSetup
             simulation={getSimulationById('custom_situation')}
             initialSituation={customSituationInitial || undefined}
+            hideHeader
             onSubmit={(cfg) => {
               setCustomSituationInitial(null)
               onStartSimulation?.('custom_situation', { ...cfg, simulationTitle: 'Tu Situación' })

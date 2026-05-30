@@ -529,7 +529,7 @@ const EXAMPLES = [
 ]
 
 /* ─── Component ───────────────────────────────────────────────────────────── */
-export default function CustomSituationSetup({ simulation, onSubmit, onBack, initialSituation }) {
+export default function CustomSituationSetup({ simulation, onSubmit, onBack, initialSituation, hideHeader }) {
   const [step, setStep] = useState('input') // 'input' | 'loading' | 'questions' | 'difficulty' | 'gender'
   const [direction, setDirection] = useState('left')
   const [situation, setSituation] = useState(initialSituation || '')
@@ -538,6 +538,7 @@ export default function CustomSituationSetup({ simulation, onSubmit, onBack, ini
   const [otherText, setOtherText] = useState({})
   const [difficulty, setDifficulty] = useState('Intermediate')
   const [gender, setGender] = useState('indistinto')
+  const [qIndex, setQIndex] = useState(0)
   const [error, setError] = useState(null)
   const textareaRef = useRef(null)
 
@@ -571,6 +572,7 @@ export default function CustomSituationSetup({ simulation, onSubmit, onBack, ini
       const data = await res.json()
       if (!data.persona || !Array.isArray(data.questions)) throw new Error('bad_response')
       setGenerated({ ...data, situationTitle: data.situationTitle || situation.trim().slice(0, 50) })
+      setQIndex(0)
       goTo('questions', 'left')
     } catch {
       setError('Hubo un problema generando tu simulación. Intentá de nuevo.')
@@ -628,8 +630,19 @@ export default function CustomSituationSetup({ simulation, onSubmit, onBack, ini
     })
   }
 
-  const progressMap = { input: '15%', loading: '35%', questions: '55%', difficulty: '75%', gender: '92%' }
-  const stepNumMap = { input: '1 / 4', questions: '2 / 4', difficulty: '3 / 4', gender: '4 / 4' }
+  const totalSteps = 3 + (generated?.questions?.length || 0)
+  const stepIndex = step === 'input' ? 1
+    : step === 'loading' ? 2
+    : step === 'questions' ? 2 + qIndex + 1
+    : step === 'difficulty' ? totalSteps - 1
+    : totalSteps
+  const progressPct = `${Math.round((stepIndex / totalSteps) * 100)}%`
+  const stepNumMap = {
+    input: `1 / ${totalSteps}`,
+    questions: `${2 + qIndex} / ${totalSteps}`,
+    difficulty: `${totalSteps - 1} / ${totalSteps}`,
+    gender: `${totalSteps} / ${totalSteps}`,
+  }
 
   const animClass =
     step === 'loading' ? '' : direction === 'left' ? 'cs-step--slide-left' : 'cs-step--slide-right'
@@ -638,15 +651,25 @@ export default function CustomSituationSetup({ simulation, onSubmit, onBack, ini
     <>
       <style>{CSS}</style>
       <div className="cs-page">
-        <header className="cs-header">
-          <div className="cs-logo" onClick={onBack}>
-            <img src="/logo.png" alt="FeelReady" style={{ height: 32, width: 'auto' }} />
+        {!hideHeader && (
+          <header className="cs-header">
+            <div className="cs-logo" onClick={onBack}>
+              <img src="/logo.png" alt="FeelReady" style={{ height: 32, width: 'auto' }} />
+            </div>
+            <div className="cs-progress-wrap">
+              <div className="cs-progress-bar" style={{ width: progressPct }} />
+            </div>
+            <span className="cs-step-label">{stepNumMap[step] || ''}</span>
+          </header>
+        )}
+        {hideHeader && (
+          <div className="cs-header" style={{ paddingTop: 16 }}>
+            <div className="cs-progress-wrap">
+              <div className="cs-progress-bar" style={{ width: progressPct }} />
+            </div>
+            <span className="cs-step-label">{stepNumMap[step] || ''}</span>
           </div>
-          <div className="cs-progress-wrap">
-            <div className="cs-progress-bar" style={{ width: progressMap[step] || '15%' }} />
-          </div>
-          <span className="cs-step-label">{stepNumMap[step] || ''}</span>
-        </header>
+        )}
 
         <main className="cs-main">
           <div className="cs-card">
@@ -727,93 +750,100 @@ export default function CustomSituationSetup({ simulation, onSubmit, onBack, ini
             )}
 
             {/* ── STEP: QUESTIONS ── */}
-            {step === 'questions' && generated && (
-              <div className={`cs-step ${animClass}`} key="questions">
-                <h1 className="cs-heading">Contanos un poco más</h1>
-                <p className="cs-subheading">
-                  Esto nos ayuda a crear un interlocutor que se ajuste a tu situación.
-                </p>
+            {step === 'questions' && generated && (() => {
+              const q = generated.questions[qIndex]
+              const val = qAnswers[q.id]
+              const isMulti = q.type === 'multiselect'
+              const isLast = qIndex === generated.questions.length - 1
+              const currentAnswered = isMulti ? (Array.isArray(val) && val.length > 0) : !!val
 
-                {generated.questions.map((q, qi) => {
-                  const val = qAnswers[q.id]
-                  const isMulti = q.type === 'multiselect'
+              const toggleMulti = (v) => {
+                const arr = Array.isArray(val) ? val : []
+                if (arr.includes(v)) {
+                  setQAnswers((a) => ({ ...a, [q.id]: arr.filter((x) => x !== v) }))
+                } else {
+                  const max = q.max || 99
+                  if (arr.length < max) setQAnswers((a) => ({ ...a, [q.id]: [...arr, v] }))
+                }
+              }
 
-                  const toggleMulti = (v) => {
-                    const arr = Array.isArray(val) ? val : []
-                    if (arr.includes(v)) {
-                      setQAnswers((a) => ({ ...a, [q.id]: arr.filter((x) => x !== v) }))
-                    } else {
-                      const max = q.max || 99
-                      if (arr.length < max) setQAnswers((a) => ({ ...a, [q.id]: [...arr, v] }))
-                    }
-                  }
+              return (
+                <div className={`cs-step ${animClass}`} key={`q-${qIndex}`}>
+                  <h1 className="cs-heading">Contanos un poco más</h1>
+                  <p className="cs-subheading">
+                    Esto nos ayuda a crear un interlocutor que se ajuste a tu situación.
+                  </p>
 
-                  return (
-                    <div
-                      key={q.id}
-                      className="cs-q-wrap"
-                      style={{ animation: `cs-fade-up 0.35s ease ${qi * 0.08}s both` }}
-                    >
-                      <span className="cs-q-label">{q.label}</span>
-                      <div className="cs-options">
-                        {q.options.map((opt) => {
-                          const isActive = isMulti
-                            ? Array.isArray(val) && val.includes(opt.value)
-                            : val === opt.value
-                          return (
-                            <button
-                              key={opt.value}
-                              className={`cs-option ${isActive ? 'cs-option--active' : ''}`}
-                              onClick={() =>
-                                isMulti ? toggleMulti(opt.value) : setQAnswers((a) => ({ ...a, [q.id]: opt.value }))
-                              }
-                            >
-                              {isMulti ? (
-                                <div className="cs-option-check">
-                                  {isActive && (
-                                    <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
-                                      <path d="M2 6l3 3 5-5" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                                    </svg>
-                                  )}
-                                </div>
-                              ) : (
-                                <div className="cs-option-dot">
-                                  {isActive && <div className="cs-option-dot-inner" />}
-                                </div>
-                              )}
-                              {opt.label}
-                            </button>
-                          )
-                        })}
-                      </div>
-
-                      {/* "Otra" text input */}
-                      {(val === 'other' || (Array.isArray(val) && val.includes('other'))) && (
-                        <input
-                          className="cs-other-input"
-                          placeholder="Contanos más..."
-                          value={otherText[q.id] || ''}
-                          onChange={(e) => setOtherText((t) => ({ ...t, [q.id]: e.target.value }))}
-                          maxLength={100}
-                          autoFocus
-                        />
-                      )}
+                  <div className="cs-q-wrap">
+                    <span className="cs-q-label">{q.label}</span>
+                    <div className="cs-options">
+                      {q.options.map((opt) => {
+                        const isActive = isMulti
+                          ? Array.isArray(val) && val.includes(opt.value)
+                          : val === opt.value
+                        return (
+                          <button
+                            key={opt.value}
+                            className={`cs-option ${isActive ? 'cs-option--active' : ''}`}
+                            onClick={() =>
+                              isMulti ? toggleMulti(opt.value) : setQAnswers((a) => ({ ...a, [q.id]: opt.value }))
+                            }
+                          >
+                            {isMulti ? (
+                              <div className="cs-option-check">
+                                {isActive && (
+                                  <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+                                    <path d="M2 6l3 3 5-5" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                                  </svg>
+                                )}
+                              </div>
+                            ) : (
+                              <div className="cs-option-dot">
+                                {isActive && <div className="cs-option-dot-inner" />}
+                              </div>
+                            )}
+                            {opt.label}
+                          </button>
+                        )
+                      })}
                     </div>
-                  )
-                })}
 
-                <div className="cs-footer">
-                  <button className="cs-btn-back" onClick={() => goTo('input', 'right')}>← Volver</button>
-                  <button
-                    className="cs-btn-next"
-                    onClick={() => goTo('difficulty', 'left')}
-                    disabled={!allQuestionsAnswered()}
-                  >
-                    Continuar →
-                  </button>
+                    {(val === 'other' || (Array.isArray(val) && val.includes('other'))) && (
+                      <input
+                        className="cs-other-input"
+                        placeholder="Contanos más..."
+                        value={otherText[q.id] || ''}
+                        onChange={(e) => setOtherText((t) => ({ ...t, [q.id]: e.target.value }))}
+                        maxLength={100}
+                        autoFocus
+                      />
+                    )}
+                  </div>
+
+                  <div className="cs-footer">
+                    <button
+                      className="cs-btn-back"
+                      onClick={() => {
+                        if (qIndex === 0) goTo('input', 'right')
+                        else { setDirection('right'); setQIndex(i => i - 1) }
+                      }}
+                    >
+                      ← Volver
+                    </button>
+                    <button
+                      className="cs-btn-next"
+                      onClick={() => {
+                        if (isLast) goTo('difficulty', 'left')
+                        else { setDirection('left'); setQIndex(i => i + 1) }
+                      }}
+                      disabled={!currentAnswered}
+                    >
+                      Continuar →
+                    </button>
+                  </div>
                 </div>
-              </div>
-            )}
+              )
+            })()}
 
             {/* ── STEP: DIFFICULTY ── */}
             {step === 'difficulty' && (
