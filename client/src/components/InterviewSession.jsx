@@ -625,11 +625,11 @@ function replaceNumbers(text, language) {
   return text.replace(/\b(\d{1,9})\b/g, (_, num) => fn(parseInt(num, 10)))
 }
 
-async function speakElevenLabs(text, language, country, gender, shouldCancel = () => false, onPlay = null, simulationId = null, isSkill = false, voiceTone = null) {
+async function speakElevenLabs(text, language, country, gender, shouldCancel = () => false, onPlay = null, simulationId = null, isSkill = false, voiceTone = null, token = null) {
   const t5 = Date.now()
   const res = await fetch('/api/speak', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
     body: JSON.stringify({ text: replaceNumbers(expandAbbreviations(text), language), language, country, gender, simulationId, isSkill, voiceTone }),
   })
   if (!res.ok) throw new Error('TTS failed')
@@ -1087,6 +1087,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
     userInterruptedRef.current = false
     setIsSpeaking(true)
     isSpeakingRef.current = true
+    const token = await getToken().catch(() => null)
     setStatusText(str.speaking[interviewerGender.current])
 
     if (!noMic) {
@@ -1095,7 +1096,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
     }
 
     try {
-      await speakElevenLabs(text, config.language, config.country, interviewerGender.current, () => sessionEndedRef.current, onPlay, config.simulationId, isSkill, config.voiceTone || null)
+      await speakElevenLabs(text, config.language, config.country, interviewerGender.current, () => sessionEndedRef.current, onPlay, config.simulationId, isSkill, config.voiceTone || null, token)
     } catch {
       showToast('No pudimos generar el audio. Podés leer la pregunta en pantalla.')
     }
@@ -1115,7 +1116,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
     // Small delay so the OS audio hardware can switch from output to input cleanly
     await new Promise(r => setTimeout(r, 200))
     startRecordingRef.current?.()
-  }, [config.language, config.country, str.speaking, str.yourTurn, openMicForBargein, startBargeIn, stopBargeIn])
+  }, [config.language, config.country, str.speaking, str.yourTurn, openMicForBargein, startBargeIn, stopBargeIn, getToken])
 
   // ── Ask Claude (main conversation) ────────────────────────
   const askClaude = useCallback(async (updatedMessages, { isRetry = false } = {}) => {
@@ -1123,6 +1124,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
     isProcessingRef.current = true
     setStatusText(str.thinking[interviewerGender.current])
 
+    const token = await getToken().catch(() => null)
     const ctrl = new AbortController()
     const slowTimer = setTimeout(() => {
       setStatusText('Está tardando más de lo esperado. Reintentando…')
@@ -1134,7 +1136,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
       res = await fetch('/api/chat', {
         signal: ctrl.signal,
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify({
           system: isSkill
             ? config.systemPrompt
@@ -1165,7 +1167,7 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
     isProcessingRef.current = false
     setClaudeRetryFn(null)
     return data.text
-  }, [config])
+  }, [config, getToken])
 
   // ── Process candidate turn → get reply → play → maybe auto-end
   const processTurn = useCallback(async (candidateText, currentMessages) => {
@@ -1246,11 +1248,12 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
     }
     async function startInterview() {
       try {
+        const startToken = await getToken().catch(() => null)
         // Warm up ElevenLabs AND the browser's MP3 decoder: decode and play silently,
         // then wait for it to finish before fetching the real TTS
         const warmupPromise = fetch('/api/speak', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...(startToken ? { Authorization: `Bearer ${startToken}` } : {}) },
           body: JSON.stringify({ text: '.', language: config.language, country: config.country, gender: interviewerGender.current }),
         }).then(async (res) => {
           if (!res.ok) return
@@ -1359,7 +1362,8 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
           formData.append('language', config.language || 'Spanish')
           const controller = new AbortController()
           const whisperTimeout = setTimeout(() => controller.abort(), 15000)
-          const resp = await fetch('/api/transcribe', { method: 'POST', body: formData, signal: controller.signal })
+          const transcribeToken = await getToken().catch(() => null)
+          const resp = await fetch('/api/transcribe', { method: 'POST', headers: transcribeToken ? { Authorization: `Bearer ${transcribeToken}` } : {}, body: formData, signal: controller.signal })
           clearTimeout(whisperTimeout)
           if (resp.ok) text = (await resp.json()).text?.trim() || ''
         } catch (err) {
@@ -1452,10 +1456,11 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
         if (!partial) return
 
         try {
+          const interruptToken = await getToken().catch(() => null)
           // Separate minimal call — uses its own system + messages, never touches main history
           const res = await fetch('/api/chat', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', ...(interruptToken ? { Authorization: `Bearer ${interruptToken}` } : {}) },
             body: JSON.stringify({
               system: INTERRUPT_SYSTEM(config.language),
               messages: [{ role: 'user', content: `The candidate is currently saying: "${partial}"` }],
@@ -1635,10 +1640,11 @@ export default function InterviewSession({ config, onEnd, onDashboard, onSkillCo
         ? buildSimulationScoringPrompt(simulation, transcript, config)
         : buildScoringPrompt(config, transcript)
 
+      const scoringToken = await getToken().catch(() => null)
       const [res, previousScore] = await Promise.all([
         fetch('/api/chat', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...(scoringToken ? { Authorization: `Bearer ${scoringToken}` } : {}) },
           body: JSON.stringify({
             max_tokens: 2500,
             system: scoringSystem,
